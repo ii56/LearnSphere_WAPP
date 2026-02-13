@@ -48,8 +48,6 @@ namespace LearnSphere_WAPP
                     using (SqlConnection con = new SqlConnection(connStr))
                     {
                         con.Open();
-
-                        // HASH PASSWORD (Lab 10)
                         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(pwd.Text);
 
                         string query = @"INSERT INTO [User]
@@ -68,12 +66,12 @@ namespace LearnSphere_WAPP
                         cmd.Parameters.AddWithValue("@gender", gender.SelectedValue);
                         cmd.Parameters.AddWithValue("@creationtime", DateTime.Now);
                         cmd.Parameters.AddWithValue("@usertype", usertype.SelectedValue);
-                        cmd.Parameters.AddWithValue("@status", 1); // Active
+                        cmd.Parameters.AddWithValue("@status", 1);
 
                         cmd.ExecuteNonQuery();
 
-                        errMsg.ForeColor = System.Drawing.Color.Green;
-                        errMsg.Text = "Registration successful!";
+                        Session["RegistrationSuccess"] = "Registration successful! Please login";
+                        Response.Redirect("Login.aspx");
                     }
                 }
                 catch (Exception ex)

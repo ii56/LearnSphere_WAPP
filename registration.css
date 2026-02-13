@@ -1,23 +1,24 @@
 ﻿body {
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: #f4f6f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1f3c88, #39a2db);
     margin: 0;
     padding: 0;
 }
 
 .registration-container {
-    width: 420px;
-    margin: 60px auto;
-    padding: 30px;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    width: 400px;
+    margin: 80px auto;
+    padding: 35px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .registration-container h2 {
     text-align: center;
     margin-bottom: 25px;
-    color: #2c3e50;
+    color: #1f3c88;
 }
 
 .form-group {
@@ -26,47 +27,64 @@
 
 .form-group label {
     display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #34495e;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
 }
 
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid #dcdcdc;
+    border-radius: 6px;
+    transition: 0.3s ease;
+    font-size: 14px;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-    border-color: #3498db;
+    border-color: #1f3c88;
+    box-shadow: 0 0 5px rgba(31, 60, 136, 0.3);
     outline: none;
 }
 
 .btn-register {
     width: 100%;
-    padding: 10px;
-    background-color: #3498db;
-    color: white;
+    padding: 12px;
+    background-color: #1f3c88;
+    color: #ffffff;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 600;
+    transition: 0.3s ease;
 }
 
 .btn-register:hover {
-    background-color: #2980b9;
+    background-color: #163172;
+    transform: translateY(-2px);
 }
 
 .error-message {
-    color: red;
+    color: #d93025;
     font-size: 13px;
 }
 
 .success-message {
-    color: green;
-    font-weight: bold;
+    color: #2e7d32;
+    font-weight: 600;
     text-align: center;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
