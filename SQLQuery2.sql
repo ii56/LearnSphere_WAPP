@@ -1,0 +1,2 @@
+﻿ALTER TABLE [dbo].[User]
+ADD ProfileImage NVARCHAR(255) NULL;

@@ -1,0 +1,270 @@
+﻿body {
+margin: 0;
+font-family: 'Segoe UI', sans-serif;
+background-color: #f8fafc;
+color: #1f2937;
+}
+
+.layout {
+display: flex;
+min-height: 100vh;
+}
+
+.main-content {
+flex: 1;
+padding: 60px 80px;
+display: flex;
+justify-content: center;
+}
+
+.form-container {
+background: white;
+padding: 45px 50px;
+border-radius: 18px;
+box-shadow: 0 20px 45px rgba(0,0,0,0.07);
+width: 100%;
+max-width: 700px;
+transition: 0.3s;
+}
+
+.form-container h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+.form-group {
+margin-bottom: 22px;
+display: flex;
+flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.form-input {
+width: 100%;
+padding: 12px;
+border-radius: 8px;
+border: 1px solid #d1d5db;
+font-size: 14px;
+transition: 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+textarea.form-input {
+resize: vertical;
+min-height: 120px;
+}
+
+/* File upload styling */
+input[type="file"] {
+margin-top: 8px;
+padding: 8px;
+border-radius: 8px;
+border: 1px solid #d1d5db;
+background-color: #f9fafb;
+cursor: pointer;
+}
+
+/* Buttons */
+.form-actions {
+margin-top: 25px;
+display: flex;
+gap: 15px;
+}
+
+.form-group {
+margin-bottom: 25px;
+}
+
+.btn-primary {
+background: linear-gradient(135deg, #2563eb, #1e40af);
+color: white;
+padding: 12px 26px;
+border-radius: 10px;
+border: none;
+cursor: pointer;
+font-weight: 600;
+transition: 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37,99,235,0.35);
+}
+
+.btn-secondary {
+background: #f1f5f9;
+color: #1f2937;
+padding: 12px 26px;
+border-radius: 10px;
+border: none;
+cursor: pointer;
+font-weight: 500;
+transition: 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+
+.error-message {
+margin-top: 15px;
+color: #dc2626;
+font-size: 14px;
+font-weight: 500;
+}
+
+@media (max-width: 1000px) {
+.main-content {
+    padding: 40px 30px;
+}
+
+.form-container {
+    padding: 30px;
+}
+}
+
+.profile-img-wrapper {
+position: relative;
+}
+
+.verification-badge {
+position: absolute;
+bottom: -3px;
+right: -3px;
+background: #38bdf8;
+color: white;
+font-size: 11px;
+font-weight: bold;
+width: 18px;
+height: 18px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+border: 2px solid #1e293b;
+}
+
+.profile-box.verified:hover {
+box-shadow: 0 0 15px rgba(56,189,248,0.6);
+}
+
+.message-link {
+position: relative;
+}
+
+.message-badge {
+background: #ef4444;
+color: white;
+font-size: 11px;
+font-weight: 600;
+padding: 2px 6px;
+border-radius: 12px;
+margin-left: 8px;
+}
+
+.sidebar {
+width: 250px;
+background: #1e293b;
+padding: 30px 20px;
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+}
+
+.sidebar-title {
+color: white;
+font-size: 20px;
+font-weight: 600;
+margin-bottom: 40px;
+}
+
+.nav-item {
+text-decoration: none;
+color: #cbd5e1;
+padding: 12px 14px;
+border-radius: 8px;
+margin-bottom: 10px;
+transition: 0.2s;
+display: block;
+}
+
+.nav-item:hover {
+    background: #334155;
+    color: white;
+}
+
+.nav-item.active {
+    background: #2563eb;
+    color: white;
+}
+
+.sidebar-profile {
+margin-top: 20px;
+}
+
+.profile-box {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 12px;
+border-radius: 10px;
+margin-bottom: 15px;
+background: rgba(255,255,255,0.05);
+border: 2px solid transparent;
+}
+
+.profile-box.verified {
+    border-color: #38bdf8;
+}
+
+.profile-box.not-verified {
+    border-color: #ef4444;
+}
+
+.profile-img {
+width: 45px;
+height: 45px;
+border-radius: 50%;
+object-fit: cover;
+background: #e5e7eb;
+}
+
+.profile-info {
+color: white;
+}
+
+.profile-name {
+font-weight: 600;
+font-size: 14px;
+}
+
+.profile-status {
+font-size: 12px;
+opacity: 0.8;
+}
+
+.logout-btn {
+width: 100%;
+background: #dc2626;
+color: white;
+border: none;
+padding: 12px;
+border-radius: 8px;
+cursor: pointer;
+text-align: left;
+}
+
+.logout-btn:hover {
+    background: #b91c1c;
+}

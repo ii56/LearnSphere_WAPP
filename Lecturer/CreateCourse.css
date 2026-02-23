@@ -1,0 +1,429 @@
+﻿body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f8fafc;
+    color: #1f2937;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    padding: 50px;
+}
+
+.sidebar {
+    width: 250px;
+    background: #1e293b;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sidebar-title {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 40px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #cbd5e1;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: 0.2s;
+    display: block;
+}
+
+    .nav-item:hover {
+        background: #334155;
+        color: white;
+    }
+
+    .nav-item.active {
+        background: #2563eb;
+        color: white;
+    }
+
+.sidebar-profile {
+    margin-top: 20px;
+}
+
+.profile-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid transparent;
+}
+
+    .profile-box.verified {
+        border-color: #38bdf8;
+    }
+
+    .profile-box.not-verified {
+        border-color: #ef4444;
+    }
+
+    .profile-box.verified:hover {
+        box-shadow: 0 0 15px rgba(56,189,248,0.6);
+    }
+
+.profile-img-wrapper {
+    position: relative;
+}
+
+.profile-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e5e7eb;
+}
+
+.verification-badge {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    background: #38bdf8;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #1e293b;
+}
+
+.profile-info {
+    color: white;
+}
+
+.profile-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.profile-status {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.message-link {
+    position: relative;
+}
+
+.message-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 12px;
+    margin-left: 8px;
+}
+
+.logout-btn {
+    width: 100%;
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+}
+
+    .logout-btn:hover {
+        background: #b91c1c;
+    }
+
+.course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+    .course-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+    }
+
+.draft-label {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    background: #f3f4f6;
+    padding: 25px 40px;
+    border-radius: 16px;
+    margin-bottom: 40px;
+}
+
+.step {
+    text-align: center;
+    flex: 1;
+}
+
+.circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin: 0 auto 10px auto;
+    transition: 0.3s;
+}
+
+.step.active .circle {
+    background: #2563eb;
+    color: white;
+}
+
+.step span {
+    font-size: 14px;
+    color: #374151;
+}
+
+.step.active span {
+    font-weight: 600;
+}
+
+.form-card-modern {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    max-width: 900px;
+}
+
+.sub-text {
+    color: #6b7280;
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    margin-top: 18px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.modern-input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+    .modern-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+
+.courses-section {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    margin-top: 40px;
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .modern-table th {
+        background: #f1f5f9;
+        padding: 14px;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .modern-table td {
+        padding: 14px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+.btn-modern {
+    background: #2563eb;
+    color: white;
+    padding: 12px 22px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 25px;
+    transition: 0.2s;
+}
+
+    .btn-modern:hover {
+        background: #1e40af;
+    }
+
+.btn-modern-small {
+    background: #2563eb;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+    .btn-modern-small:hover {
+        background: #1e40af;
+    }
+
+@media (max-width: 900px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+}
+
+.btn-modern-secondary {
+    background: #e5e7eb;
+    color: #1f2937;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: 0.2s;
+}
+
+    .btn-modern-secondary:hover {
+        background: #d1d5db;
+    }
+
+.review-card {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    margin-top: 40px;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.review-status {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.review-course-info {
+    margin-bottom: 25px;
+}
+
+.review-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.review-description {
+    color: #4b5563;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.review-price {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2563eb;
+}
+
+.review-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 30px 0;
+}
+
+.review-section-title {
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.module-card {
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border-left: 4px solid #2563eb;
+}
+
+.module-title {
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.lesson-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lesson-item {
+    display: flex;
+    justify-content: space-between;
+    background: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid #f1f5f9;
+}
+
+.lesson-duration {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.review-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+}

@@ -1,0 +1,100 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ViewCourses.aspx.cs" Inherits="LearnSphere_WAPP.Lecturer.ViewCourses" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Manage Courses</title>
+    <link href="ViewCourses.css" rel="stylesheet" />
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="layout">
+
+            <div class="sidebar">
+
+                <div>
+                    <div class="sidebar-title">LearnSphere</div>
+
+                    <a href="LecturerDashboard.aspx" class="nav-item">Dashboard</a>
+                    <a href="CreateCourse.aspx" class="nav-item">Create Course</a>
+                    <a href="ViewCourses.aspx" class="nav-item active">View Courses</a>
+                    <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
+                    <a href="../Chatbot/Chatbot.aspx" class="nav-item">Chatbot</a>
+                    <a href="Forums.aspx" class="nav-item">Forums</a>
+                </div>
+
+                <div class="sidebar-profile">
+
+                    <div class="profile-box <%= (Session["verified"] != null && (bool)Session["verified"]) ? "verified" : "not-verified" %>">
+
+                        <div class="profile-img-wrapper">
+                            <img id="imgSidebarProfile" runat="server" class="profile-img" />
+                            <% if (Session["verified"] != null && (bool)Session["verified"]) { %>
+                                <div class="verification-badge">✔</div>
+                            <% } %>
+                        </div>
+
+                        <div class="profile-info">
+                            <div class="profile-name"><%= Session["uname"] %></div>
+                            <div class="profile-status">
+                                <%= (Session["verified"] != null && (bool)Session["verified"]) ? "Verified Lecturer" : "Not Verified" %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="Message.aspx" class="nav-item message-link">
+                        Messaging
+                        <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
+                            <span class="message-badge"><%= Session["unreadCount"] %></span>
+                        <% } %>
+                    </a>
+
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
+                </div>
+
+            </div>
+
+            <div class="main-content">
+
+                <div class="page-header">
+                    <h2>Your Courses</h2>
+                    <a href="CreateCourse.aspx" class="btn-create">+ Create New Course</a>
+                </div>
+
+                <div class="courses-card">
+
+                    <asp:GridView ID="gvCourses" runat="server" AutoGenerateColumns="False" CssClass="courses-table" DataKeyNames="courseid" OnRowCommand="gvCourses_RowCommand">
+
+                        <Columns>
+
+                            <asp:BoundField DataField="coursename" HeaderText="Course Name" />
+                            <asp:BoundField DataField="category" HeaderText="Category" />
+                            <asp:BoundField DataField="price" HeaderText="Price" />
+
+                            <asp:TemplateField HeaderText="Status">
+                                <ItemTemplate>
+                                    <span class='<%# Eval("statusText").ToString() == "Published" ? "badge-published" : "badge-draft" %>'>
+                                        <%# Eval("statusText") %>
+                                    </span>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+
+                            <asp:TemplateField HeaderText="Actions">
+                                <ItemTemplate>
+
+                                    <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-edit" CommandName="EditCourse" CommandArgument="<%# Container.DataItemIndex %>" />
+
+                                    <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-delete" CommandName="DeleteCourse" CommandArgument="<%# Container.DataItemIndex %>" OnClientClick="return confirm('Delete this course?');"/>
+
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                        </Columns>
+                    </asp:GridView>
+                    <asp:Label ID="lblMessage" runat="server" />
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+</html>

@@ -77,7 +77,7 @@ namespace LearnSphere_WAPP
                     break;
 
                 case "Lecturer":
-                    Response.Redirect("LecturerDashboard.aspx");
+                    Response.Redirect("~/Lecturer/LecturerDashboard.aspx");
                     break;
 
                 case "Student":
