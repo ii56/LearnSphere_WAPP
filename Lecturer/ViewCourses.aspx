@@ -83,9 +83,24 @@
                             <asp:TemplateField HeaderText="Actions">
                                 <ItemTemplate>
 
-                                    <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-edit" CommandName="EditCourse" CommandArgument="<%# Container.DataItemIndex %>" />
+                                    <asp:Button ID="btnEdit" runat="server"
+                                        Text="Edit"
+                                        CssClass="btn-edit"
+                                        CommandName="EditCourse"
+                                        CommandArgument="<%# Container.DataItemIndex %>" />
 
-                                    <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-delete" CommandName="DeleteCourse" CommandArgument="<%# Container.DataItemIndex %>" OnClientClick="return confirm('Delete this course?');"/>
+                                    <asp:Button ID="btnDelete" runat="server"
+                                        Text="Delete"
+                                        CssClass="btn-delete"
+                                        CommandName="DeleteCourse"
+                                        CommandArgument="<%# Container.DataItemIndex %>"
+                                        OnClientClick="return confirm('Delete this course?');" />
+
+                                    <asp:Button ID="btnViewStudents" runat="server"
+                                        Text="Students"
+                                        CssClass="btn-students"
+                                        CommandName="ViewStudents"
+                                        CommandArgument="<%# Container.DataItemIndex %>" />
 
                                 </ItemTemplate>
                             </asp:TemplateField>

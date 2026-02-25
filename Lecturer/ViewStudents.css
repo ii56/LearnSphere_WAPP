@@ -1,0 +1,30 @@
+﻿body {
+    font-family: Arial;
+    background: #f5f7fa;
+}
+
+.container {
+    width: 80%;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .students-table th, .students-table td {
+        padding: 12px;
+        border: 1px solid #ddd;
+    }
+
+.btn-back {
+    padding: 8px 16px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
