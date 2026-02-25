@@ -117,6 +117,11 @@ namespace LearnSphere_WAPP.Lecturer
                     SoftDeleteCourse(courseId);
                     LoadCourses();
                 }
+
+                if (e.CommandName == "ViewStudents")
+                {
+                    Response.Redirect("ViewStudents.aspx?courseId=" + courseId);
+                }
             }
         }
 

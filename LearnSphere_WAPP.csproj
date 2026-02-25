@@ -171,6 +171,8 @@
     <Content Include="Lecturer\ViewCourses.aspx" />
     <Content Include="Lecturer\ViewCourses.css" />
     <Content Include="Lecturer\ViewForum.aspx" />
+    <Content Include="Lecturer\ViewStudents.aspx" />
+    <Content Include="Lecturer\ViewStudents.css" />
     <Content Include="Login.aspx" />
     <Content Include="Registration.aspx" />
     <Content Include="registration.css" />
@@ -402,6 +404,13 @@
     </Compile>
     <Compile Include="Lecturer\ViewForum.aspx.designer.cs">
       <DependentUpon>ViewForum.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Lecturer\ViewStudents.aspx.cs">
+      <DependentUpon>ViewStudents.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Lecturer\ViewStudents.aspx.designer.cs">
+      <DependentUpon>ViewStudents.aspx</DependentUpon>
     </Compile>
     <Compile Include="Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>
