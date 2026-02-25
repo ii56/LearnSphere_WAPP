@@ -453,6 +453,7 @@
     <Folder Include="Forum_materials\questions\files\" />
     <Folder Include="Forum_materials\questions\images\" />
     <Folder Include="Profile_pictures\" />
+    <Folder Include="PublicUser\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
