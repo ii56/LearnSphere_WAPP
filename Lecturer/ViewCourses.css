@@ -262,3 +262,31 @@
     border-radius: 12px;
     margin-left: 8px;
 }
+
+.btn-preview {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+    .btn-preview:hover {
+        background-color: #15803d;
+    }
+
+.btn-student {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+    .btn-student:hover {
+        background-color: #15803d;
+    }

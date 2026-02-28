@@ -26,8 +26,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
 
             int.TryParse(Request.QueryString["moduleid"], out moduleId);
-
-            int.TryParse(Request.QueryString["moduleid"], out moduleId);
+            int.TryParse(Request.QueryString["courseid"], out courseId);
 
             if (!IsPostBack)
             {
@@ -119,10 +118,21 @@ namespace LearnSphere_WAPP.Lecturer
                 else
                 {
                     string query = @"
-                        INSERT INTO Module
-                        (courseid, modulename, moduledescription, ordernumber, creationtime)
-                        VALUES
-                        (@courseid, @name, @desc, @order, GETDATE())";
+                                INSERT INTO Module
+                                (courseid, modulename, moduledescription, ordernumber, creationtime)
+                                VALUES
+                                (
+                                    @courseid,
+                                    @name,
+                                    @desc,
+                                    (
+                                        SELECT ISNULL(MAX(ordernumber),0) + 1
+                                        FROM Module
+                                        WHERE courseid = @courseid
+                                        AND deletiontime IS NULL
+                                    ),
+                                    GETDATE()
+                                )";
 
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.AddWithValue("@courseid", courseId);

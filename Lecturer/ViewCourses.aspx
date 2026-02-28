@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Manage Courses</title>
-    <link href="ViewCourses.css" rel="stylesheet" />
+    <link href="courses.css" rel="stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">
@@ -20,7 +20,6 @@
                     <a href="CreateCourse.aspx" class="nav-item">Create Course</a>
                     <a href="ViewCourses.aspx" class="nav-item active">View Courses</a>
                     <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
-                    <a href="../Chatbot/Chatbot.aspx" class="nav-item">Chatbot</a>
                     <a href="Forums.aspx" class="nav-item">Forums</a>
                 </div>
 
@@ -83,24 +82,10 @@
                             <asp:TemplateField HeaderText="Actions">
                                 <ItemTemplate>
 
-                                    <asp:Button ID="btnEdit" runat="server"
-                                        Text="Edit"
-                                        CssClass="btn-edit"
-                                        CommandName="EditCourse"
-                                        CommandArgument="<%# Container.DataItemIndex %>" />
-
-                                    <asp:Button ID="btnDelete" runat="server"
-                                        Text="Delete"
-                                        CssClass="btn-delete"
-                                        CommandName="DeleteCourse"
-                                        CommandArgument="<%# Container.DataItemIndex %>"
-                                        OnClientClick="return confirm('Delete this course?');" />
-
-                                    <asp:Button ID="btnViewStudents" runat="server"
-                                        Text="Students"
-                                        CssClass="btn-students"
-                                        CommandName="ViewStudents"
-                                        CommandArgument="<%# Container.DataItemIndex %>" />
+                                    <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-edit" CommandName="EditCourse" CommandArgument="<%# Container.DataItemIndex %>" />
+                                    <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-delete" CommandName="DeleteCourse" CommandArgument="<%# Container.DataItemIndex %>" OnClientClick="return confirm('Delete this course?');" />
+                                    <asp:Button ID="btnViewStudents" runat="server" Text="Students" CssClass="btn-students"  CommandName="ViewStudents" CommandArgument="<%# Container.DataItemIndex %>" />              
+                                    <asp:Button ID="btnPreview" runat="server" Text="Preview" CssClass="btn-preview" CommandName="PreviewCourse" CommandArgument="<%# Container.DataItemIndex %>" Visible='<%# Eval("statusText").ToString() == "Published" %>' />
 
                                 </ItemTemplate>
                             </asp:TemplateField>
@@ -110,6 +95,10 @@
                 </div>
             </div>
         </div>
+        
+    <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
+<script src="https://files.bpcontent.cloud/2026/02/25/04/20260225040020-WUKR78B4.js" defer></script>
+    
     </form>
 </body>
 </html>

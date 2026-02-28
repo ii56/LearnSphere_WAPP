@@ -95,33 +95,35 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void gvCourses_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            if (e.CommandName == "EditCourse" || e.CommandName == "DeleteCourse")
+            if (!int.TryParse(e.CommandArgument.ToString(), out int index))
+                return;
+
+            int courseId = Convert.ToInt32(gvCourses.DataKeys[index].Value);
+
+            if (e.CommandName == "EditCourse")
             {
-                int index = Convert.ToInt32(e.CommandArgument);
-                int courseId = Convert.ToInt32(gvCourses.DataKeys[index].Value);
+                string status = gvCourses.Rows[index].Cells[3].Text;
 
-                if (e.CommandName == "EditCourse")
+                if (status == "Published")
                 {
-                    string status = gvCourses.Rows[index].Cells[3].Text;
-
-                    if (status == "Published")
-                    {
-                        lblMessage.Text = "Published courses cannot be edited.";
-                        return;
-                    }
-                    Response.Redirect("editCourse.aspx?courseid=" + courseId);
+                    lblMessage.Text = "Published courses cannot be edited.";
+                    return;
                 }
 
-                if (e.CommandName == "DeleteCourse")
-                {
-                    SoftDeleteCourse(courseId);
-                    LoadCourses();
-                }
-
-                if (e.CommandName == "ViewStudents")
-                {
-                    Response.Redirect("ViewStudents.aspx?courseId=" + courseId);
-                }
+                Response.Redirect("EditCourse.aspx?courseid=" + courseId);
+            }
+            else if (e.CommandName == "DeleteCourse")
+            {
+                SoftDeleteCourse(courseId);
+                LoadCourses();
+            }
+            else if (e.CommandName == "ViewStudents")
+            {
+                Response.Redirect("ViewStudents.aspx?courseId=" + courseId);
+            }
+            else if (e.CommandName == "PreviewCourse")
+            {
+                Response.Redirect("Preview.aspx?courseid=" + courseId);
             }
         }
 

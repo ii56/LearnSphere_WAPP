@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Edit Course Content</title>
-    <link href="editCourse.css" rel="stylesheet" />
+    <link href="courses.css" rel="stylesheet" />
 </head>
 <body>
 <form id="form1" runat="server">
@@ -18,7 +18,6 @@
             <a href="CreateCourse.aspx" class="nav-item">Create Course</a>
             <a href="ViewCourses.aspx" class="nav-item active">View Courses</a>
             <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
-            <a href="../Chatbot/Chatbot.aspx" class="nav-item">Chatbot</a>
             <a href="Forums.aspx" class="nav-item">Forums</a>
         </div>
 

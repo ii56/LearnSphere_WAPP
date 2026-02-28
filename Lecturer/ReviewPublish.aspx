@@ -17,7 +17,6 @@
                     <a href="CreateCourse.aspx" class="nav-item active">Create Course</a>
                     <a href="ViewCourses.aspx" class="nav-item">View Courses</a>
                     <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
-                    <a href="Chatbot.aspx" class="nav-item">Chatbot</a>
                     <a href="Forums.aspx" class="nav-item">Forums</a>
                 </div>
 

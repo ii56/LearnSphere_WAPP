@@ -47,6 +47,12 @@
     <Reference Include="BCrypt.Net-Next, Version=4.0.3.0, Culture=neutral, PublicKeyToken=1e11be04b6288443, processorArchitecture=MSIL">
       <HintPath>packages\BCrypt.Net-Next.4.0.3\lib\net472\BCrypt.Net-Next.dll</HintPath>
     </Reference>
+    <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
+      <HintPath>packages\BouncyCastle.Cryptography.2.6.2\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.5, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>packages\iTextSharp.5.5.13.5\lib\net461\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
@@ -144,9 +150,11 @@
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="LEARNSPHERE.png" />
     <Content Include="Lecturer\AddLessons.aspx" />
     <Content Include="Lecturer\AddModules.aspx" />
     <Content Include="Lecturer\answer.aspx" />
+    <Content Include="Lecturer\courses.css" />
     <Content Include="Lecturer\CreateCourse.aspx" />
     <Content Include="Lecturer\CreateCourse.css" />
     <Content Include="Lecturer\CreateForum.aspx" />
@@ -165,6 +173,8 @@
     <Content Include="Lecturer\Message.aspx" />
     <Content Include="Lecturer\Message.css" />
     <Content Include="Lecturer\MyCourses.aspx" />
+    <Content Include="Lecturer\Preview.aspx" />
+    <Content Include="Lecturer\Preview.css" />
     <Content Include="Lecturer\question.aspx" />
     <Content Include="Lecturer\question.css" />
     <Content Include="Lecturer\ReviewPublish.aspx" />
@@ -376,6 +386,13 @@
     </Compile>
     <Compile Include="Lecturer\MyCourses.aspx.designer.cs">
       <DependentUpon>MyCourses.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Lecturer\Preview.aspx.cs">
+      <DependentUpon>Preview.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Lecturer\Preview.aspx.designer.cs">
+      <DependentUpon>Preview.aspx</DependentUpon>
     </Compile>
     <Compile Include="Lecturer\question.aspx.cs">
       <DependentUpon>question.aspx</DependentUpon>

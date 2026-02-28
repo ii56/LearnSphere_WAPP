@@ -16,7 +16,6 @@
                 <a href="CreateCourse.aspx" class="nav-item">Create Course</a>
                 <a href="ViewCourses.aspx" class="nav-item">View Courses</a>
                 <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
-                <a href="../Chatbot/Chatbot.aspx" class="nav-item">Chatbot</a>
                 <a href="Forums.aspx" class="nav-item">Forums</a>
             </div>
 
@@ -154,6 +153,10 @@
         </div>
 
     </div>
+    
+    <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
+<script src="https://files.bpcontent.cloud/2026/02/25/04/20260225040020-WUKR78B4.js" defer></script>
+    
 </form>
 </body>
 </html>
