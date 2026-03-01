@@ -35,7 +35,6 @@ namespace LearnSphere_WAPP
                 {
                     con.Open();
 
-                    // Only check username and active status
                     string query = @"SELECT userid, uname, pwd, usertype 
                              FROM [User] 
                              WHERE uname = @uname AND status = 1";
@@ -51,12 +50,10 @@ namespace LearnSphere_WAPP
 
                         if (BCrypt.Net.BCrypt.Verify(pwd.Text, storedHash))
                         {
-                            // Store session values
                             Session["userid"] = reader["userid"];
                             Session["uname"] = reader["uname"];
                             Session["usertype"] = reader["usertype"];
 
-                            // Redirect using role from database
                             RedirectUser(reader["usertype"].ToString());
                         }
                         else
