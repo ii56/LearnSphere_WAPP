@@ -30,7 +30,40 @@ namespace LearnSphere_WAPP.Lecturer
             if (!IsPostBack)
             {
                 LoadCourseInfo();
+                LoadSidebarProfileImage();
                 LoadModules();
+            }
+        }
+
+        private void LoadSidebarProfileImage()
+        {
+            if (Session["userid"] == null)
+                return;
+
+            int userId = Convert.ToInt32(Session["userid"]);
+
+            using (SqlConnection con = new SqlConnection(
+                ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString))
+            {
+                string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", userId);
+
+                con.Open();
+
+                object result = cmd.ExecuteScalar();
+
+                if (result != null && result != DBNull.Value)
+                {
+                    string imagePath = result.ToString();
+                    Session["profileImage"] = imagePath;
+                    imgSidebarProfile.Src = ResolveUrl(imagePath);
+                }
+                else
+                {
+                    imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
+                }
             }
         }
 

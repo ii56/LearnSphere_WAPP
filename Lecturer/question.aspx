@@ -22,11 +22,11 @@
                 </div>
 
                 <div class="sidebar-profile">
-                    <div class="profile-box <%= (Session["verified"] != null && (bool)Session["verified"]) ? "verified" : "not-verified" %>">
+                    <div class="profile-box <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") ? "verified" : "not-verified" %>">
                         <div class="profile-img-wrapper">
                             <img id="imgSidebarProfile" runat="server" class="profile-img" />
 
-                            <% if (Session["verified"] != null && (bool)Session["verified"]) { %>
+                            <% if (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") { %>
                                 <div class="verification-badge">✔</div>
                             <% } %>
                         </div>
@@ -34,7 +34,9 @@
                         <div class="profile-info">
                             <div class="profile-name"><%= Session["uname"] %></div>
                             <div class="profile-status">
-                                <%= (Session["verified"] != null && (bool)Session["verified"]) ? "Verified Lecturer" : "Not Verified" %>
+                                <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") 
+                                    ? "Verified Lecturer" 
+                                    : "General User" %>
                             </div>
                         </div>
                     </div>

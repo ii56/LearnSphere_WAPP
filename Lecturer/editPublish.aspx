@@ -19,14 +19,12 @@
                     <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
                     <a href="Forums.aspx" class="nav-item">Forums</a>
                 </div>
-
                 <div class="sidebar-profile">
-
-                    <div class="profile-box <%= (Session["verified"] != null && (bool)Session["verified"]) ? "verified" : "not-verified" %>">
-
+                    <div class="profile-box <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") ? "verified" : "not-verified" %>">
                         <div class="profile-img-wrapper">
                             <img id="imgSidebarProfile" runat="server" class="profile-img" />
-                            <% if (Session["verified"] != null && (bool)Session["verified"]) { %>
+
+                            <% if (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") { %>
                                 <div class="verification-badge">✔</div>
                             <% } %>
                         </div>
@@ -34,19 +32,21 @@
                         <div class="profile-info">
                             <div class="profile-name"><%= Session["uname"] %></div>
                             <div class="profile-status">
-                                <%= (Session["verified"] != null && (bool)Session["verified"]) ? "Verified Lecturer" : "Not Verified" %>
+                                <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") 
+                                    ? "Verified Lecturer" 
+                                    : "General User" %>
                             </div>
                         </div>
                     </div>
 
                     <a href="Message.aspx" class="nav-item message-link">
                         Messaging
+                        <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
+                            <span class="message-badge"><%= Session["unreadCount"] %></span>
+                        <% } %>
                     </a>
 
-                    <asp:Button ID="btnLogout" runat="server"
-                        Text="Logout"
-                        CssClass="logout-btn"
-                        OnClick="btnLogout_Click" />
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
                 </div>
             </div>
 

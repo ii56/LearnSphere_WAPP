@@ -151,6 +151,7 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="LEARNSPHERE.png" />
+    <Content Include="LEARNSPHERE_sign.png" />
     <Content Include="Lecturer\AddLessons.aspx" />
     <Content Include="Lecturer\AddModules.aspx" />
     <Content Include="Lecturer\answer.aspx" />
@@ -168,6 +169,7 @@
     <Content Include="Lecturer\ForumDetail.aspx" />
     <Content Include="Lecturer\Forums.aspx" />
     <Content Include="Lecturer\Forums.css" />
+    <Content Include="Lecturer\LEARNSPHERE_sign.png" />
     <Content Include="Lecturer\LecturerDashboard.aspx" />
     <Content Include="Lecturer\LecturerDashboard.css" />
     <Content Include="Lecturer\Message.aspx" />

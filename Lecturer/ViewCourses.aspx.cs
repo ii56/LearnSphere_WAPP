@@ -18,6 +18,7 @@ namespace LearnSphere_WAPP.Lecturer
             if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
             {
                 Response.Redirect("~/Login.aspx");
+                return;
             }
 
             if (!IsPostBack)

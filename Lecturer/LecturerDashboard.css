@@ -323,3 +323,18 @@
     margin-left: 8px;
 }
 
+.profile-box.not-verified:hover {
+    box-shadow: 0 0 15px rgba(239,68,68,0.6);
+}
+
+.profile-box.verified .profile-status {
+    color: #38bdf8;
+    opacity: 1;
+    font-weight: 500;
+}
+
+.profile-box.not-verified .profile-status {
+    color: #ef4444;
+    opacity: 1;
+    font-weight: 500;
+}

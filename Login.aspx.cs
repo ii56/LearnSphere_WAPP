@@ -35,11 +35,13 @@ namespace LearnSphere_WAPP
                 {
                     con.Open();
 
-                    string query = @"SELECT * FROM [User] WHERE uname=@uname AND usertype=@usertype AND status=1";
+                    // Only check username and active status
+                    string query = @"SELECT userid, uname, pwd, usertype 
+                             FROM [User] 
+                             WHERE uname = @uname AND status = 1";
 
                     SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@uname", uname.Text);
-                    cmd.Parameters.AddWithValue("@usertype", usertype.SelectedValue);
+                    cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -49,20 +51,22 @@ namespace LearnSphere_WAPP
 
                         if (BCrypt.Net.BCrypt.Verify(pwd.Text, storedHash))
                         {
+                            // Store session values
                             Session["userid"] = reader["userid"];
                             Session["uname"] = reader["uname"];
                             Session["usertype"] = reader["usertype"];
 
-                            RedirectUser(usertype.SelectedValue);
+                            // Redirect using role from database
+                            RedirectUser(reader["usertype"].ToString());
                         }
                         else
                         {
-                            errMsg.Text = "Invalid password.";
+                            errMsg.Text = "Invalid username or password.";
                         }
                     }
                     else
                     {
-                        errMsg.Text = "User not found or inactive.";
+                        errMsg.Text = "Invalid username or password.";
                     }
                 }
             }
@@ -86,6 +90,10 @@ namespace LearnSphere_WAPP
 
                 case "Public":
                     Response.Redirect("PublicHome.aspx");
+                    break;
+
+                default:
+                    Response.Redirect("Login.aspx");
                     break;
             }
         }

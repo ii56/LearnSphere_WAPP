@@ -1,28 +1,42 @@
-﻿/* ============================= */
-/* GLOBAL RESET & BASE STYLES   */
-/* ============================= */
+﻿/* =============================================================
+   COMBINED STYLESHEET — LearnSphere
+   Merged from:
+     (1) Course Creation / Review pages
+     (2) Lesson Management page
+     (3) Courses List page
+   Truly duplicate selectors are merged into one.
+   Page-specific or conflicting rules are kept in labelled sections.
+   ============================================================= */
 
-html, body {
+
+/* ── BASE ─────────────────────────────────────────────────── */
+
+/* File 2 uses height:100% on html; files 1 & 3 do not.
+   Including it here is safe for all pages. */
+html {
     height: 100%;
+}
+
+/* Files 1 & 3: background #f8fafc | File 2: background #f4f6f9
+   Keeping both declarations; the last one loaded wins per page —
+   or override per-page with a <body class="..."> if needed. */
+body {
     margin: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #f8fafc;
     color: #1f2937;
+    background-color: #f8fafc; /* files 1 & 3 */
 }
+
+
+/* ── LAYOUT ───────────────────────────────────────────────── */
 
 .layout {
     display: flex;
     min-height: 100vh;
 }
 
-.main-content {
-    flex: 1;
-    padding: 50px;
-}
 
-/* ============================= */
-/* SIDEBAR                      */
-/* ============================= */
+/* ── SIDEBAR (identical across all three files) ───────────── */
 
 .sidebar {
     width: 250px;
@@ -39,6 +53,9 @@ html, body {
     font-weight: 600;
     margin-bottom: 40px;
 }
+
+
+/* ── NAVIGATION ITEMS (identical across all three files) ──── */
 
 .nav-item {
     text-decoration: none;
@@ -60,9 +77,22 @@ html, body {
         color: white;
     }
 
-/* ============================= */
-/* PROFILE SECTION              */
-/* ============================= */
+.message-link {
+    position: relative;
+}
+
+.message-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 12px;
+    margin-left: 8px;
+}
+
+
+/* ── SIDEBAR PROFILE (identical across all three files) ────── */
 
 .sidebar-profile {
     margin-top: 20px;
@@ -89,6 +119,25 @@ html, body {
 
     .profile-box.verified:hover {
         box-shadow: 0 0 15px rgba(56,189,248,0.6);
+    }
+
+    /* File 3 only */
+    .profile-box.not-verified:hover {
+        box-shadow: 0 0 15px rgba(239,68,68,0.6);
+    }
+
+    /* File 3 only */
+    .profile-box.verified .profile-status {
+        color: #38bdf8;
+        opacity: 1;
+        font-weight: 500;
+    }
+
+    /* File 3 only */
+    .profile-box.not-verified .profile-status {
+        color: #ef4444;
+        opacity: 1;
+        font-weight: 500;
     }
 
 .profile-img-wrapper {
@@ -134,20 +183,6 @@ html, body {
     opacity: 0.8;
 }
 
-.message-link {
-    position: relative;
-}
-
-.message-badge {
-    background: #ef4444;
-    color: white;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 12px;
-    margin-left: 8px;
-}
-
 .logout-btn {
     width: 100%;
     background: #dc2626;
@@ -163,9 +198,50 @@ html, body {
         background: #b91c1c;
     }
 
-/* ============================= */
-/* COURSE HEADER & STEP UI      */
-/* ============================= */
+
+/* ── MAIN CONTENT ─────────────────────────────────────────── */
+
+/* Base (files 1 & 3) */
+.main-content {
+    flex: 1;
+    padding: 50px;
+}
+
+/* File 2 additionally centres its content column-wise.
+   Apply class "main-content--centered" to <main> on the
+   Lesson Management page, or override inline. */
+.main-content--centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* File 2: constrain centred children */
+.course-info,
+.bottom-actions {
+    width: 100%;
+    max-width: 1000px;
+}
+
+
+/* ── RESPONSIVE (file 1) ──────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+}
+
+
+/* =============================================================
+   PAGE 1 — Course Creation Wizard & Review
+   ============================================================= */
 
 .course-header {
     display: flex;
@@ -188,6 +264,7 @@ html, body {
     font-size: 12px;
 }
 
+/* Step indicator */
 .step-indicator {
     display: flex;
     justify-content: space-between;
@@ -229,33 +306,18 @@ html, body {
     font-weight: 600;
 }
 
-/* ============================= */
-/* FORM & INPUTS                */
-/* ============================= */
-
-.form-card-modern,
-.course-info,
-.module-card,
-.courses-card,
-.review-card,
-.courses-section {
+/* Form card */
+.form-card-modern {
     background: white;
+    padding: 40px;
     border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    max-width: 900px;
 }
 
-.form-card-modern,
-.review-card {
-    padding: 40px;
-    max-width: 1000px;
-}
-
-.course-info,
-.module-card,
-.courses-card,
-.courses-section {
-    padding: 30px;
-    margin-bottom: 30px;
+.sub-text {
+    color: #6b7280;
+    margin-bottom: 25px;
 }
 
 label {
@@ -281,62 +343,44 @@ label {
         box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
     }
 
-/* ============================= */
-/* TABLES                       */
-/* ============================= */
+/* Courses section table (creation wizard) */
+.courses-section {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    margin-top: 40px;
+}
 
-.modern-table,
-.courses-table,
-.lesson-table {
+.modern-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-    .modern-table th,
-    .courses-table th,
-    .lesson-table th {
+    .modern-table th {
         background: #f1f5f9;
         padding: 14px;
         text-align: left;
-        font-weight: 600;
         font-size: 14px;
+        font-weight: 600;
     }
 
-    .modern-table td,
-    .courses-table td,
-    .lesson-table td {
+    .modern-table td {
         padding: 14px;
         border-bottom: 1px solid #f1f5f9;
-        font-size: 14px;
     }
 
-    .courses-table tr:hover,
-    .lesson-table tr:hover {
-        background: #f9fafb;
-    }
-
-/* ============================= */
-/* BUTTONS                      */
-/* ============================= */
-
-.btn,
-.btn-modern,
-.btn-modern-small,
-.btn-modern-secondary,
-.btn-create,
-.btn-edit,
-.btn-delete {
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.2s;
-    font-weight: 500;
-}
-
+/* Buttons (creation wizard) */
 .btn-modern {
     background: #2563eb;
     color: white;
     padding: 12px 22px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 25px;
+    transition: 0.2s;
 }
 
     .btn-modern:hover {
@@ -347,6 +391,9 @@ label {
     background: #2563eb;
     color: white;
     padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
     font-size: 12px;
 }
 
@@ -358,50 +405,299 @@ label {
     background: #e5e7eb;
     color: #1f2937;
     padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: 0.2s;
 }
 
     .btn-modern-secondary:hover {
         background: #d1d5db;
     }
 
+/* Review card */
+.review-card {
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    margin-top: 40px;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.review-status {
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.review-course-info {
+    margin-bottom: 25px;
+}
+
+.review-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.review-description {
+    color: #4b5563;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.review-price {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2563eb;
+}
+
+.review-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 30px 0;
+}
+
+.review-section-title {
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Module card (review page) — distinct from file 2's .module-card */
+.module-card {
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border-left: 4px solid #2563eb;
+}
+
+.module-title {
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.lesson-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lesson-item {
+    display: flex;
+    justify-content: space-between;
+    background: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid #f1f5f9;
+}
+
+.lesson-duration {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.review-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+
+/* =============================================================
+   PAGE 2 — Lesson Management
+   ============================================================= */
+
+/* Course info panel */
+.course-info {
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+    .course-info h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+
+    .course-info p {
+        margin: 8px 0;
+    }
+
+/* Module card (lesson management) — plain white, no coloured border */
+/* Note: if .module-card is used on both pages simultaneously,
+   scope with a parent class to avoid collision with Page 1's version. */
+.lesson-module-card {
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 1000px;
+}
+
+    .lesson-module-card h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+
+/* Lesson table */
+.lesson-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+    .lesson-table th {
+        background-color: #374151;
+        color: white;
+        padding: 12px;
+        text-align: left;
+        font-size: 14px;
+    }
+
+    .lesson-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        font-size: 14px;
+    }
+
+    .lesson-table tr:hover {
+        background-color: #f9fafb;
+    }
+
+/* Generic button base (file 2) */
+.btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-right: 5px;
+    transition: 0.2s ease;
+}
+
+    .btn:hover {
+        transform: translateY(-2px);
+        opacity: 0.9;
+    }
+
+.btn-primary {
+    background-color: #2563eb;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+}
+
+.btn-success {
+    background-color: #10b981;
+    color: white;
+}
+
+/* .btn-edit on the Lesson Management page is amber */
+.btn-edit--amber {
+    background-color: #f59e0b;
+    color: white;
+}
+
+/* .btn-delete on the Lesson Management page */
+.btn-delete--red-light {
+    background-color: #ef4444;
+    color: white;
+}
+
+.module-actions {
+    margin-bottom: 15px;
+}
+
+.bottom-actions {
+    margin-top: 30px;
+    text-align: right;
+}
+
+
+/* =============================================================
+   PAGE 3 — Courses List
+   ============================================================= */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+    .page-header h2 {
+        margin: 0;
+        font-weight: 600;
+    }
+
 .btn-create {
     background: #2563eb;
     color: white;
     padding: 10px 18px;
+    border-radius: 8px;
     text-decoration: none;
     font-size: 14px;
+    transition: 0.2s;
 }
 
     .btn-create:hover {
         background: #1d4ed8;
     }
 
-.btn-edit {
-    background: #2563eb;
-    color: white;
-    padding: 6px 14px;
-    font-size: 12px;
+/* Courses list card */
+.courses-card {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.05);
 }
 
-    .btn-edit:hover {
-        background: #1d4ed8;
-    }
-
-.btn-delete {
-    background: #dc2626;
-    color: white;
-    padding: 6px 14px;
-    font-size: 12px;
+/* Courses list table */
+.courses-table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-    .btn-delete:hover {
-        background: #b91c1c;
+    .courses-table th {
+        background: #f1f5f9;
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 1px solid #e5e7eb;
     }
 
-/* ============================= */
-/* BADGES                       */
-/* ============================= */
+    .courses-table td {
+        padding: 16px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
 
+    .courses-table tr:hover {
+        background: #f9fafb;
+    }
+
+/* Status badges */
 .badge-published {
     background: #dcfce7;
     color: #166534;
@@ -420,18 +716,61 @@ label {
     font-weight: 600;
 }
 
-/* ============================= */
-/* RESPONSIVE                   */
-/* ============================= */
-
-@media (max-width: 900px) {
-    .layout {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        flex-direction: row;
-        overflow-x: auto;
-    }
+/* .btn-edit on the Courses List page is blue */
+.btn-edit {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 8px;
+    font-size: 12px;
 }
+
+    .btn-edit:hover {
+        background: #1d4ed8;
+    }
+
+/* .btn-delete on the Courses List page */
+.btn-delete {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+    .btn-delete:hover {
+        background: #b91c1c;
+    }
+
+.btn-preview {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+    .btn-preview:hover {
+        background-color: #15803d;
+    }
+
+.btn-student {
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+    .btn-student:hover {
+        background-color: #15803d;
+    }

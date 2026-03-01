@@ -23,17 +23,51 @@ namespace LearnSphere_WAPP.Lecturer
             if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
             {
                 Response.Redirect("~/Login.aspx");
+                return;
             }
             if (!IsPostBack)
             {
                 if (Request.QueryString["courseId"] != null)
                 {
                     int courseId = Convert.ToInt32(Request.QueryString["courseId"]);
+                    LoadSidebarProfileImage();
                     LoadStudents(courseId);
                 }
                 else
                 {
                     lblMessage.Text = "Invalid course selected.";
+                }
+            }
+        }
+
+        private void LoadSidebarProfileImage()
+        {
+            if (Session["userid"] == null)
+                return;
+
+            int userId = Convert.ToInt32(Session["userid"]);
+
+            using (SqlConnection con = new SqlConnection(
+                ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString))
+            {
+                string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", userId);
+
+                con.Open();
+
+                object result = cmd.ExecuteScalar();
+
+                if (result != null && result != DBNull.Value)
+                {
+                    string imagePath = result.ToString();
+                    Session["profileImage"] = imagePath;
+                    imgSidebarProfile.Src = ResolveUrl(imagePath);
+                }
+                else
+                {
+                    imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
                 }
             }
         }
