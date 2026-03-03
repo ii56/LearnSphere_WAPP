@@ -4,7 +4,7 @@
 <html>
 <head runat="server">
     <title>Lecturer Dashboard</title>
-    <link href="~/Lecturer/LecturerDashboard.css" rel="stylesheet" runat="server" />
+    <link href="LecturerDashboard.css?v=2" rel="stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">

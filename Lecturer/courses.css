@@ -697,3 +697,15 @@ label {
     .btn-student:hover {
         background-color: #15803d;
     }
+
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+.filter-input {
+    max-width: 180px;
+}

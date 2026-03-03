@@ -67,20 +67,65 @@ namespace LearnSphere_WAPP.Lecturer
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 string query = @"
-                                SELECT courseid, coursename, category, price,
-                                CASE 
-                                    WHEN status = 0 THEN 'Draft'
-                                    WHEN status = 1 THEN 'Published'
-                                    ELSE 'Unknown'
-                                END AS statusText
-                                FROM Course
-                                WHERE ownerid = @id
-                                AND deletiontime IS NULL
-                                ORDER BY creationtime DESC";
+                            SELECT courseid, coursename, category, price,
+                            CASE 
+                                WHEN status = 0 THEN 'Draft'
+                                WHEN status = 1 THEN 'Published'
+                                ELSE 'Unknown'
+                            END AS statusText
+                            FROM Course
+                            WHERE ownerid = @id
+                            AND deletiontime IS NULL
+                        ";
 
-                SqlDataAdapter da = new SqlDataAdapter(query, con);
-                da.SelectCommand.Parameters.AddWithValue("@id", lecturerId);
+                List<SqlParameter> parameters = new List<SqlParameter>();
+                parameters.Add(new SqlParameter("@id", lecturerId));
 
+                // SEARCH
+                if (!string.IsNullOrEmpty(txtSearch.Text))
+                {
+                    query += " AND coursename LIKE @search";
+                    parameters.Add(new SqlParameter("@search", "%" + txtSearch.Text.Trim() + "%"));
+                }
+
+                // CATEGORY
+                if (!string.IsNullOrEmpty(ddlCategory.SelectedValue))
+                {
+                    query += " AND category = @category";
+                    parameters.Add(new SqlParameter("@category", ddlCategory.SelectedValue));
+                }
+
+                // STATUS
+                if (!string.IsNullOrEmpty(ddlStatus.SelectedValue))
+                {
+                    query += " AND status = @status";
+                    parameters.Add(new SqlParameter("@status", ddlStatus.SelectedValue));
+                }
+
+                // MIN PRICE
+                if (!string.IsNullOrEmpty(txtMinPrice.Text))
+                {
+                    query += " AND price >= @minPrice";
+                    parameters.Add(new SqlParameter("@minPrice", txtMinPrice.Text));
+                }
+
+                // MAX PRICE
+                if (!string.IsNullOrEmpty(txtMaxPrice.Text))
+                {
+                    query += " AND price <= @maxPrice";
+                    parameters.Add(new SqlParameter("@maxPrice", txtMaxPrice.Text));
+                }
+
+                query += " ORDER BY creationtime DESC";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                foreach (var param in parameters)
+                {
+                    cmd.Parameters.Add(param);
+                }
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
@@ -149,6 +194,22 @@ namespace LearnSphere_WAPP.Lecturer
             Session.Clear();
             Session.Abandon();
             Response.Redirect("~/Login.aspx");
+        }
+
+        protected void btnFilter_Click(object sender, EventArgs e)
+        {
+            LoadCourses();
+        }
+
+        protected void btnReset_Click(object sender, EventArgs e)
+        {
+            txtSearch.Text = "";
+            ddlCategory.SelectedIndex = 0;
+            ddlStatus.SelectedIndex = 0;
+            txtMinPrice.Text = "";
+            txtMaxPrice.Text = "";
+
+            LoadCourses();
         }
     }
 }
