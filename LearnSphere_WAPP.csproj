@@ -123,6 +123,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="About.aspx" />
+    <Content Include="Admin\AdminCSS.css" />
+    <Content Include="Admin\AdminDashboard.aspx" />
+    <Content Include="Admin\AdminEditProfile.aspx" />
+    <Content Include="Admin\CourseManagement.aspx" />
+    <Content Include="Admin\Database.aspx" />
+    <Content Include="Admin\PlatformUsage.aspx" />
+    <Content Include="Admin\UserManagement.aspx" />
     <Content Include="App_Data\LearnSphereDB.mdf" />
     <Content Include="App_Data\LearnSphereDB_log.ldf">
       <DependentUpon>LearnSphereDB.mdf</DependentUpon>
@@ -152,6 +159,7 @@
     <Content Include="Global.asax" />
     <Content Include="LEARNSPHERE.png" />
     <Content Include="LEARNSPHERE_sign.png" />
+    <Content Include="LearnSphere_WAPP.slnx" />
     <Content Include="Lecturer\AddLessons.aspx" />
     <Content Include="Lecturer\AddModules.aspx" />
     <Content Include="Lecturer\answer.aspx" />
@@ -251,6 +259,42 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin\AdminDashboard.aspx.cs">
+      <DependentUpon>AdminDashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminDashboard.aspx.designer.cs">
+      <DependentUpon>AdminDashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminEditProfile.aspx.cs">
+      <DependentUpon>AdminEditProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminEditProfile.aspx.designer.cs">
+      <DependentUpon>AdminEditProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\CourseManagement.aspx.cs">
+      <DependentUpon>CourseManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\CourseManagement.aspx.designer.cs">
+      <DependentUpon>CourseManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Database.aspx.cs">
+      <DependentUpon>Database.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Database.aspx.designer.cs">
+      <DependentUpon>Database.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\PlatformUsage.aspx.cs">
+      <DependentUpon>PlatformUsage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\PlatformUsage.aspx.designer.cs">
+      <DependentUpon>PlatformUsage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\UserManagement.aspx.cs">
+      <DependentUpon>UserManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\UserManagement.aspx.designer.cs">
+      <DependentUpon>UserManagement.aspx</DependentUpon>
+    </Compile>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="About.aspx.cs">
       <DependentUpon>About.aspx</DependentUpon>
@@ -460,6 +504,7 @@
     <Compile Include="Site.Mobile.Master.designer.cs">
       <DependentUpon>Site.Mobile.Master</DependentUpon>
     </Compile>
+    <Compile Include="Syslog.cs" />
     <Compile Include="TestConnection.aspx.cs">
       <DependentUpon>TestConnection.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
