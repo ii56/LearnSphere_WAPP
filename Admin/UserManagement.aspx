@@ -20,6 +20,7 @@
                     <a href="Database.aspx" class="nav-item">Database</a>
                     <a href="Forums.aspx" class="nav-item">Forums</a>
                     <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
+                    <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
                 </div>
 
                 <div class="sidebar-profile">
@@ -53,6 +54,56 @@
                     <h2>User Management</h2>
                     <asp:Label ID="lblWelcome" runat="server" CssClass="welcome-text" />
                 </div>
+
+                <div class="sorting">
+                    
+                    <asp:TextBox ID="txtSearch" runat="server" CssClass="search-box" placeholder="Search user..." AutoPostBack="True" OnTextChanged="txtSearch_TextChanged" />
+
+                    <div class="sort-controls">
+                        <asp:DropDownList ID="Sortby" runat="server" AutoPostBack="True" OnSelectedIndexChanged="Sortby_SelectedIndexChanged">
+                            <asp:ListItem>User ID</asp:ListItem>
+                            <asp:ListItem>Username</asp:ListItem>
+                            <asp:ListItem>Age</asp:ListItem>
+                            <asp:ListItem>Gender</asp:ListItem>
+                            <asp:ListItem>Creation Time</asp:ListItem>
+                            <asp:ListItem>Deletion Time</asp:ListItem>
+                            <asp:ListItem>User Type</asp:ListItem>
+                            <asp:ListItem>Status</asp:ListItem>
+                        </asp:DropDownList>
+                        <asp:DropDownList ID="Order" runat="server" AutoPostBack="True" OnSelectedIndexChanged="Order_SelectedIndexChanged">
+                            <asp:ListItem>Ascending</asp:ListItem>
+                            <asp:ListItem>Descending</asp:ListItem>
+                        </asp:DropDownList>
+                    </div>
+                    
+                </div>
+
+                <asp:GridView ID="GridView1" runat="server" CssClass="admin-table" AutoGenerateColumns="False" Width="100%" AllowPaging="True" OnPageIndexChanging="GridView1_PageIndexChanging" PageSize="8" OnRowCommand="GridView1_RowCommand">
+                    <Columns>
+                        <asp:BoundField DataField="userid" HeaderText="User ID" ItemStyle-Width="4%"/>
+                        <asp:BoundField DataField="uname" HeaderText="Username" ItemStyle-Width="12%"/>
+                        <asp:BoundField DataField="email" HeaderText="Email" ItemStyle-Width="11%"/>
+                        <asp:BoundField DataField="fname" HeaderText="First Name" ItemStyle-Width="10%"/>
+                        <asp:BoundField DataField="lname" HeaderText="Last Name" ItemStyle-Width="10%"/>
+                        <asp:BoundField DataField="age" HeaderText="Age" ItemStyle-Width="3%"/>
+                        <asp:BoundField DataField="gender" HeaderText="Gender" ItemStyle-Width="3%"/>
+                        <asp:BoundField DataField="creationtime" HeaderText="Creation Time" ItemStyle-Width="13%"/>
+                        <asp:BoundField DataField="deletiontime" HeaderText="Deletion Time" ItemStyle-Width="13%"/>
+                        <asp:BoundField DataField="usertype" HeaderText="User Type" ItemStyle-Width="6%"/>
+                        <asp:BoundField DataField="status" HeaderText="Status" ItemStyle-Width="8%"/>
+                        <asp:TemplateField HeaderText="Actions" ItemStyle-Width="8%">
+                            <ItemTemplate>
+
+                                <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-edit" CommandName="EditUser" CommandArgument='<%# Eval("userid") %>' />
+                                <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-delete" CommandName="DeleteUser" CommandArgument='<%# Eval("userid") %>' OnClientClick="return confirm('Delete this user account?');" />
+
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
+                
+                <asp:Label ID="lblResult" runat="server" Text=""></asp:Label>
+
             </div>
         </div>
     </form>

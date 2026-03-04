@@ -332,12 +332,29 @@
 }
 
 .profile-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     background: white;
-    padding: 40px 50px;
+    padding: 40px;
     border-radius: 16px;
     box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    width: 100%;
-    max-width: 700px;
+}
+
+    .profile-card img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ddd;
+    }
+
+.profile-edit {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 40px auto;
 }
 
 .form-group {
@@ -391,3 +408,45 @@
     .save-btn:hover {
         background: #005fa3;
     }
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .admin-table th {
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .admin-table td {
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        word-wrap: break-word;
+    }
+
+.sorting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.sort-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.search-box {
+    width: 250px;
+    padding: 6px;
+}
+
+@media (max-width: 900px) {
+    .profile-edit {
+        grid-template-columns: 1fr;
+    }
+}

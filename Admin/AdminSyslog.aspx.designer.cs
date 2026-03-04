@@ -11,7 +11,7 @@ namespace LearnSphere_WAPP.Admin
 {
 
 
-    public partial class UserManagement
+    public partial class Syslog
     {
 
         /// <summary>
@@ -51,22 +51,31 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label lblWelcome;
 
         /// <summary>
-        /// txtSearch control.
+        /// txtSearch1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSearch;
+        protected global::System.Web.UI.WebControls.TextBox txtSearch1;
 
         /// <summary>
-        /// Sortby control.
+        /// txtSearch2 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList Sortby;
+        protected global::System.Web.UI.WebControls.TextBox txtSearch2;
+
+        /// <summary>
+        /// Filter control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList Filter;
 
         /// <summary>
         /// Order control.

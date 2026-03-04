@@ -1,10 +1,10 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AdminEditProfile.aspx.cs" Inherits="LearnSphere_WAPP.Admin.AdminEditProfile" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="EditUser.aspx.cs" Inherits="LearnSphere_WAPP.Admin.EditUsers" %>
 
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Edit Profile</title>
+    <title>Edit User</title>
     <link href="~/Admin/AdminCSS.css" rel="stylesheet" runat="server" />
 </head>
 <body>
@@ -14,11 +14,11 @@
                 <div>
                     <div class="sidebar-title">LearnSphere</div>
                     <a href="AdminDashboard.aspx" class="nav-item">Dashboard</a>
-                    <a href="UserManagement.aspx" class="nav-item">User Management</a>
+                    <a href="UserManagement.aspx" class="nav-item active">User Management</a>
                     <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
                     <a href="Database.aspx" class="nav-item">Database</a>
                     <a href="Forums.aspx" class="nav-item">Forums</a>
-                    <a href="AdminEditProfile.aspx" class="nav-item active">Edit Profile</a>
+                    <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
                     <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
                 </div>
 
@@ -50,9 +50,10 @@
 
             <div class="main-content">
                 <div class="dashboard-header">
-                    <h2>Edit Profile</h2>
+                    <h2>User Management</h2>
                     <asp:Label ID="lblWelcome" runat="server" CssClass="welcome-text" />
                 </div>
+
                 <div class="profile-edit">
                     <div class="profile-card">
                         <div class="form-group">
@@ -87,26 +88,19 @@
                                 <asp:ListItem>Female</asp:ListItem>
                             </asp:DropDownList>
                         </div>
-                    </div>
 
-                    <div class="profile-card">
-                    
-                        <asp:Label ID="Label8" runat="server" Text="Profile Image:"></asp:Label>
-                        <asp:Image ID="Image1" runat="server" Height="120px" Width="120px" />
-                        <asp:FileUpload ID="FileUpload1" runat="server" />
-                    
-                        <br />
-
-                        <asp:Label ID="Label10" runat="server" Text="Description:"></asp:Label>
-                        <asp:TextBox ID="txtDescription" runat="server" Rows="10" TextMode="MultiLine" Columns="50" MaxLength="999"></asp:TextBox>
-
-                        <br />
-                        <asp:Label ID="Label9" runat="server" Text="Forgot password? "></asp:Label>
-                        <asp:LinkButton ID="LinkButton1" runat="server">Change Password</asp:LinkButton>
-                    
+                        <div class="form-group">
+                            <asp:Label ID="Label8" runat="server" Text="User Type:" CssClass="form-label"></asp:Label>
+                            <asp:DropDownList ID="dropdownUsertype" runat="server" CssClass="form-dropdown">
+                                <asp:ListItem>General</asp:ListItem>
+                                <asp:ListItem>Student</asp:ListItem>
+                                <asp:ListItem>Lecturer</asp:ListItem>
+                                <asp:ListItem>Admin</asp:ListItem>
+                            </asp:DropDownList>
+</div>
+                        <asp:Button ID="btnSave" runat="server" Text="Save Changes" CssClass="save-btn" OnClick="btnSave_Click" />
                     </div>
                 </div>
-                <asp:Button ID="btnSave" runat="server" Text="Save Changes" CssClass="save-btn" OnClick="btnSave_Click" />
             </div>
         </div>
     </form>

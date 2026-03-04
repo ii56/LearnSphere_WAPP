@@ -128,7 +128,8 @@
     <Content Include="Admin\AdminEditProfile.aspx" />
     <Content Include="Admin\CourseManagement.aspx" />
     <Content Include="Admin\Database.aspx" />
-    <Content Include="Admin\PlatformUsage.aspx" />
+    <Content Include="Admin\EditUser.aspx" />
+    <Content Include="Admin\AdminSyslog.aspx" />
     <Content Include="Admin\UserManagement.aspx" />
     <Content Include="App_Data\LearnSphereDB.mdf" />
     <Content Include="App_Data\LearnSphereDB_log.ldf">
@@ -261,36 +262,49 @@
   <ItemGroup>
     <Compile Include="Admin\AdminDashboard.aspx.cs">
       <DependentUpon>AdminDashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\AdminDashboard.aspx.designer.cs">
       <DependentUpon>AdminDashboard.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\AdminEditProfile.aspx.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\AdminEditProfile.aspx.designer.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\CourseManagement.aspx.cs">
       <DependentUpon>CourseManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\CourseManagement.aspx.designer.cs">
       <DependentUpon>CourseManagement.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\Database.aspx.cs">
       <DependentUpon>Database.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\Database.aspx.designer.cs">
       <DependentUpon>Database.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Admin\PlatformUsage.aspx.cs">
-      <DependentUpon>PlatformUsage.aspx</DependentUpon>
+    <Compile Include="Admin\EditUser.aspx.cs">
+      <DependentUpon>EditUser.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Admin\PlatformUsage.aspx.designer.cs">
-      <DependentUpon>PlatformUsage.aspx</DependentUpon>
+    <Compile Include="Admin\EditUser.aspx.designer.cs">
+      <DependentUpon>EditUser.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminSyslog.aspx.cs">
+      <DependentUpon>AdminSyslog.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminSyslog.aspx.designer.cs">
+      <DependentUpon>AdminSyslog.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\UserManagement.aspx.cs">
       <DependentUpon>UserManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\UserManagement.aspx.designer.cs">
       <DependentUpon>UserManagement.aspx</DependentUpon>
