@@ -5,13 +5,13 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
-namespace LearnSphere_WAPP
+namespace LearnSphere_WAPP.PublicUser
 {
-    public partial class _Default : Page
+    public partial class PublicDashboard : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            Response.Redirect("Login.aspx");
+
         }
     }
 }
