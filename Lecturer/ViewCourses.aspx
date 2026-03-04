@@ -61,6 +61,38 @@
                     <a href="CreateCourse.aspx" class="btn-create">+ Create New Course</a>
                 </div>
 
+                <div class="filter-bar">
+
+                    <asp:TextBox ID="txtSearch" runat="server" CssClass="modern-input filter-input" 
+                        Placeholder="Search course name..." />
+
+                    <asp:DropDownList ID="ddlCategory" runat="server" CssClass="modern-input filter-input">
+                        <asp:ListItem Value="">All Categories</asp:ListItem>
+                        <asp:ListItem>AI</asp:ListItem>
+                        <asp:ListItem>Programming</asp:ListItem>
+                        <asp:ListItem>Machine Learning</asp:ListItem>
+                    </asp:DropDownList>
+
+                    <asp:DropDownList ID="ddlStatus" runat="server" CssClass="modern-input filter-input">
+                        <asp:ListItem Value="">All Status</asp:ListItem>
+                        <asp:ListItem Value="1">Published</asp:ListItem>
+                        <asp:ListItem Value="0">Draft</asp:ListItem>
+                    </asp:DropDownList>
+
+                    <asp:TextBox ID="txtMinPrice" runat="server" CssClass="modern-input filter-input" 
+                        Placeholder="Min Price" />
+
+                    <asp:TextBox ID="txtMaxPrice" runat="server" CssClass="modern-input filter-input" 
+                        Placeholder="Max Price" />
+
+                    <asp:Button ID="btnFilter" runat="server" Text="Apply Filter" 
+                        CssClass="btn-edit" OnClick="btnFilter_Click" />
+
+                    <asp:Button ID="btnReset" runat="server" Text="Reset" 
+                        CssClass="btn-neutral" OnClick="btnReset_Click" />
+
+                </div>
+
                 <div class="courses-card">
 
                     <asp:GridView ID="gvCourses" runat="server" AutoGenerateColumns="False" CssClass="courses-table" DataKeyNames="courseid" OnRowCommand="gvCourses_RowCommand">
