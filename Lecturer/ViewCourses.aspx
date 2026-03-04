@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Manage Courses</title>
-    <link href="ViewCourses.css" rel="stylesheet" />
+    <link href="courses.css" rel="stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">
@@ -20,17 +20,15 @@
                     <a href="CreateCourse.aspx" class="nav-item">Create Course</a>
                     <a href="ViewCourses.aspx" class="nav-item active">View Courses</a>
                     <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
-                    <a href="../Chatbot/Chatbot.aspx" class="nav-item">Chatbot</a>
                     <a href="Forums.aspx" class="nav-item">Forums</a>
                 </div>
 
                 <div class="sidebar-profile">
-
-                    <div class="profile-box <%= (Session["verified"] != null && (bool)Session["verified"]) ? "verified" : "not-verified" %>">
-
+                    <div class="profile-box <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") ? "verified" : "not-verified" %>">
                         <div class="profile-img-wrapper">
                             <img id="imgSidebarProfile" runat="server" class="profile-img" />
-                            <% if (Session["verified"] != null && (bool)Session["verified"]) { %>
+
+                            <% if (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") { %>
                                 <div class="verification-badge">✔</div>
                             <% } %>
                         </div>
@@ -38,7 +36,9 @@
                         <div class="profile-info">
                             <div class="profile-name"><%= Session["uname"] %></div>
                             <div class="profile-status">
-                                <%= (Session["verified"] != null && (bool)Session["verified"]) ? "Verified Lecturer" : "Not Verified" %>
+                                <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") 
+                                    ? "Verified Lecturer" 
+                                    : "General User" %>
                             </div>
                         </div>
                     </div>
@@ -52,7 +52,6 @@
 
                     <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
                 </div>
-
             </div>
 
             <div class="main-content">
@@ -60,6 +59,38 @@
                 <div class="page-header">
                     <h2>Your Courses</h2>
                     <a href="CreateCourse.aspx" class="btn-create">+ Create New Course</a>
+                </div>
+
+                <div class="filter-bar">
+
+                    <asp:TextBox ID="txtSearch" runat="server" CssClass="modern-input filter-input" 
+                        Placeholder="Search course name..." />
+
+                    <asp:DropDownList ID="ddlCategory" runat="server" CssClass="modern-input filter-input">
+                        <asp:ListItem Value="">All Categories</asp:ListItem>
+                        <asp:ListItem>AI</asp:ListItem>
+                        <asp:ListItem>Programming</asp:ListItem>
+                        <asp:ListItem>Machine Learning</asp:ListItem>
+                    </asp:DropDownList>
+
+                    <asp:DropDownList ID="ddlStatus" runat="server" CssClass="modern-input filter-input">
+                        <asp:ListItem Value="">All Status</asp:ListItem>
+                        <asp:ListItem Value="1">Published</asp:ListItem>
+                        <asp:ListItem Value="0">Draft</asp:ListItem>
+                    </asp:DropDownList>
+
+                    <asp:TextBox ID="txtMinPrice" runat="server" CssClass="modern-input filter-input" 
+                        Placeholder="Min Price" />
+
+                    <asp:TextBox ID="txtMaxPrice" runat="server" CssClass="modern-input filter-input" 
+                        Placeholder="Max Price" />
+
+                    <asp:Button ID="btnFilter" runat="server" Text="Apply Filter" 
+                        CssClass="btn-edit" OnClick="btnFilter_Click" />
+
+                    <asp:Button ID="btnReset" runat="server" Text="Reset" 
+                        CssClass="btn-neutral" OnClick="btnReset_Click" />
+
                 </div>
 
                 <div class="courses-card">
@@ -83,24 +114,10 @@
                             <asp:TemplateField HeaderText="Actions">
                                 <ItemTemplate>
 
-                                    <asp:Button ID="btnEdit" runat="server"
-                                        Text="Edit"
-                                        CssClass="btn-edit"
-                                        CommandName="EditCourse"
-                                        CommandArgument="<%# Container.DataItemIndex %>" />
-
-                                    <asp:Button ID="btnDelete" runat="server"
-                                        Text="Delete"
-                                        CssClass="btn-delete"
-                                        CommandName="DeleteCourse"
-                                        CommandArgument="<%# Container.DataItemIndex %>"
-                                        OnClientClick="return confirm('Delete this course?');" />
-
-                                    <asp:Button ID="btnViewStudents" runat="server"
-                                        Text="Students"
-                                        CssClass="btn-students"
-                                        CommandName="ViewStudents"
-                                        CommandArgument="<%# Container.DataItemIndex %>" />
+                                    <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-edit" CommandName="EditCourse" CommandArgument="<%# Container.DataItemIndex %>" />
+                                    <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-delete" CommandName="DeleteCourse" CommandArgument="<%# Container.DataItemIndex %>" OnClientClick="return confirm('Delete this course?');" />
+                                    <asp:Button ID="btnViewStudents" runat="server" Text="Students" CssClass="btn-students"  CommandName="ViewStudents" CommandArgument="<%# Container.DataItemIndex %>" />              
+                                    <asp:Button ID="btnPreview" runat="server" Text="Preview" CssClass="btn-preview" CommandName="PreviewCourse" CommandArgument="<%# Container.DataItemIndex %>" Visible='<%# Eval("statusText").ToString() == "Published" %>' />
 
                                 </ItemTemplate>
                             </asp:TemplateField>
@@ -110,6 +127,10 @@
                 </div>
             </div>
         </div>
+        
+    <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
+<script src="https://files.bpcontent.cloud/2026/02/25/04/20260225040020-WUKR78B4.js" defer></script>
+    
     </form>
 </body>
 </html>

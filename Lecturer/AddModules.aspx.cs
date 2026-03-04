@@ -102,10 +102,23 @@ namespace LearnSphere_WAPP.Lecturer
                 {
                     con.Open();
 
-                    string query = @"INSERT INTO Module
+                    string query = @"
+                                    INSERT INTO Module
                                     (courseid, modulename, moduledescription, ordernumber, creationtime, deletiontime)
                                     VALUES
-                                    (@courseid, @name, @desc, 1, GETDATE(), NULL)";
+                                    (
+                                        @courseid,
+                                        @name,
+                                        @desc,
+                                        (
+                                            SELECT ISNULL(MAX(ordernumber),0) + 1
+                                            FROM Module
+                                            WHERE courseid = @courseid
+                                            AND deletiontime IS NULL
+                                        ),
+                                        GETDATE(),
+                                        NULL
+                                    )";
 
                     SqlCommand cmd = new SqlCommand(query, con);
 
@@ -134,9 +147,10 @@ namespace LearnSphere_WAPP.Lecturer
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 string query = @"SELECT moduleid, modulename, moduledescription
-                                 FROM Module
-                                 WHERE courseid = @courseid
-                                 AND deletiontime IS NULL";
+                                FROM Module
+                                WHERE courseid = @courseid
+                                AND deletiontime IS NULL
+                                ORDER BY ordernumber";
 
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 da.SelectCommand.Parameters.AddWithValue("@courseid", courseId);

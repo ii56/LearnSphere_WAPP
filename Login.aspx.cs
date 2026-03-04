@@ -35,11 +35,12 @@ namespace LearnSphere_WAPP
                 {
                     con.Open();
 
-                    string query = @"SELECT * FROM [User] WHERE uname=@uname AND usertype=@usertype AND status=1";
+                    string query = @"SELECT userid, uname, pwd, usertype 
+                             FROM [User] 
+                             WHERE uname = @uname AND status = 1";
 
                     SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@uname", uname.Text);
-                    cmd.Parameters.AddWithValue("@usertype", usertype.SelectedValue);
+                    cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -53,16 +54,16 @@ namespace LearnSphere_WAPP
                             Session["uname"] = reader["uname"];
                             Session["usertype"] = reader["usertype"];
 
-                            RedirectUser(usertype.SelectedValue);
+                            RedirectUser(reader["usertype"].ToString());
                         }
                         else
                         {
-                            errMsg.Text = "Invalid password.";
+                            errMsg.Text = "Invalid username or password.";
                         }
                     }
                     else
                     {
-                        errMsg.Text = "User not found or inactive.";
+                        errMsg.Text = "Invalid username or password.";
                     }
                 }
             }
@@ -73,7 +74,7 @@ namespace LearnSphere_WAPP
             switch (role)
             {
                 case "Admin":
-                    Response.Redirect("AdminDashboard.aspx");
+                    Response.Redirect("~/Admin/AdminDashboard.aspx");
                     break;
 
                 case "Lecturer":
@@ -86,6 +87,10 @@ namespace LearnSphere_WAPP
 
                 case "Public":
                     Response.Redirect("~/PublicUser/PublicDashboard.aspx");
+                    break;
+
+                default:
+                    Response.Redirect("Login.aspx");
                     break;
             }
         }

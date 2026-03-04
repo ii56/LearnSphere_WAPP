@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Create Course</title>
-    <link href="CreateCourse.css" rel="stylesheet" />
+    <link href="courses.css" rel="stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">
@@ -17,15 +17,15 @@
                     <a href="CreateCourse.aspx" class="nav-item active">Create Course</a>
                     <a href="ViewCourses.aspx" class="nav-item">View Courses</a>
                     <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
-                    <a href="../Chatbot/Chatbot.aspx" class="nav-item">Chatbot</a>
                     <a href="Forums.aspx" class="nav-item">Forums</a>
                 </div>
 
                 <div class="sidebar-profile">
-                    <div class="profile-box <%= (Session["verified"] != null && (bool)Session["verified"]) ? "verified" : "not-verified" %>">
+                    <div class="profile-box <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") ? "verified" : "not-verified" %>">
                         <div class="profile-img-wrapper">
                             <img id="imgSidebarProfile" runat="server" class="profile-img" />
-                            <% if (Session["verified"] != null && (bool)Session["verified"]) { %>
+
+                            <% if (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") { %>
                                 <div class="verification-badge">✔</div>
                             <% } %>
                         </div>
@@ -33,7 +33,9 @@
                         <div class="profile-info">
                             <div class="profile-name"><%= Session["uname"] %></div>
                             <div class="profile-status">
-                                <%= (Session["verified"] != null && (bool)Session["verified"]) ? "Verified Lecturer" : "Not Verified" %>
+                                <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") 
+                                    ? "Verified Lecturer" 
+                                    : "General User" %>
                             </div>
                         </div>
                     </div>
@@ -44,6 +46,7 @@
                             <span class="message-badge"><%= Session["unreadCount"] %></span>
                         <% } %>
                     </a>
+
                     <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
                 </div>
             </div>

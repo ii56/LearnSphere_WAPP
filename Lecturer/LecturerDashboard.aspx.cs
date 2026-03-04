@@ -19,6 +19,7 @@ namespace LearnSphere_WAPP.Lecturer
             if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
             {
                 Response.Redirect("~/Login.aspx");
+                return;
             }
 
             if (!IsPostBack)
@@ -92,14 +93,15 @@ namespace LearnSphere_WAPP.Lecturer
                 cmdFreeCourses.Parameters.AddWithValue("@id", lecturerId);
                 lblFreeCourses.Text = cmdFreeCourses.ExecuteScalar().ToString();
                 SqlDataAdapter da = new SqlDataAdapter(@"SELECT TOP 5
-                                                        coursename,
-                                                        category,
-                                                        price,
-                                                        creationtime
-                                                        FROM Course
-                                                        WHERE ownerid = @id
-                                                        AND deletiontime IS NULL
-                                                        ORDER BY creationtime DESC", con);
+                                        coursename,
+                                        category,
+                                        price,
+                                        creationtime
+                                        FROM Course
+                                        WHERE ownerid = @id
+                                        AND deletiontime IS NULL
+                                        AND status = 1
+                                        ORDER BY creationtime DESC", con);
 
                 da.SelectCommand.Parameters.AddWithValue("@id", lecturerId);
 

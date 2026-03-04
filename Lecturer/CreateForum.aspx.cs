@@ -14,9 +14,12 @@ namespace LearnSphere_WAPP.Lecturer
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["userid"] == null)
+            if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
+            {
                 Response.Redirect("~/Login.aspx");
-            if(!IsPostBack)
+                return;
+            }
+            if (!IsPostBack)
             {
                 LoadSidebarProfileImage();
             }

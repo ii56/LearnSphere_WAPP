@@ -19,8 +19,11 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["userid"] == null)
+            if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
+            {
                 Response.Redirect("~/Login.aspx");
+                return;
+            }
 
             if (!int.TryParse(Request.QueryString["courseid"], out courseId))
                 Response.Redirect("Forums.aspx");

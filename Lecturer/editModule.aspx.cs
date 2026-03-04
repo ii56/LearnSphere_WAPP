@@ -11,23 +11,21 @@ namespace LearnSphere_WAPP.Lecturer
 {
     public partial class editModule : System.Web.UI.Page
     {
-        string connStr = ConfigurationManager
-            .ConnectionStrings["LearnSphereDB"].ConnectionString;
+        string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
 
         int moduleId;
         int courseId;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["usertype"] == null ||
-                Session["usertype"].ToString() != "Lecturer")
+            if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
             {
                 Response.Redirect("~/Login.aspx");
+                return;
             }
 
             int.TryParse(Request.QueryString["moduleid"], out moduleId);
-
-            int.TryParse(Request.QueryString["moduleid"], out moduleId);
+            int.TryParse(Request.QueryString["courseid"], out courseId);
 
             if (!IsPostBack)
             {
@@ -37,12 +35,45 @@ namespace LearnSphere_WAPP.Lecturer
                 {
                     lblModeTitle.Text = "Edit Module";
                     btnSave.Text = "Update and Continue";
+                    LoadSidebarProfileImage();
                     LoadModule();
                 }
                 else
                 {
                     lblModeTitle.Text = "Add Module";
                     btnSave.Text = "Confirm Addition";
+                }
+            }
+        }
+
+        private void LoadSidebarProfileImage()
+        {
+            if (Session["userid"] == null)
+                return;
+
+            int userId = Convert.ToInt32(Session["userid"]);
+
+            using (SqlConnection con = new SqlConnection(
+                ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString))
+            {
+                string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", userId);
+
+                con.Open();
+
+                object result = cmd.ExecuteScalar();
+
+                if (result != null && result != DBNull.Value)
+                {
+                    string imagePath = result.ToString();
+                    Session["profileImage"] = imagePath;
+                    imgSidebarProfile.Src = ResolveUrl(imagePath);
+                }
+                else
+                {
+                    imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
                 }
             }
         }
@@ -119,10 +150,21 @@ namespace LearnSphere_WAPP.Lecturer
                 else
                 {
                     string query = @"
-                        INSERT INTO Module
-                        (courseid, modulename, moduledescription, ordernumber, creationtime)
-                        VALUES
-                        (@courseid, @name, @desc, @order, GETDATE())";
+                                INSERT INTO Module
+                                (courseid, modulename, moduledescription, ordernumber, creationtime)
+                                VALUES
+                                (
+                                    @courseid,
+                                    @name,
+                                    @desc,
+                                    (
+                                        SELECT ISNULL(MAX(ordernumber),0) + 1
+                                        FROM Module
+                                        WHERE courseid = @courseid
+                                        AND deletiontime IS NULL
+                                    ),
+                                    GETDATE()
+                                )";
 
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.AddWithValue("@courseid", courseId);

@@ -88,3 +88,15 @@
         transform: translateY(0);
     }
 }
+
+.logo-container {
+    text-align: center;
+    margin: 15px 0 20px 0;
+}
+
+.login-logo {
+    width: 250px;
+    height: auto;
+    display: block;
+    margin: 0 auto 15px auto;
+}

@@ -47,6 +47,12 @@
     <Reference Include="BCrypt.Net-Next, Version=4.0.3.0, Culture=neutral, PublicKeyToken=1e11be04b6288443, processorArchitecture=MSIL">
       <HintPath>packages\BCrypt.Net-Next.4.0.3\lib\net472\BCrypt.Net-Next.dll</HintPath>
     </Reference>
+    <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
+      <HintPath>packages\BouncyCastle.Cryptography.2.6.2\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.13.5, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>packages\iTextSharp.5.5.13.5\lib\net461\itextsharp.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
@@ -117,6 +123,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="About.aspx" />
+    <Content Include="Admin\AdminCSS.css" />
+    <Content Include="Admin\AdminDashboard.aspx" />
+    <Content Include="Admin\AdminEditProfile.aspx" />
+    <Content Include="Admin\CourseManagement.aspx" />
+    <Content Include="Admin\Database.aspx" />
+    <Content Include="Admin\PlatformUsage.aspx" />
+    <Content Include="Admin\UserManagement.aspx" />
     <Content Include="App_Data\LearnSphereDB.mdf" />
     <Content Include="App_Data\LearnSphereDB_log.ldf">
       <DependentUpon>LearnSphereDB.mdf</DependentUpon>
@@ -144,9 +157,13 @@
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <Content Include="LEARNSPHERE.png" />
+    <Content Include="LEARNSPHERE_sign.png" />
+    <Content Include="LearnSphere_WAPP.slnx" />
     <Content Include="Lecturer\AddLessons.aspx" />
     <Content Include="Lecturer\AddModules.aspx" />
     <Content Include="Lecturer\answer.aspx" />
+    <Content Include="Lecturer\courses.css" />
     <Content Include="Lecturer\CreateCourse.aspx" />
     <Content Include="Lecturer\CreateCourse.css" />
     <Content Include="Lecturer\CreateForum.aspx" />
@@ -160,11 +177,14 @@
     <Content Include="Lecturer\ForumDetail.aspx" />
     <Content Include="Lecturer\Forums.aspx" />
     <Content Include="Lecturer\Forums.css" />
+    <Content Include="Lecturer\LEARNSPHERE_sign.png" />
     <Content Include="Lecturer\LecturerDashboard.aspx" />
     <Content Include="Lecturer\LecturerDashboard.css" />
     <Content Include="Lecturer\Message.aspx" />
     <Content Include="Lecturer\Message.css" />
     <Content Include="Lecturer\MyCourses.aspx" />
+    <Content Include="Lecturer\Preview.aspx" />
+    <Content Include="Lecturer\Preview.css" />
     <Content Include="Lecturer\question.aspx" />
     <Content Include="Lecturer\question.css" />
     <Content Include="Lecturer\ReviewPublish.aspx" />
@@ -240,6 +260,42 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin\AdminDashboard.aspx.cs">
+      <DependentUpon>AdminDashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminDashboard.aspx.designer.cs">
+      <DependentUpon>AdminDashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminEditProfile.aspx.cs">
+      <DependentUpon>AdminEditProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminEditProfile.aspx.designer.cs">
+      <DependentUpon>AdminEditProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\CourseManagement.aspx.cs">
+      <DependentUpon>CourseManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\CourseManagement.aspx.designer.cs">
+      <DependentUpon>CourseManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Database.aspx.cs">
+      <DependentUpon>Database.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\Database.aspx.designer.cs">
+      <DependentUpon>Database.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\PlatformUsage.aspx.cs">
+      <DependentUpon>PlatformUsage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\PlatformUsage.aspx.designer.cs">
+      <DependentUpon>PlatformUsage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\UserManagement.aspx.cs">
+      <DependentUpon>UserManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\UserManagement.aspx.designer.cs">
+      <DependentUpon>UserManagement.aspx</DependentUpon>
+    </Compile>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="About.aspx.cs">
       <DependentUpon>About.aspx</DependentUpon>
@@ -378,6 +434,13 @@
     <Compile Include="Lecturer\MyCourses.aspx.designer.cs">
       <DependentUpon>MyCourses.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Lecturer\Preview.aspx.cs">
+      <DependentUpon>Preview.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Lecturer\Preview.aspx.designer.cs">
+      <DependentUpon>Preview.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Lecturer\question.aspx.cs">
       <DependentUpon>question.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -449,6 +512,7 @@
     <Compile Include="Site.Mobile.Master.designer.cs">
       <DependentUpon>Site.Mobile.Master</DependentUpon>
     </Compile>
+    <Compile Include="Syslog.cs" />
     <Compile Include="TestConnection.aspx.cs">
       <DependentUpon>TestConnection.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

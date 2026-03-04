@@ -124,7 +124,20 @@ namespace LearnSphere_WAPP.Lecturer
                                         (moduleid, lessontitle, lessondescription, duration, ordernumber, creationtime, deletiontime)
                                         OUTPUT INSERTED.lessonid
                                         VALUES
-                                        (@moduleid, @title, @desc, @duration, 1, GETDATE(), NULL)";
+                                        (
+                                            @moduleid,
+                                            @title,
+                                            @desc,
+                                            @duration,
+                                            (
+                                                SELECT ISNULL(MAX(ordernumber),0) + 1
+                                                FROM Lesson
+                                                WHERE moduleid = @moduleid
+                                                AND deletiontime IS NULL
+                                            ),
+                                            GETDATE(),
+                                            NULL
+                                        )";
 
                     SqlCommand lessonCmd = new SqlCommand(lessonQuery, con);
 
