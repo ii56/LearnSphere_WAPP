@@ -277,5 +277,29 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Response.Redirect("editModule.aspx?courseid=" + courseId);
         }
+
+        protected void btnCreateExam_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("MakeExam.aspx?courseid=" + courseId);
+        }
+
+        protected void btnEditExam_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("MakeExam.aspx?courseid=" + courseId + "&edit=1");
+        }
+
+        protected void btnDeleteExam_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string query = "DELETE FROM Exam WHERE courseid=@courseid";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@courseid", courseId);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 }

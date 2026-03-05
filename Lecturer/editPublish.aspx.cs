@@ -90,9 +90,9 @@ namespace LearnSphere_WAPP.Lecturer
                 con.Open();
 
                 string moduleQuery = @"SELECT moduleid, modulename
-                                       FROM Module
-                                       WHERE courseid=@courseid
-                                       AND deletiontime IS NULL";
+                               FROM Module
+                               WHERE courseid=@courseid
+                               AND deletiontime IS NULL";
 
                 SqlCommand moduleCmd = new SqlCommand(moduleQuery, con);
                 moduleCmd.Parameters.AddWithValue("@courseid", courseId);
@@ -107,18 +107,26 @@ namespace LearnSphere_WAPP.Lecturer
                     {
                         moduleid = moduleReader["moduleid"],
                         modulename = moduleReader["modulename"],
-                        Lessons = new List<dynamic>()
+                        Lessons = new List<dynamic>(),
+                        HasExam = false,
+                        ExamTitle = "",
+                        QuestionCount = 0,
+                        TotalMarks = 0
                     });
                 }
 
                 moduleReader.Close();
 
+
                 foreach (var module in modules)
                 {
+
+                    // LOAD LESSONS
+
                     string lessonQuery = @"SELECT lessontitle, duration
-                                           FROM Lesson
-                                           WHERE moduleid=@moduleid
-                                           AND deletiontime IS NULL";
+                                   FROM Lesson
+                                   WHERE moduleid=@moduleid
+                                   AND deletiontime IS NULL";
 
                     SqlCommand lessonCmd = new SqlCommand(lessonQuery, con);
                     lessonCmd.Parameters.AddWithValue("@moduleid", module.moduleid);
@@ -135,7 +143,88 @@ namespace LearnSphere_WAPP.Lecturer
                     }
 
                     lessonReader.Close();
+
+
+                    // LOAD MODULE EXAM
+                    pnlCourseExam.Visible = false;
+                    string examQuery = @"SELECT TOP 1 examid, examtitle
+                     FROM Exam
+                     WHERE moduleid=@moduleid";
+
+                    SqlCommand examCmd = new SqlCommand(examQuery, con);
+                    examCmd.Parameters.AddWithValue("@moduleid", module.moduleid);
+
+                    SqlDataReader examReader = examCmd.ExecuteReader();
+
+                    if (examReader.Read())
+                    {
+                        module.HasExam = true;
+                        module.ExamTitle = examReader["examtitle"].ToString();
+
+                        int examId = Convert.ToInt32(examReader["examid"]);
+
+                        examReader.Close();
+
+                        string statsQuery = @"SELECT 
+                        COUNT(*) AS QuestionCount,
+                        ISNULL(SUM(marks),0) AS TotalMarks
+                      FROM ExamQuestion
+                      WHERE examid=@examid";
+
+                        SqlCommand statsCmd = new SqlCommand(statsQuery, con);
+                        statsCmd.Parameters.AddWithValue("@examid", examId);
+
+                        SqlDataReader statsReader = statsCmd.ExecuteReader();
+
+                        if (statsReader.Read())
+                        {
+                            module.QuestionCount = Convert.ToInt32(statsReader["QuestionCount"]);
+                            module.TotalMarks = Convert.ToInt32(statsReader["TotalMarks"]);
+                        }
+
+                        statsReader.Close();
+                    }
+                    else
+                    {
+                        examReader.Close();
+                    }
+
                 }
+
+
+                // LOAD COURSE EXAM
+                pnlCourseExam.Visible = false;
+                string courseExamQuery = @"SELECT examid, examtitle
+                                   FROM Exam
+                                   WHERE courseid=@courseid";
+
+                SqlCommand courseExamCmd = new SqlCommand(courseExamQuery, con);
+                courseExamCmd.Parameters.AddWithValue("@courseid", courseId);
+
+                SqlDataReader courseExamReader = courseExamCmd.ExecuteReader();
+
+                if (courseExamReader.Read())
+                {
+                    pnlCourseExam.Visible = true;
+
+                    lblCourseExamTitle.Text = courseExamReader["examtitle"].ToString();
+
+                    int examId = Convert.ToInt32(courseExamReader["examid"]);
+
+                    courseExamReader.Close();
+
+                    string countQuery = "SELECT COUNT(*) FROM ExamQuestion WHERE examid=@examid";
+
+                    SqlCommand countCmd = new SqlCommand(countQuery, con);
+                    countCmd.Parameters.AddWithValue("@examid", examId);
+
+                    lblCourseExamQuestions.Text = countCmd.ExecuteScalar().ToString();
+                }
+                else
+                {
+                    courseExamReader.Close();
+                }
+
 
                 rptModules.DataSource = modules;
                 rptModules.DataBind();

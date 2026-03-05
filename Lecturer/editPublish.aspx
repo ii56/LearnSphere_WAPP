@@ -78,6 +78,7 @@
 
                     <asp:Repeater ID="rptModules" runat="server">
                         <ItemTemplate>
+
                             <div class="module-card">
 
                                 <div class="module-title">
@@ -85,25 +86,96 @@
                                 </div>
 
                                 <div class="lesson-list">
+
                                     <asp:Repeater ID="rptLessons"
                                         runat="server"
                                         DataSource='<%# Eval("Lessons") %>'>
+
                                         <ItemTemplate>
                                             <div class="lesson-item">
+
                                                 <span class="lesson-name">
                                                     <%# Eval("lessontitle") %>
                                                 </span>
+
                                                 <span class="lesson-duration">
                                                     <%# Eval("duration") %> mins
                                                 </span>
+
                                             </div>
                                         </ItemTemplate>
+
                                     </asp:Repeater>
+
                                 </div>
 
+                                <!-- MODULE EXAM -->
+
+                                <asp:Panel runat="server" Visible='<%# Eval("HasExam") %>'>
+
+                                    <div class="review-divider"></div>
+
+                                    <div class="module-exam">
+
+                                        <strong>Module Exam:</strong>
+                                        <%# Eval("ExamTitle") %>
+
+                                        <div class="lesson-item">
+                                            Questions: <%# Eval("QuestionCount") %>
+                                        </div>
+
+                                        <div class="lesson-item">
+                                            Total Marks: <%# Eval("TotalMarks") %>
+                                        </div>
+
+                                    </div>
+
+                                </asp:Panel>
+
                             </div>
+
                         </ItemTemplate>
                     </asp:Repeater>
+
+                    <asp:Panel runat="server" Visible='<%# Eval("HasExam") %>'>
+
+                        <div class="review-divider"></div>
+
+                        <div class="module-exam">
+
+                            <strong>Module Exam:</strong>
+                            <%# Eval("ExamTitle") %>
+
+                            <div class="lesson-item">
+                                Questions: <%# Eval("QuestionCount") %>
+                            </div>
+
+                            <div class="lesson-item">
+                                Total Marks: <%# Eval("TotalMarks") %>
+                            </div>
+
+                        </div>
+
+                    </asp:Panel>
+
+                    <asp:Panel ID="pnlCourseExam" runat="server" Visible="false">
+
+                        <h3 class="review-section-title">Course Exam</h3>
+
+                        <div class="module-card">
+
+                            <div class="module-title">
+                                <asp:Label ID="lblCourseExamTitle" runat="server" />
+                            </div>
+
+                            <div class="lesson-item">
+                                Total Questions:
+                                <asp:Label ID="lblCourseExamQuestions" runat="server" />
+                            </div>
+
+                        </div>
+
+                    </asp:Panel>
 
                     <div class="review-actions">
                         <asp:Button ID="btnPublish" runat="server" Text="Publish Course" CssClass="btn-modern" OnClick="btnPublish_Click" />

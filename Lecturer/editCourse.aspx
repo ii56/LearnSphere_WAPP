@@ -58,7 +58,34 @@
             <p><asp:Label ID="lblCourseDescription" runat="server" /></p>
             <p><strong>Price:</strong> $<asp:Label ID="lblCoursePrice" runat="server" /></p>
 
-            <asp:Button ID="btnAddModule" runat="server" Text="+ Add Module" CssClass="btn btn-primary" OnClick="btnAddModule_Click" />
+            <div class="module-actions">
+
+                <asp:Button ID="btnAddModule"
+                    runat="server"
+                    Text="+ Add Module"
+                    CssClass="btn btn-primary"
+                    OnClick="btnAddModule_Click" />
+
+                <asp:Button ID="btnCreateExam"
+                    runat="server"
+                    Text="Create Exam"
+                    CssClass="btn btn-success"
+                    OnClick="btnCreateExam_Click" />
+
+                <asp:Button ID="btnEditExam"
+                    runat="server"
+                    Text="Edit Exam"
+                    CssClass="btn btn-edit"
+                    OnClick="btnEditExam_Click" />
+
+                <asp:Button ID="btnDeleteExam"
+                    runat="server"
+                    Text="Delete Exam"
+                    CssClass="btn btn-delete"
+                    OnClick="btnDeleteExam_Click"
+                    OnClientClick="return confirm('Delete this exam?');" />
+
+            </div>
         </div>
 
         <hr />
@@ -73,13 +100,30 @@
 
                     <h3><%# Eval("modulename") %></h3>
 
-                    <div class="module-actions">
-                        <asp:Button runat="server" Text="Edit Module" CssClass="btn btn-edit" CommandName="EditModule" CommandArgument='<%# Eval("moduleid") %>' OnCommand="Module_Command" />
+                <div class="module-actions">
 
-                        <asp:Button runat="server" Text="Delete Module" CssClass="btn btn-delete" CommandName="DeleteModule" CommandArgument='<%# Eval("moduleid") %>' OnCommand="Module_Command" OnClientClick="return confirm('Delete this module and all its lessons?');" />
+                    <asp:Button runat="server"
+                        Text="Edit Module"
+                        CssClass="btn btn-edit"
+                        CommandName="EditModule"
+                        CommandArgument='<%# Eval("moduleid") %>'
+                        OnCommand="Module_Command" />
 
-                        <asp:Button runat="server" Text="+ Add Lesson" CssClass="btn btn-secondary" CommandName="AddLesson" CommandArgument='<%# Eval("moduleid") %>' OnCommand="Module_Command" />
-                    </div>
+                    <asp:Button runat="server"
+                        Text="Delete Module"
+                        CssClass="btn btn-delete"
+                        CommandName="DeleteModule"
+                        CommandArgument='<%# Eval("moduleid") %>'
+                        OnCommand="Module_Command"
+                        OnClientClick="return confirm('Delete this module and all its lessons?');" />
+
+                    <asp:Button runat="server"
+                        Text="+ Add Lesson"
+                        CssClass="btn btn-secondary"
+                        CommandName="AddLesson"
+                        CommandArgument='<%# Eval("moduleid") %>'
+                        OnCommand="Module_Command" />
+                </div>
 
                     <asp:Repeater ID="rptLessons" runat="server">
 

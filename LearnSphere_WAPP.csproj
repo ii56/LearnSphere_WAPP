@@ -180,6 +180,7 @@
     <Content Include="Lecturer\LEARNSPHERE_sign.png" />
     <Content Include="Lecturer\LecturerDashboard.aspx" />
     <Content Include="Lecturer\LecturerDashboard.css" />
+    <Content Include="Lecturer\MakeExam.aspx" />
     <Content Include="Lecturer\Message.aspx" />
     <Content Include="Lecturer\Message.css" />
     <Content Include="Lecturer\MyCourses.aspx" />
@@ -261,36 +262,42 @@
   <ItemGroup>
     <Compile Include="Admin\AdminDashboard.aspx.cs">
       <DependentUpon>AdminDashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\AdminDashboard.aspx.designer.cs">
       <DependentUpon>AdminDashboard.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\AdminEditProfile.aspx.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\AdminEditProfile.aspx.designer.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\CourseManagement.aspx.cs">
       <DependentUpon>CourseManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\CourseManagement.aspx.designer.cs">
       <DependentUpon>CourseManagement.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\Database.aspx.cs">
       <DependentUpon>Database.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\Database.aspx.designer.cs">
       <DependentUpon>Database.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\PlatformUsage.aspx.cs">
       <DependentUpon>PlatformUsage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\PlatformUsage.aspx.designer.cs">
       <DependentUpon>PlatformUsage.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\UserManagement.aspx.cs">
       <DependentUpon>UserManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\UserManagement.aspx.designer.cs">
       <DependentUpon>UserManagement.aspx</DependentUpon>
@@ -418,6 +425,13 @@
     </Compile>
     <Compile Include="Lecturer\LecturerDashboard.aspx.designer.cs">
       <DependentUpon>LecturerDashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Lecturer\MakeExam.aspx.cs">
+      <DependentUpon>MakeExam.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Lecturer\MakeExam.aspx.designer.cs">
+      <DependentUpon>MakeExam.aspx</DependentUpon>
     </Compile>
     <Compile Include="Lecturer\Message.aspx.cs">
       <DependentUpon>Message.aspx</DependentUpon>

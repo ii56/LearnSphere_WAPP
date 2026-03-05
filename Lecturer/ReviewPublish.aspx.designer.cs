@@ -78,6 +78,33 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Repeater rptModules;
 
         /// <summary>
+        /// pnlCourseExam control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlCourseExam;
+
+        /// <summary>
+        /// lblCourseExamTitle control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblCourseExamTitle;
+
+        /// <summary>
+        /// lblCourseExamQuestions control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblCourseExamQuestions;
+
+        /// <summary>
         /// btnPublish control.
         /// </summary>
         /// <remarks>
