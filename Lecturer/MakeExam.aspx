@@ -194,6 +194,18 @@
 
             <!-- QUESTION LIST -->
 
+        <asp:DropDownList ID="ddlQuestionFilter"
+            runat="server"
+            CssClass="modern-input"
+            AutoPostBack="true"
+            OnSelectedIndexChanged="ddlQuestionFilter_SelectedIndexChanged">
+
+            <asp:ListItem Text="All Questions" Value="all"></asp:ListItem>
+            <asp:ListItem Text="Module Questions" Value="module"></asp:ListItem>
+            <asp:ListItem Text="Course Questions" Value="course"></asp:ListItem>
+
+        </asp:DropDownList>
+
         <asp:GridView ID="gvQuestions"
             runat="server"
             CssClass="modern-table"

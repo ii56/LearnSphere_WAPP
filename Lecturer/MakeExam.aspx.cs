@@ -338,49 +338,70 @@ namespace LearnSphere_WAPP.Lecturer
                 // IF EDIT MODE
                 if (isEdit)
                 {
+                    string getExam = "";
 
-                    // get exam id from module
-                    string getExam = "SELECT examid FROM Exam WHERE moduleid=@moduleid";
+                    if (ddlExamType.SelectedValue == "module")
+                        getExam = "SELECT examid FROM Exam WHERE moduleid=@id";
+                    else
+                        getExam = "SELECT examid FROM Exam WHERE courseid=@id";
 
                     SqlCommand getCmd = new SqlCommand(getExam, con);
-                    getCmd.Parameters.AddWithValue("@moduleid", moduleId);
+
+                    if (ddlExamType.SelectedValue == "module")
+                        getCmd.Parameters.AddWithValue("@id", ddlTarget.SelectedValue);
+                    else
+                        getCmd.Parameters.AddWithValue("@id", ddlTarget.SelectedValue);
 
                     object result = getCmd.ExecuteScalar();
 
                     if (result != null)
                         examId = Convert.ToInt32(result);
 
-                    // delete old questions
+                    // remove old questions
                     string del = "DELETE FROM ExamQuestion WHERE examid=@examid";
 
                     SqlCommand delCmd = new SqlCommand(del, con);
                     delCmd.Parameters.AddWithValue("@examid", examId);
                     delCmd.ExecuteNonQuery();
-
                 }
                 else
                 {
 
                     // CREATE NEW EXAM
+                    string checkExam = "";
+
                     if (ddlExamType.SelectedValue == "module")
+                        checkExam = "SELECT examid FROM Exam WHERE moduleid=@id";
+                    else
+                        checkExam = "SELECT examid FROM Exam WHERE courseid=@id";
+
+                    SqlCommand checkCmd = new SqlCommand(checkExam, con);
+                    checkCmd.Parameters.AddWithValue("@id", ddlTarget.SelectedValue);
+
+                    object existingExam = checkCmd.ExecuteScalar();
+
+                    if (existingExam != null)
                     {
-                        examInsert = @"INSERT INTO Exam(moduleid,examtitle,totalmarks)
-                               OUTPUT INSERTED.examid
-                               VALUES(@target,@title,0)";
+                        examId = Convert.ToInt32(existingExam);
                     }
                     else
                     {
-                        examInsert = @"INSERT INTO Exam(courseid,examtitle,totalmarks)
-                               OUTPUT INSERTED.examid
-                               VALUES(@target,@title,0)";
+                        if (ddlExamType.SelectedValue == "module")
+                            examInsert = @"INSERT INTO Exam(moduleid,examtitle,totalmarks)
+                       OUTPUT INSERTED.examid
+                       VALUES(@target,@title,0)";
+                        else
+                            examInsert = @"INSERT INTO Exam(courseid,examtitle,totalmarks)
+                       OUTPUT INSERTED.examid
+                       VALUES(@target,@title,0)";
+
+                        SqlCommand cmd = new SqlCommand(examInsert, con);
+
+                        cmd.Parameters.AddWithValue("@target", ddlTarget.SelectedValue);
+                        cmd.Parameters.AddWithValue("@title", txtExamTitle.Text);
+
+                        examId = (int)cmd.ExecuteScalar();
                     }
-
-                    SqlCommand cmd = new SqlCommand(examInsert, con);
-
-                    cmd.Parameters.AddWithValue("@target", ddlTarget.SelectedValue);
-                    cmd.Parameters.AddWithValue("@title", txtExamTitle.Text);
-
-                    examId = (int)cmd.ExecuteScalar();
 
                 }
 
@@ -439,6 +460,47 @@ namespace LearnSphere_WAPP.Lecturer
 
             }
 
+        }
+
+        protected void ddlQuestionFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                con.Open();
+
+                string q = "";
+
+                if (ddlQuestionFilter.SelectedValue == "module")
+                {
+                    q = @"SELECT questiontext, optionA, optionB, optionC, optionD, correctanswer, marks
+                  FROM ExamQuestion q
+                  JOIN Exam e ON q.examid = e.examid
+                  WHERE e.moduleid IN
+                  (SELECT moduleid FROM Module WHERE courseid=@courseid)";
+                }
+                else if (ddlQuestionFilter.SelectedValue == "course")
+                {
+                    q = @"SELECT questiontext, optionA, optionB, optionC, optionD, correctanswer, marks
+                  FROM ExamQuestion q
+                  JOIN Exam e ON q.examid = e.examid
+                  WHERE e.courseid=@courseid";
+                }
+                else
+                {
+                    q = @"SELECT questiontext, optionA, optionB, optionC, optionD, correctanswer, marks
+                  FROM ExamQuestion q
+                  JOIN Exam e ON q.examid = e.examid
+                  WHERE e.courseid=@courseid
+                  OR e.moduleid IN
+                  (SELECT moduleid FROM Module WHERE courseid=@courseid)";
+                }
+
+                SqlCommand cmd = new SqlCommand(q, con);
+                cmd.Parameters.AddWithValue("@courseid", courseId);
+
+                gvQuestions.DataSource = cmd.ExecuteReader();
+                gvQuestions.DataBind();
+            }
         }
 
         protected void btnCancel_Click(object sender, EventArgs e)

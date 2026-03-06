@@ -9,6 +9,30 @@ using System.Web.UI.WebControls;
 
 namespace LearnSphere_WAPP.Lecturer
 {
+    public class ModuleView
+    {
+        public int moduleid { get; set; }
+
+        public string modulename { get; set; }
+
+        public List<LessonView> Lessons { get; set; }
+
+        public bool HasExam { get; set; }
+
+        public string ExamTitle { get; set; }
+
+        public int QuestionCount { get; set; }
+
+        public int TotalMarks { get; set; }
+    }
+
+    public class LessonView
+    {
+        public string lessontitle { get; set; }
+
+        public int duration { get; set; }
+    }
+
     public partial class editPublish : System.Web.UI.Page
     {
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
@@ -99,15 +123,15 @@ namespace LearnSphere_WAPP.Lecturer
 
                 SqlDataReader moduleReader = moduleCmd.ExecuteReader();
 
-                var modules = new List<dynamic>();
+                List<ModuleView> modules = new List<ModuleView>();
 
                 while (moduleReader.Read())
                 {
-                    modules.Add(new
+                    modules.Add(new ModuleView
                     {
-                        moduleid = moduleReader["moduleid"],
-                        modulename = moduleReader["modulename"],
-                        Lessons = new List<dynamic>(),
+                        moduleid = Convert.ToInt32(moduleReader["moduleid"]),
+                        modulename = moduleReader["modulename"].ToString(),
+                        Lessons = new List<LessonView>(),
                         HasExam = false,
                         ExamTitle = "",
                         QuestionCount = 0,
@@ -135,10 +159,10 @@ namespace LearnSphere_WAPP.Lecturer
 
                     while (lessonReader.Read())
                     {
-                        module.Lessons.Add(new
+                        module.Lessons.Add(new LessonView
                         {
-                            lessontitle = lessonReader["lessontitle"],
-                            duration = lessonReader["duration"]
+                            lessontitle = lessonReader["lessontitle"].ToString(),
+                            duration = Convert.ToInt32(lessonReader["duration"])
                         });
                     }
 

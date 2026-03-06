@@ -109,28 +109,6 @@
 
                                 </div>
 
-                                <!-- MODULE EXAM -->
-
-                                <asp:Panel runat="server" Visible='<%# Eval("HasExam") %>'>
-
-                                    <div class="review-divider"></div>
-
-                                    <div class="module-exam">
-
-                                        <strong>Module Exam:</strong>
-                                        <%# Eval("ExamTitle") %>
-
-                                        <div class="lesson-item">
-                                            Questions: <%# Eval("QuestionCount") %>
-                                        </div>
-
-                                        <div class="lesson-item">
-                                            Total Marks: <%# Eval("TotalMarks") %>
-                                        </div>
-
-                                    </div>
-
-                                </asp:Panel>
 
                             </div>
 
