@@ -16,10 +16,10 @@
                     <a href="AdminDashboard.aspx" class="nav-item">Dashboard</a>
                     <a href="UserManagement.aspx" class="nav-item">User Management</a>
                     <a href="CourseManagement.aspx" class="nav-item active">Course Management</a>
-                    <a href="PlatformUsage.aspx" class="nav-item">Platform Usage</a>
                     <a href="Database.aspx" class="nav-item">Database</a>
                     <a href="Forums.aspx" class="nav-item">Forums</a>
                     <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
+                    <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
                 </div>
 
                 <div class="sidebar-profile">

@@ -17,25 +17,24 @@ namespace LearnSphere_WAPP.Admin
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["uname"] == null)
+            if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
             {
                 Response.Redirect("../Login.aspx");
             }
 
             if (!Page.IsPostBack)
             {
+                lblWelcome.Text = "Welcome " + Session["uname"];
                 con.Open();
 
                 lblTotalUsers.Text = new SqlCommand("SELECT COUNT(*) FROM [User]", con).ExecuteScalar().ToString();
-                lblTotalStudents.Text = new SqlCommand("SELECT COUNT(*) FROM [User]", con).ExecuteScalar().ToString();
-                lblTotalLecturers.Text = new SqlCommand("SELECT COUNT(*) FROM [User]", con).ExecuteScalar().ToString();
+                lblTotalStudents.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where usertype = 'Student'", con).ExecuteScalar().ToString();
+                lblTotalLecturers.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where usertype = 'Lecturer'", con).ExecuteScalar().ToString();
                 lblTotalCourses.Text = new SqlCommand("SELECT COUNT(*) FROM Course", con).ExecuteScalar().ToString();
                 lblTotalForums.Text = new SqlCommand("SELECT COUNT(*) FROM ForumPost", con).ExecuteScalar().ToString();
 
                 con.Close();
             }
-
-            Syslog.action(123, "Dashboard");
         }
     }
 }

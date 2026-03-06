@@ -16,10 +16,10 @@
                     <a href="AdminDashboard.aspx" class="nav-item active">Dashboard</a>
                     <a href="UserManagement.aspx" class="nav-item">User Management</a>
                     <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
-                    <a href="PlatformUsage.aspx" class="nav-item">Platform Usage</a>
                     <a href="Database.aspx" class="nav-item">Database</a>
                     <a href="Forums.aspx" class="nav-item">Forums</a>
                     <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
+                    <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
                 </div>
 
                 <div class="sidebar-profile">
@@ -97,11 +97,6 @@
                             <div class="quick-card-desc">create/delete/modify courses.</div>
                         </a>
 
-                        <a href="PlatformUsage.aspx" class="quick-card">
-                            <div class="quick-card-title">Platform Usage</div>
-                            <div class="quick-card-desc">view platform usage</div>
-                        </a>
-
                         <a href="Database.aspx" class="quick-card">
                             <div class="quick-card-title">Database</div>
                             <div class="quick-card-desc">manage database</div>
@@ -110,6 +105,11 @@
                         <a href="AdminEditProfile.aspx" class="quick-card">
                             <div class="quick-card-title">Edit Profile</div>
                             <div class="quick-card-desc">edit the information of account</div>
+                        </a>
+
+                        <a href="AdminSyslog.aspx" class="quick-card">
+                            <div class="quick-card-title">System Log</div>
+                            <div class="quick-card-desc">view system log of user action</div>
                         </a>
                     </div>
                 </div>
