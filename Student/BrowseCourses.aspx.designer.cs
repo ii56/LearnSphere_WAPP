@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LearnSphere_WAPP.Lecturer
+namespace LearnSphere_WAPP.Student
 {
 
 
-    public partial class editCourse
+    public partial class BrowseCourses
     {
 
         /// <summary>
@@ -24,13 +24,22 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// imgSidebarProfile control.
+        /// lblAvatarInitial control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlImage imgSidebarProfile;
+        protected global::System.Web.UI.WebControls.Label lblAvatarInitial;
+
+        /// <summary>
+        /// lblHeaderName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblHeaderName;
 
         /// <summary>
         /// btnLogout control.
@@ -42,84 +51,39 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
-        /// lblCourseName control.
+        /// lblMessage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCourseName;
+        protected global::System.Web.UI.WebControls.Label lblMessage;
 
         /// <summary>
-        /// lblCourseDescription control.
+        /// hfCourseId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCourseDescription;
+        protected global::System.Web.UI.WebControls.HiddenField hfCourseId;
 
         /// <summary>
-        /// lblCoursePrice control.
+        /// rptCourses control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCoursePrice;
+        protected global::System.Web.UI.WebControls.Repeater rptCourses;
 
         /// <summary>
-        /// btnAddModule control.
+        /// btnConfirmPayment control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAddModule;
-
-        /// <summary>
-        /// btnCreateExam control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCreateExam;
-
-        /// <summary>
-        /// btnEditExam control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnEditExam;
-
-        /// <summary>
-        /// btnDeleteExam control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDeleteExam;
-
-        /// <summary>
-        /// rptModules control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptModules;
-
-        /// <summary>
-        /// btnReview control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnReview;
+        protected global::System.Web.UI.WebControls.Button btnConfirmPayment;
     }
 }

@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LearnSphere_WAPP.Lecturer
+namespace LearnSphere_WAPP.Student
 {
 
 
-    public partial class editCourse
+    public partial class Gamification
     {
 
         /// <summary>
@@ -24,13 +24,22 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// imgSidebarProfile control.
+        /// lblAvatarInitial control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlImage imgSidebarProfile;
+        protected global::System.Web.UI.WebControls.Label lblAvatarInitial;
+
+        /// <summary>
+        /// lblHeaderName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblHeaderName;
 
         /// <summary>
         /// btnLogout control.
@@ -42,84 +51,102 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
-        /// lblCourseName control.
+        /// lblBadgeEmoji control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCourseName;
+        protected global::System.Web.UI.WebControls.Label lblBadgeEmoji;
 
         /// <summary>
-        /// lblCourseDescription control.
+        /// lblPoints control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCourseDescription;
+        protected global::System.Web.UI.WebControls.Label lblPoints;
 
         /// <summary>
-        /// lblCoursePrice control.
+        /// lblBadgeName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCoursePrice;
+        protected global::System.Web.UI.WebControls.Label lblBadgeName;
 
         /// <summary>
-        /// btnAddModule control.
+        /// milestoneSilver control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAddModule;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl milestoneSilver;
 
         /// <summary>
-        /// btnCreateExam control.
+        /// milestoneGold control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCreateExam;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl milestoneGold;
 
         /// <summary>
-        /// btnEditExam control.
+        /// milestoneDiamond control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnEditExam;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl milestoneDiamond;
 
         /// <summary>
-        /// btnDeleteExam control.
+        /// lblNextBadge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDeleteExam;
+        protected global::System.Web.UI.WebControls.Label lblNextBadge;
 
         /// <summary>
-        /// rptModules control.
+        /// progressFill control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptModules;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl progressFill;
 
         /// <summary>
-        /// btnReview control.
+        /// lblProgressPct control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnReview;
+        protected global::System.Web.UI.WebControls.Label lblProgressPct;
+
+        /// <summary>
+        /// rptLeaderboard control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptLeaderboard;
+
+        /// <summary>
+        /// pnlEmptyLeaderboard control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlEmptyLeaderboard;
     }
 }

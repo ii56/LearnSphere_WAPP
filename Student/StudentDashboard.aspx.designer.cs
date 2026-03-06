@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LearnSphere_WAPP.Lecturer
+namespace LearnSphere_WAPP.Student
 {
 
 
-    public partial class editCourse
+    public partial class StudentDashboard
     {
 
         /// <summary>
@@ -24,13 +24,22 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// imgSidebarProfile control.
+        /// lblAvatarInitial control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlImage imgSidebarProfile;
+        protected global::System.Web.UI.WebControls.Label lblAvatarInitial;
+
+        /// <summary>
+        /// lblHeaderName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblHeaderName;
 
         /// <summary>
         /// btnLogout control.
@@ -42,84 +51,84 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
-        /// lblCourseName control.
+        /// lblWelcome control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCourseName;
+        protected global::System.Web.UI.WebControls.Label lblWelcome;
 
         /// <summary>
-        /// lblCourseDescription control.
+        /// lblEnrolled control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCourseDescription;
+        protected global::System.Web.UI.WebControls.Label lblEnrolled;
 
         /// <summary>
-        /// lblCoursePrice control.
+        /// lblCompleted control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCoursePrice;
+        protected global::System.Web.UI.WebControls.Label lblCompleted;
 
         /// <summary>
-        /// btnAddModule control.
+        /// lblPoints control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAddModule;
+        protected global::System.Web.UI.WebControls.Label lblPoints;
 
         /// <summary>
-        /// btnCreateExam control.
+        /// lblBadge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCreateExam;
+        protected global::System.Web.UI.WebControls.Label lblBadge;
 
         /// <summary>
-        /// btnEditExam control.
+        /// lblCourseCount control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnEditExam;
+        protected global::System.Web.UI.WebControls.Label lblCourseCount;
 
         /// <summary>
-        /// btnDeleteExam control.
+        /// pnlCourses control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDeleteExam;
+        protected global::System.Web.UI.WebControls.Panel pnlCourses;
 
         /// <summary>
-        /// rptModules control.
+        /// gvCourses control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptModules;
+        protected global::System.Web.UI.WebControls.GridView gvCourses;
 
         /// <summary>
-        /// btnReview control.
+        /// pnlEmpty control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnReview;
+        protected global::System.Web.UI.WebControls.Panel pnlEmpty;
     }
 }

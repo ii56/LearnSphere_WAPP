@@ -427,3 +427,11 @@ label {
     display: flex;
     gap: 15px;
 }
+
+.module-exam {
+    background: #f1f5f9;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 14px;
+}

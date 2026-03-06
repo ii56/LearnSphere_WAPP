@@ -86,7 +86,7 @@ namespace LearnSphere_WAPP
                     break;
 
                 case "Student":
-                    Response.Redirect("StudentDashboard.aspx");
+                    Response.Redirect("~/Student/StudentDashboard.aspx");
                     break;
 
                 case "Public":
