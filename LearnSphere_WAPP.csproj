@@ -254,6 +254,11 @@
     <Content Include="Scripts\WebForms\WebParts.js" />
     <Content Include="Scripts\WebForms\WebUIValidation.js" />
     <Content Include="Site.Master" />
+    <Content Include="Student\StudentDashboard.aspx" />
+    <Content Include="Student\BrowseCourses.aspx" />
+    <Content Include="Student\Gamification.aspx" />
+    <Content Include="Student\LessonViewer.aspx" />
+    <Content Include="Student\MyCourses.aspx" />
     <Content Include="TestConnection.aspx" />
     <Content Include="ViewSwitcher.ascx" />
     <Content Include="Web.config" />
@@ -532,6 +537,41 @@
     </Compile>
     <Compile Include="Site.Mobile.Master.designer.cs">
       <DependentUpon>Site.Mobile.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Student\StudentDashboard.aspx.cs">
+      <DependentUpon>StudentDashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Student\StudentDashboard.aspx.designer.cs">
+      <DependentUpon>StudentDashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Student\BrowseCourses.aspx.cs">
+      <DependentUpon>BrowseCourses.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Student\BrowseCourses.aspx.designer.cs">
+      <DependentUpon>BrowseCourses.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Student\Gamification.aspx.cs">
+      <DependentUpon>Gamification.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Student\Gamification.aspx.designer.cs">
+      <DependentUpon>Gamification.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Student\LessonViewer.aspx.cs">
+      <DependentUpon>LessonViewer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Student\LessonViewer.aspx.designer.cs">
+      <DependentUpon>LessonViewer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Student\MyCourses.aspx.cs">
+      <DependentUpon>MyCourses.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Student\MyCourses.aspx.designer.cs">
+      <DependentUpon>MyCourses.aspx</DependentUpon>
     </Compile>
     <Compile Include="Syslog.cs" />
     <Compile Include="TestConnection.aspx.cs">
