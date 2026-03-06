@@ -24,8 +24,30 @@ namespace LearnSphere_WAPP.Admin
             {
                 lblWelcome.Text = "Welcome " + Session["uname"];
                 loadTable();
+                LoadSidebarProfileImage();
             }
-                
+        }
+        public void LoadSidebarProfileImage()
+        {
+            string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
+
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@id", Session["userid"]);
+
+            con.Open();
+
+            object result = cmd.ExecuteScalar();
+
+            if (result != null && result != DBNull.Value)
+            {
+                string imagePath = result.ToString();
+                sidebarImg.Src = ResolveUrl(imagePath);
+            }
+            else
+            {
+                sidebarImg.Src = ResolveUrl("~/images/default-user.png");
+            }
+            con.Close();
         }
 
         private void loadTable()
@@ -146,6 +168,13 @@ namespace LearnSphere_WAPP.Admin
         protected void txtSearch2_TextChanged(object sender, EventArgs e)
         {
             loadTable();
+        }
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            Session.Abandon();
+            Request.Cookies.Clear();
+            Response.Redirect("../Login.aspx");
         }
     }
 }

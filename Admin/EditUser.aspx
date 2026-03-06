@@ -17,7 +17,7 @@
                     <a href="UserManagement.aspx" class="nav-item active">User Management</a>
                     <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
                     <a href="Database.aspx" class="nav-item">Database</a>
-                    <a href="Forums.aspx" class="nav-item">Forums</a>
+                    <a href="AdminForums.aspx" class="nav-item">Forums</a>
                     <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
                     <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
                 </div>
@@ -25,7 +25,7 @@
                 <div class="sidebar-profile">
                     <div class="profile-box admin">
                         <div class="profile-img-wrapper">
-                            <img id="imgSidebarProfile" runat="server" class="profile-img" />
+                            <img id="sidebarImg" runat="server" class="profile-img" />
                             <div class="verification-badge">✔</div>
                         </div>
 
@@ -44,7 +44,7 @@
                         <% } %>
                     </a>
 
-                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" />
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
                 </div>
             </div>
 
@@ -97,7 +97,7 @@
                                 <asp:ListItem>Lecturer</asp:ListItem>
                                 <asp:ListItem>Admin</asp:ListItem>
                             </asp:DropDownList>
-</div>
+                        </div>
                         <asp:Button ID="btnSave" runat="server" Text="Save Changes" CssClass="save-btn" OnClick="btnSave_Click" />
                     </div>
                 </div>

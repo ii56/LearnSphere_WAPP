@@ -16,9 +16,8 @@
                     <a href="AdminDashboard.aspx" class="nav-item">Dashboard</a>
                     <a href="UserManagement.aspx" class="nav-item active">User Management</a>
                     <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
-                    <a href="PlatformUsage.aspx" class="nav-item">Platform Usage</a>
                     <a href="Database.aspx" class="nav-item">Database</a>
-                    <a href="Forums.aspx" class="nav-item">Forums</a>
+                    <a href="AdminForums.aspx" class="nav-item">Forums</a>
                     <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
                     <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
                 </div>
@@ -26,7 +25,7 @@
                 <div class="sidebar-profile">
                     <div class="profile-box admin">
                         <div class="profile-img-wrapper">
-                            <img id="imgSidebarProfile" runat="server" class="profile-img" />
+                            <img id="sidebarImg" runat="server" class="profile-img" />
                             <div class="verification-badge">✔</div>
                         </div>
 
@@ -45,7 +44,7 @@
                         <% } %>
                     </a>
 
-                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" />
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
                 </div>
             </div>
 
@@ -66,7 +65,6 @@
                             <asp:ListItem>Age</asp:ListItem>
                             <asp:ListItem>Gender</asp:ListItem>
                             <asp:ListItem>Creation Time</asp:ListItem>
-                            <asp:ListItem>Deletion Time</asp:ListItem>
                             <asp:ListItem>User Type</asp:ListItem>
                             <asp:ListItem>Status</asp:ListItem>
                         </asp:DropDownList>
@@ -78,20 +76,19 @@
                     
                 </div>
 
-                <asp:GridView ID="GridView1" runat="server" CssClass="admin-table" AutoGenerateColumns="False" Width="100%" AllowPaging="True" OnPageIndexChanging="GridView1_PageIndexChanging" PageSize="8" OnRowCommand="GridView1_RowCommand">
+                <asp:GridView ID="GridView1" runat="server" CssClass="admin-table" AutoGenerateColumns="False" Width="100%" AllowPaging="True" PageSize="8" OnRowCommand="GridView1_RowCommand" OnPageIndexChanging="GridView1_PageIndexChanging1">
                     <Columns>
                         <asp:BoundField DataField="userid" HeaderText="User ID" ItemStyle-Width="4%"/>
-                        <asp:BoundField DataField="uname" HeaderText="Username" ItemStyle-Width="12%"/>
-                        <asp:BoundField DataField="email" HeaderText="Email" ItemStyle-Width="11%"/>
-                        <asp:BoundField DataField="fname" HeaderText="First Name" ItemStyle-Width="10%"/>
-                        <asp:BoundField DataField="lname" HeaderText="Last Name" ItemStyle-Width="10%"/>
+                        <asp:BoundField DataField="uname" HeaderText="Username" ItemStyle-Width="15%"/>
+                        <asp:BoundField DataField="email" HeaderText="Email" ItemStyle-Width="13%"/>
+                        <asp:BoundField DataField="fname" HeaderText="First Name" ItemStyle-Width="11%"/>
+                        <asp:BoundField DataField="lname" HeaderText="Last Name" ItemStyle-Width="11%"/>
                         <asp:BoundField DataField="age" HeaderText="Age" ItemStyle-Width="3%"/>
                         <asp:BoundField DataField="gender" HeaderText="Gender" ItemStyle-Width="3%"/>
                         <asp:BoundField DataField="creationtime" HeaderText="Creation Time" ItemStyle-Width="13%"/>
-                        <asp:BoundField DataField="deletiontime" HeaderText="Deletion Time" ItemStyle-Width="13%"/>
                         <asp:BoundField DataField="usertype" HeaderText="User Type" ItemStyle-Width="6%"/>
                         <asp:BoundField DataField="status" HeaderText="Status" ItemStyle-Width="8%"/>
-                        <asp:TemplateField HeaderText="Actions" ItemStyle-Width="8%">
+                        <asp:TemplateField HeaderText="Actions" ItemStyle-Width="12%">
                             <ItemTemplate>
 
                                 <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-edit" CommandName="EditUser" CommandArgument='<%# Eval("userid") %>' />

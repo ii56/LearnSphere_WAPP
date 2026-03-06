@@ -7,34 +7,26 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Xml.Linq;
+using Microsoft.Ajax.Utilities;
 
 namespace LearnSphere_WAPP.Admin
 {
-    public partial class AdminDashboard : System.Web.UI.Page
+    public partial class AdminViewCourse : System.Web.UI.Page
     {
         static SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString);
-
+        int courseid;
         protected void Page_Load(object sender, EventArgs e)
         {
+            courseid = Request.QueryString["courseid"] != null ? Convert.ToInt32(Request.QueryString["courseid"]) : 0;
             if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
             {
                 Response.Redirect("../Login.aspx");
             }
-
-            if (!Page.IsPostBack)
+            if (!IsPostBack)
             {
-                LoadSidebarProfileImage();
                 lblWelcome.Text = "Welcome " + Session["uname"];
-                con.Open();
-
-                lblTotalUsers.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where not status = 'Deleted'", con).ExecuteScalar().ToString();
-                lblTotalStudents.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where usertype = 'Student' and not status = 'Deleted'", con).ExecuteScalar().ToString();
-                lblTotalLecturers.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where usertype = 'Lecturer' and not status = 'Deleted'", con).ExecuteScalar().ToString();
-                lblTotalCourses.Text = new SqlCommand("SELECT COUNT(*) FROM Course", con).ExecuteScalar().ToString();
-                lblTotalForums.Text = new SqlCommand("SELECT COUNT(*) FROM ForumPost", con).ExecuteScalar().ToString();
-
-                con.Close();
+                loadCourse();
+                LoadSidebarProfileImage();
             }
         }
         public void LoadSidebarProfileImage()
@@ -58,6 +50,37 @@ namespace LearnSphere_WAPP.Admin
                 sidebarImg.Src = ResolveUrl("~/images/default-user.png");
             }
             con.Close();
+        }
+
+        private void loadCourse()
+        {
+            con.Open();
+
+            string query = "Select ownerid, coursename, description, price, creationtime, deletiontime, category, status from Course where courseid = @courseid";
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@courseid", courseid);
+
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            da.Fill(dt);
+
+            lblCourseId.Text = courseid.ToString();
+            lblOwnerId.Text = dt.Rows[0]["ownerid"].ToString();
+            lblCname.Text = dt.Rows[0]["coursename"].ToString();
+            lblDescription.Text = dt.Rows[0]["description"].ToString();
+            lblPrice.Text = dt.Rows[0]["price"].ToString();
+            lblCtime.Text = dt.Rows[0]["creationtime"].ToString();
+            lblDtime.Text = dt.Rows[0]["deletiontime"].ToString();
+            lblCategory.Text = dt.Rows[0]["category"].ToString();
+            lblStatus.Text = dt.Rows[0]["status"].ToString();
+
+            if (lblDtime.Text.IsNullOrWhiteSpace())
+            {
+                lblDtime.Text = "N/A";
+            }
+
+            con.Close();
+
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)

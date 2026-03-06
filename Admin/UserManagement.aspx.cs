@@ -25,7 +25,30 @@ namespace LearnSphere_WAPP.Admin
             {
                 lblWelcome.Text = "Welcome " + Session["uname"];
                 loadUsers();
+                LoadSidebarProfileImage();
             }
+        }
+        public void LoadSidebarProfileImage()
+        {
+            string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
+
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@id", Session["userid"]);
+
+            con.Open();
+
+            object result = cmd.ExecuteScalar();
+
+            if (result != null && result != DBNull.Value)
+            {
+                string imagePath = result.ToString();
+                sidebarImg.Src = ResolveUrl(imagePath);
+            }
+            else
+            {
+                sidebarImg.Src = ResolveUrl("~/images/default-user.png");
+            }
+            con.Close();
         }
 
         private void loadUsers()
@@ -35,9 +58,9 @@ namespace LearnSphere_WAPP.Admin
                 con.Open();
                 string query;
                 if (Session["usertype"].ToString() == "Admin")
-                    query = "Select userid, uname, email, fname, lname, age, gender, creationtime, deletiontime, usertype, status from [User] where not usertype = 'Admin' and not usertype = 'SuperAdmin' and not status = 'Deleted'";
+                    query = "Select userid, uname, email, fname, lname, age, gender, creationtime, usertype, status from [User] where not usertype = 'Admin' and not usertype = 'SuperAdmin' and not status = 'Deleted'";
                 else
-                    query = "Select userid, uname, email, fname, lname, age, gender, creationtime, deletiontime, usertype, status from [User] where not usertype = 'SuperAdmin' and not status = 'Deleted'";
+                    query = "Select userid, uname, email, fname, lname, age, gender, creationtime, usertype, status from [User] where not usertype = 'SuperAdmin' and not status = 'Deleted'";
                 SqlCommand cmd = new SqlCommand(query, con);
                 if (!string.IsNullOrEmpty(txtSearch.Text))
                 {
@@ -64,10 +87,6 @@ namespace LearnSphere_WAPP.Admin
 
                     case "Creation Time":
                         cmd.CommandText += " order by creationtime";
-                        break;
-
-                    case "Deletion Time":
-                        cmd.CommandText += " order by deletiontime";
                         break;
 
                     case "User Type":
@@ -170,6 +189,19 @@ namespace LearnSphere_WAPP.Admin
 
         protected void txtSearch_TextChanged(object sender, EventArgs e)
         {
+            loadUsers();
+        }
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            Session.Abandon();
+            Request.Cookies.Clear();
+            Response.Redirect("../Login.aspx");
+        }
+
+        protected void GridView1_PageIndexChanging1(object sender, GridViewPageEventArgs e)
+        {
+            GridView1.PageIndex = e.NewPageIndex;
             loadUsers();
         }
     }
