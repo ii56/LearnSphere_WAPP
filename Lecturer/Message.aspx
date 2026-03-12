@@ -68,10 +68,18 @@
                             <div class="user-card">
 
                                 <div class="user-left">
-                                    <img src='<%# Eval("ProfileImage") != DBNull.Value 
-                                        ? ResolveUrl(Eval("ProfileImage").ToString()) 
-                                        : ResolveUrl("~/images/default-user.png") %>' 
-                                        class="user-avatar" />
+<asp:LinkButton runat="server"
+    CommandName="ViewProfile"
+    CommandArgument='<%# Eval("userid") %>'
+    OnCommand="ViewProfile_Command"
+    CssClass="avatar-link">
+
+    <img src='<%# Eval("ProfileImage") != DBNull.Value 
+        ? ResolveUrl(Eval("ProfileImage").ToString()) 
+        : ResolveUrl("~/images/default-user.png") %>' 
+        class="user-avatar" />
+
+</asp:LinkButton>
 
                                     <div class="user-text">
                                         <div class="user-name">
@@ -93,10 +101,18 @@
                         <ItemTemplate>
                             <div class="conversation-item">
 
-                                <img src='<%# Eval("ProfileImage") != DBNull.Value 
-                                    ? ResolveUrl(Eval("ProfileImage").ToString()) 
-                                    : ResolveUrl("~/images/default-user.png") %>' 
-                                    class="conversation-avatar" />
+<asp:LinkButton runat="server"
+    CommandName="ViewProfile"
+    CommandArgument='<%# Eval("userid") %>'
+    OnCommand="ViewProfile_Command"
+    CssClass="avatar-link">
+
+    <img src='<%# Eval("ProfileImage") != DBNull.Value 
+        ? ResolveUrl(Eval("ProfileImage").ToString()) 
+        : ResolveUrl("~/images/default-user.png") %>' 
+        class="conversation-avatar" />
+
+</asp:LinkButton>
 
                                 <asp:LinkButton
                                     ID="btnOpenChat"
@@ -118,30 +134,40 @@
                         <asp:Label ID="lblChatTitle" runat="server"
                             Text="Select a conversation"></asp:Label>
                     </div>
+<div class="chat-messages">
+    <asp:Repeater ID="rptMessages" runat="server">
+        <ItemTemplate>
 
-                    <div class="chat-messages">
-                        <asp:Repeater ID="rptMessages" runat="server">
-                            <ItemTemplate>
-                                <div class="message-row <%# Convert.ToInt32(Eval("IsMine")) == 1 ? "mine" : "other" %>">
+            <div class="message-row <%# Convert.ToInt32(Eval("IsMine")) == 1 ? "mine" : "other" %>">
 
-                                    <%# Convert.ToInt32(Eval("IsMine")) == 0 ? 
-                                    "<img src='" + 
-                                        (Eval("ProfileImage") != DBNull.Value 
-                                            ? ResolveUrl(Eval("ProfileImage").ToString()) 
-                                            : ResolveUrl("~/images/default-user.png")) 
-                                    + "' class=\"message-avatar\" />" : "" %>
+<asp:LinkButton 
+    runat="server"
+    CommandName="ViewProfile"
+    CommandArgument='<%# Eval("SenderID") %>'
+    OnCommand="ViewProfile_Command"
+    CssClass="avatar-link"
+    Visible='<%# Convert.ToInt32(Eval("IsMine")) == 0 %>'>
 
-                                    <div class='<%# Convert.ToInt32(Eval("IsMine")) == 1 ? "message sent" : "message received" %>'>
-                                        <%# Eval("content") %>
-                                        <div class="message-time">
-                                            <%# Eval("creationtime", "{0:hh:mm tt}") %>
-                                        </div>
-                                    </div>
+                    <img src='<%# Eval("ProfileImage") != DBNull.Value 
+                        ? ResolveUrl(Eval("ProfileImage").ToString()) 
+                        : ResolveUrl("~/images/default-user.png") %>' 
+                        class="message-avatar" />
 
-                                </div>
-                            </ItemTemplate>
-                        </asp:Repeater>
+                </asp:LinkButton>
+
+                <div class='<%# Convert.ToInt32(Eval("IsMine")) == 1 ? "message sent" : "message received" %>'>
+                    <%# Eval("content") %>
+
+                    <div class="message-time">
+                        <%# Eval("creationtime", "{0:hh:mm tt}") %>
                     </div>
+                </div>
+
+            </div>
+
+        </ItemTemplate>
+    </asp:Repeater>
+</div>
 
                     <div class="chat-input">
                         <asp:TextBox ID="txtMessage" runat="server" CssClass="message-box" TextMode="MultiLine" Rows="2"></asp:TextBox>
@@ -150,13 +176,49 @@
                     </div>
 
                 </div>
+<div class="profile-popup" id="profilePopup" runat="server" visible="false">
 
+<div class="profile-card-inner">
+
+    <div class="profile-img-wrapper">
+        <asp:Image ID="imgProfileCard" runat="server" CssClass="popup-avatar"/>
+        <asp:Label ID="lblVerifyBadge" runat="server" CssClass="verify-badge">✔</asp:Label>
+    </div>
+
+    <asp:Label ID="lblProfileName" runat="server" CssClass="popup-name"/>
+
+    <asp:Label ID="lblProfileRole" runat="server" CssClass="popup-role"/>
+
+    <asp:Label ID="lblProfileEmail" runat="server" CssClass="popup-email"/>
+
+    <asp:Label ID="lblProfileStatus" runat="server" CssClass="popup-status"/>
+
+    <asp:Label ID="lblProfileDesc" runat="server" CssClass="popup-desc"/>
+
+</div>
+
+</div>
             </div>
 
         </div>
 
     </div>
-    
+    <script>
+
+        document.addEventListener("click", function (e) {
+
+            var card = document.querySelector(".profile-card-inner");
+
+            if (card && !card.contains(e.target)) {
+                var popup = document.getElementById("<%= profilePopup.ClientID %>");
+        if (popup) {
+            popup.style.display = "none";
+        }
+    }
+
+});
+
+    </script>
     <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
 <script src="https://files.bpcontent.cloud/2026/02/25/04/20260225040020-WUKR78B4.js" defer></script>
     

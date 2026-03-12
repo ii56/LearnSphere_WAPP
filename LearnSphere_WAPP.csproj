@@ -301,13 +301,6 @@
     <Compile Include="Admin\EditUser.aspx.designer.cs">
       <DependentUpon>EditUser.aspx</DependentUpon>
     </Compile>
-	<Compile Include="Admin\PlatformUsage.aspx.cs">
-      <DependentUpon>PlatformUsage.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Admin\PlatformUsage.aspx.designer.cs">
-      <DependentUpon>PlatformUsage.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Admin\AdminSyslog.aspx.cs">
       <DependentUpon>AdminSyslog.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

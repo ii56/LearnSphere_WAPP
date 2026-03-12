@@ -83,25 +83,40 @@ namespace LearnSphere_WAPP.Lecturer
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
-                                SELECT 
-                                    c.conversationid,
-                                    CASE 
-                                        WHEN c.userid = @UserID 
-                                            THEN (u2.fname + ' ' + u2.lname)
-                                        ELSE (u1.fname + ' ' + u1.lname)
-                                    END AS DisplayName,
-                                    CASE 
-                                        WHEN c.userid = @UserID 
-                                            THEN u2.ProfileImage
-                                        ELSE u1.ProfileImage
-                                    END AS ProfileImage
-                                FROM ChatConversation c
-                                LEFT JOIN [User] u1 ON c.userid = u1.userid
-                                LEFT JOIN [User] u2 ON c.SecondUserID = u2.userid
-                                WHERE 
-                                    (c.userid = @UserID OR c.SecondUserID = @UserID)
-                                    AND c.ConversationType = 'User'
-                                ORDER BY c.creationtime DESC";
+SELECT 
+    c.conversationid,
+
+    CASE 
+        WHEN c.userid = @UserID 
+            THEN u2.userid
+        ELSE u1.userid
+    END AS userid,
+
+    CASE 
+        WHEN c.userid = @UserID 
+            THEN (u2.fname + ' ' + u2.lname)
+        ELSE (u1.fname + ' ' + u1.lname)
+    END AS DisplayName,
+
+    CASE 
+        WHEN c.userid = @UserID 
+            THEN u2.ProfileImage
+        ELSE u1.ProfileImage
+    END AS ProfileImage
+
+FROM ChatConversation c
+
+LEFT JOIN [User] u1 
+    ON c.userid = u1.userid
+
+LEFT JOIN [User] u2 
+    ON c.SecondUserID = u2.userid
+
+WHERE 
+    (c.userid = @UserID OR c.SecondUserID = @UserID)
+    AND c.ConversationType = 'User'
+
+ORDER BY c.creationtime DESC";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@UserID", CurrentUserID);
@@ -112,10 +127,63 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-
-        protected void rptMessages_ItemCommand(object source, RepeaterCommandEventArgs e)
+        protected void ViewProfile_Command(object sender, CommandEventArgs e)
         {
+            int userID = Convert.ToInt32(e.CommandArgument);
 
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string query = @"SELECT 
+                        fname + ' ' + lname AS FullName,
+                        email,
+                        usertype,
+                        ProfileImage,
+                        Description,
+                        status
+                        FROM [User]
+                        WHERE userid=@id";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", userID);
+
+                conn.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
+                {
+                    lblProfileName.Text = dr["FullName"].ToString();
+                    lblProfileEmail.Text = dr["email"].ToString();
+                    lblProfileRole.Text = dr["usertype"].ToString();
+                    lblProfileDesc.Text = dr["Description"].ToString();
+
+                    lblProfileStatus.Text =
+                        Convert.ToInt32(dr["status"]) == 1 ? "Active" : "Inactive";
+
+                    imgProfileCard.ImageUrl =
+                        dr["ProfileImage"] != DBNull.Value
+                        ? ResolveUrl(dr["ProfileImage"].ToString())
+                        : ResolveUrl("~/images/default-user.png");
+
+                    string role = dr["usertype"].ToString().ToLower();
+
+                    /* reset avatar class */
+                    imgProfileCard.CssClass = "popup-avatar";
+
+                    /* apply role color */
+                    if (role == "lecturer")
+                        imgProfileCard.CssClass += " avatar-lecturer";
+                    else if (role == "admin")
+                        imgProfileCard.CssClass += " avatar-admin";
+                    else if (role == "student")
+                        imgProfileCard.CssClass += " avatar-student";
+                    else
+                        imgProfileCard.CssClass += " avatar-public";
+
+                    lblVerifyBadge.Visible = role == "lecturer";
+
+                    profilePopup.Visible = true;
+                }
+            }
         }
 
         protected void rptConversations_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
