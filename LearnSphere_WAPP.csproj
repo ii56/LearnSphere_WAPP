@@ -135,8 +135,8 @@
     <Content Include="App_Data\LearnSphereDB_log.ldf">
       <DependentUpon>LearnSphereDB.mdf</DependentUpon>
     </Content>
-    <Content Include="Chatbot\Chatbot.aspx" />
-    <Content Include="Chatbot\Chatbot.css" />
+    <Content Include="Chatbot\AdminChatbotKnowledge.aspx" />
+    <Content Include="Chatbot\ChatbotAPI.aspx" />
     <Content Include="Contact.aspx" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
@@ -324,12 +324,19 @@
       <DependentUpon>About.aspx</DependentUpon>
     </Compile>
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="Chatbot\Chatbot.aspx.cs">
-      <DependentUpon>Chatbot.aspx</DependentUpon>
+    <Compile Include="Chatbot\AdminChatbotKnowledge.aspx.cs">
+      <DependentUpon>AdminChatbotKnowledge.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Chatbot\Chatbot.aspx.designer.cs">
-      <DependentUpon>Chatbot.aspx</DependentUpon>
+    <Compile Include="Chatbot\AdminChatbotKnowledge.aspx.designer.cs">
+      <DependentUpon>AdminChatbotKnowledge.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Chatbot\ChatbotAPI.aspx.cs">
+      <DependentUpon>ChatbotAPI.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Chatbot\ChatbotAPI.aspx.designer.cs">
+      <DependentUpon>ChatbotAPI.aspx</DependentUpon>
     </Compile>
     <Compile Include="Contact.aspx.cs">
       <DependentUpon>Contact.aspx</DependentUpon>

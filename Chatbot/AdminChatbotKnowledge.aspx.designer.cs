@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LearnSphere_WAPP.Lecturer
+namespace LearnSphere_WAPP.Admin
 {
 
 
-    public partial class AddModules
+    public partial class AdminChatbotKnowledge
     {
 
         /// <summary>
@@ -24,120 +24,120 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// imgSidebarProfile control.
+        /// btnBack control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlImage imgSidebarProfile;
+        protected global::System.Web.UI.WebControls.Button btnBack;
 
         /// <summary>
-        /// btnLogout control.
+        /// hfKnowledgeID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnLogout;
+        protected global::System.Web.UI.WebControls.HiddenField hfKnowledgeID;
 
         /// <summary>
-        /// lblCourseTitle control.
+        /// txtQuestion control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCourseTitle;
+        protected global::System.Web.UI.WebControls.TextBox txtQuestion;
 
         /// <summary>
-        /// ValidationSummary1 control.
+        /// txtAnswer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.ValidationSummary ValidationSummary1;
+        protected global::System.Web.UI.WebControls.TextBox txtAnswer;
 
         /// <summary>
-        /// txtModuleName control.
+        /// txtCategory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtModuleName;
+        protected global::System.Web.UI.WebControls.TextBox txtCategory;
 
         /// <summary>
-        /// reqModuleName control.
+        /// btnSaveKnowledge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator reqModuleName;
+        protected global::System.Web.UI.WebControls.Button btnSaveKnowledge;
 
         /// <summary>
-        /// regexModuleName control.
+        /// gvKnowledge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RegularExpressionValidator regexModuleName;
+        protected global::System.Web.UI.WebControls.GridView gvKnowledge;
 
         /// <summary>
-        /// txtModuleDesc control.
+        /// hfRuleID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtModuleDesc;
+        protected global::System.Web.UI.WebControls.HiddenField hfRuleID;
 
         /// <summary>
-        /// btnAddModule control.
+        /// txtRuleName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAddModule;
+        protected global::System.Web.UI.WebControls.TextBox txtRuleName;
 
         /// <summary>
-        /// lblMessage control.
+        /// txtRuleDescription control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblMessage;
+        protected global::System.Web.UI.WebControls.TextBox txtRuleDescription;
 
         /// <summary>
-        /// gvModules control.
+        /// txtRuleContent control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView gvModules;
+        protected global::System.Web.UI.WebControls.TextBox txtRuleContent;
 
         /// <summary>
-        /// btnContinue control.
+        /// btnSaveRule control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnContinue;
+        protected global::System.Web.UI.WebControls.Button btnSaveRule;
 
         /// <summary>
-        /// btnBackToCourse control.
+        /// gvRules control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnBackToCourse;
+        protected global::System.Web.UI.WebControls.GridView gvRules;
     }
 }

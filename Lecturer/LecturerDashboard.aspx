@@ -113,9 +113,10 @@
                             <div class="quick-card-desc">Update your personal details</div>
                         </a>
 
-                        <a href="../Chatbot/Chatbot.aspx" class="quick-card">
-                            <div class="quick-card-title">Go to Chatbot</div>
-                            <div class="quick-card-desc">Ask questions and get assistance</div>
+                        <a href="../Chatbot/AdminChatbotKnowledge.aspx" class="quick-card">
+                            <div class="quick-card-title">Manage Chatbot</div>
+                            <div class="quick-card-desc">Add rules and data for chatbot
+                            </div>
                         </a>
 
                         <a href="MessageBox.aspx" class="quick-card">

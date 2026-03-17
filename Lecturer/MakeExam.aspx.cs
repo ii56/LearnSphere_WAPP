@@ -14,126 +14,52 @@ namespace LearnSphere_WAPP.Lecturer
     {
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
 
-        DataTable questionTable;
+        int courseId;
         int moduleId;
         int examId;
         bool isEdit = false;
-        int courseId;
+        int userId;
+
+        protected void Page_Init(object sender, EventArgs e)
+        {
+            // 🔐 CSRF Protection
+            if (Session["userid"] != null)
+                ViewStateUserKey = Session["userid"].ToString();
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // 🔐 AUTHENTICATION
+            if (Session["userid"] == null || Session["usertype"]?.ToString() != "Lecturer")
+            {
+                Response.Redirect("~/Login.aspx");
+                return;
+            }
 
-            if (Request.QueryString["courseid"] != null)
-                courseId = Convert.ToInt32(Request.QueryString["courseid"]);
+            userId = Convert.ToInt32(Session["userid"]);
 
-            if (Request.QueryString["moduleid"] != null)
-                moduleId = Convert.ToInt32(Request.QueryString["moduleid"]);
+            // 🔐 SAFE QUERY PARSING
+            int.TryParse(Request.QueryString["courseid"], out courseId);
+            int.TryParse(Request.QueryString["moduleid"], out moduleId);
+            isEdit = Request.QueryString["edit"] == "1";
 
-            if (Request.QueryString["edit"] == "1")
-                isEdit = true;
+            // 🔐 AUTHORIZATION (CRITICAL)
+            if (!IsOwner(courseId))
+            {
+                Response.Redirect("ViewCourses.aspx");
+                return;
+            }
 
             if (!IsPostBack)
             {
+                CreateQuestionTable();
                 LoadExamType();
 
-                CreateQuestionTable();
-
                 if (isEdit)
-                {
                     LoadExamForEdit();
-                }
                 else
-                {
                     LoadCourses();
-                }
             }
-
-        }
-
-        void LoadExamType()
-        {
-            ddlExamType.Items.Clear();
-
-            ddlExamType.Items.Add(new ListItem("Select Exam Type", ""));
-            ddlExamType.Items.Add(new ListItem("Course Exam", "course"));
-            ddlExamType.Items.Add(new ListItem("Module Exam", "module"));
-        }
-
-        protected void ddlExamType_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-            if (ddlExamType.SelectedValue == "course")
-            {
-                LoadCourseOnly();
-            }
-
-            if (ddlExamType.SelectedValue == "module")
-            {
-                LoadModulesForCourse();
-            }
-
-        }
-
-        void LoadCourseOnly()
-        {
-
-            ddlTarget.Items.Clear();
-
-            using (SqlConnection con = new SqlConnection(connStr))
-            {
-
-                string query = "SELECT courseid, coursename FROM Course WHERE courseid=@id";
-
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", courseId);
-
-                con.Open();
-
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                if (reader.Read())
-                {
-                    ddlTarget.Items.Add(new ListItem(
-                        reader["coursename"].ToString(),
-                        reader["courseid"].ToString()
-                    ));
-                }
-
-            }
-
-        }
-
-        void LoadModulesForCourse()
-        {
-
-            ddlTarget.Items.Clear();
-
-            using (SqlConnection con = new SqlConnection(connStr))
-            {
-
-                string query =
-                @"SELECT moduleid, modulename
-          FROM Module
-          WHERE courseid=@courseid
-          AND deletiontime IS NULL";
-
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@courseid", courseId);
-
-                con.Open();
-
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    ddlTarget.Items.Add(new ListItem(
-                        reader["modulename"].ToString(),
-                        reader["moduleid"].ToString()
-                    ));
-                }
-
-            }
-
         }
 
         void LoadExamForEdit()
@@ -142,61 +68,43 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 con.Open();
 
-                string examQuery = "";
+                string query = moduleId > 0
+                    ? "SELECT examid, examtitle FROM Exam WHERE moduleid=@id"
+                    : "SELECT examid, examtitle FROM Exam WHERE courseid=@id";
 
-                // Determine whether editing module exam or course exam
-                if (moduleId != 0)
-                    examQuery = "SELECT examid, examtitle FROM Exam WHERE moduleid=@id";
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                if (moduleId > 0)
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = moduleId;
                 else
-                    examQuery = "SELECT examid, examtitle FROM Exam WHERE courseid=@id";
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = courseId;
 
-                SqlCommand examCmd = new SqlCommand(examQuery, con);
-
-                if (moduleId != 0)
-                    examCmd.Parameters.AddWithValue("@id", moduleId);
-                else
-                    examCmd.Parameters.AddWithValue("@id", courseId);
-
-                SqlDataReader reader = examCmd.ExecuteReader();
+                SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.Read())
                 {
                     examId = Convert.ToInt32(reader["examid"]);
-                    txtExamTitle.Text = reader["examtitle"].ToString();
+                    txtExamTitle.Text = Server.HtmlEncode(reader["examtitle"].ToString());
                 }
 
                 reader.Close();
 
-                // Set dropdown selections correctly
-                if (moduleId != 0)
-                {
-                    ddlExamType.SelectedValue = "module";
-                    LoadModulesForCourse();
-                    ddlTarget.SelectedValue = moduleId.ToString();
-                }
-                else
-                {
-                    ddlExamType.SelectedValue = "course";
-                    LoadCourseOnly();
-                    ddlTarget.SelectedValue = courseId.ToString();
-                }
-
                 // Load questions
                 string q = @"SELECT questiontext, optionA, optionB, optionC, optionD,
-                     correctanswer, marks
+                            correctanswer, marks
                      FROM ExamQuestion
                      WHERE examid=@examid";
 
-                SqlCommand cmd = new SqlCommand(q, con);
-                cmd.Parameters.AddWithValue("@examid", examId);
+                SqlCommand qCmd = new SqlCommand(q, con);
+                qCmd.Parameters.Add("@examid", SqlDbType.Int).Value = examId;
 
-                SqlDataReader qReader = cmd.ExecuteReader();
+                SqlDataReader qReader = qCmd.ExecuteReader();
 
-                questionTable = (DataTable)ViewState["questions"];
+                DataTable dt = (DataTable)ViewState["questions"];
 
                 while (qReader.Read())
                 {
-                    questionTable.Rows.Add(
+                    dt.Rows.Add(
                         qReader["questiontext"].ToString(),
                         qReader["optionA"].ToString(),
                         qReader["optionB"].ToString(),
@@ -207,88 +115,145 @@ namespace LearnSphere_WAPP.Lecturer
                     );
                 }
 
-                ViewState["questions"] = questionTable;
+                ViewState["questions"] = dt;
 
-                gvQuestions.DataSource = questionTable;
+                gvQuestions.DataSource = dt;
                 gvQuestions.DataBind();
+            }
+        }
+
+        // 🔐 CHECK COURSE OWNERSHIP
+        private bool IsOwner(int cid)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string q = "SELECT COUNT(*) FROM Course WHERE courseid=@cid AND ownerid=@uid";
+
+                SqlCommand cmd = new SqlCommand(q, con);
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = cid;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+
+                con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
             }
         }
 
         void CreateQuestionTable()
         {
+            DataTable dt = new DataTable();
+            dt.Columns.Add("Question");
+            dt.Columns.Add("A");
+            dt.Columns.Add("B");
+            dt.Columns.Add("C");
+            dt.Columns.Add("D");
+            dt.Columns.Add("Correct");
+            dt.Columns.Add("Marks");
 
-            questionTable = new DataTable();
+            ViewState["questions"] = dt;
+        }
 
-            questionTable.Columns.Add("Question");
-            questionTable.Columns.Add("A");
-            questionTable.Columns.Add("B");
-            questionTable.Columns.Add("C");
-            questionTable.Columns.Add("D");
-            questionTable.Columns.Add("Correct");
-            questionTable.Columns.Add("Marks");
-
-            ViewState["questions"] = questionTable;
-
+        void LoadExamType()
+        {
+            ddlExamType.Items.Clear();
+            ddlExamType.Items.Add(new ListItem("Select Exam Type", ""));
+            ddlExamType.Items.Add(new ListItem("Course Exam", "course"));
+            ddlExamType.Items.Add(new ListItem("Module Exam", "module"));
         }
 
         void LoadCourses()
         {
-
             using (SqlConnection con = new SqlConnection(connStr))
             {
-
-                string q = "SELECT courseid,coursename FROM Course WHERE deletiontime IS NULL";
+                string q = "SELECT courseid, coursename FROM Course WHERE ownerid=@uid AND deletiontime IS NULL";
 
                 SqlCommand cmd = new SqlCommand(q, con);
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
 
                 con.Open();
-
                 ddlTarget.DataSource = cmd.ExecuteReader();
                 ddlTarget.DataTextField = "coursename";
                 ddlTarget.DataValueField = "courseid";
                 ddlTarget.DataBind();
-
             }
+        }
 
+        protected void ddlExamType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ddlExamType.SelectedValue == "course")
+                LoadCourses();
+            else if (ddlExamType.SelectedValue == "module")
+                LoadModulesForCourse();
+        }
+
+        void LoadModulesForCourse()
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string q = @"SELECT moduleid, modulename
+                             FROM Module
+                             WHERE courseid=@cid AND deletiontime IS NULL";
+
+                SqlCommand cmd = new SqlCommand(q, con);
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = courseId;
+
+                con.Open();
+                ddlTarget.DataSource = cmd.ExecuteReader();
+                ddlTarget.DataTextField = "modulename";
+                ddlTarget.DataValueField = "moduleid";
+                ddlTarget.DataBind();
+            }
         }
 
         protected void btnAddQuestion_Click(object sender, EventArgs e)
         {
-            questionTable = (DataTable)ViewState["questions"];
+            if (!ValidateQuestionInputs())
+                return;
 
-            if (ViewState["editRowIndex"] != null)
-            {
-                int index = Convert.ToInt32(ViewState["editRowIndex"]);
+            DataTable dt = (DataTable)ViewState["questions"];
 
-                questionTable.Rows[index]["Question"] = txtQuestion.Text;
-                questionTable.Rows[index]["A"] = txtA.Text;
-                questionTable.Rows[index]["B"] = txtB.Text;
-                questionTable.Rows[index]["C"] = txtC.Text;
-                questionTable.Rows[index]["D"] = txtD.Text;
-                questionTable.Rows[index]["Correct"] = ddlCorrect.SelectedValue;
-                questionTable.Rows[index]["Marks"] = txtMarks.Text;
+            dt.Rows.Add(
+                Server.HtmlEncode(txtQuestion.Text.Trim()),
+                Server.HtmlEncode(txtA.Text.Trim()),
+                Server.HtmlEncode(txtB.Text.Trim()),
+                Server.HtmlEncode(txtC.Text.Trim()),
+                Server.HtmlEncode(txtD.Text.Trim()),
+                ddlCorrect.SelectedValue,
+                int.Parse(txtMarks.Text)
+            );
 
-                ViewState["editRowIndex"] = null;
-            }
-            else
-            {
-                questionTable.Rows.Add(
-                    txtQuestion.Text,
-                    txtA.Text,
-                    txtB.Text,
-                    txtC.Text,
-                    txtD.Text,
-                    ddlCorrect.SelectedValue,
-                    txtMarks.Text
-                );
-            }
+            ViewState["questions"] = dt;
 
-            ViewState["questions"] = questionTable;
-
-            gvQuestions.DataSource = questionTable;
+            gvQuestions.DataSource = dt;
             gvQuestions.DataBind();
 
-            // Clear fields
+            ClearInputs();
+        }
+
+        private bool ValidateQuestionInputs()
+        {
+            if (string.IsNullOrWhiteSpace(txtQuestion.Text))
+            {
+                lblMessage.Text = "Question required.";
+                return false;
+            }
+
+            if (txtA.Text == txtB.Text || txtA.Text == txtC.Text || txtA.Text == txtD.Text)
+            {
+                lblMessage.Text = "Options must be unique.";
+                return false;
+            }
+
+            if (!int.TryParse(txtMarks.Text, out int marks) || marks < 1 || marks > 100)
+            {
+                lblMessage.Text = "Marks must be 1–100.";
+                return false;
+            }
+
+            return true;
+        }
+
+        void ClearInputs()
+        {
             txtQuestion.Text = "";
             txtA.Text = "";
             txtB.Text = "";
@@ -297,217 +262,84 @@ namespace LearnSphere_WAPP.Lecturer
             txtMarks.Text = "1";
         }
 
-        protected void btnReview_Click(object sender, EventArgs e)
-        {
-
-            gvQuestions.DataSource = (DataTable)ViewState["questions"];
-            gvQuestions.DataBind();
-
-        }
-
-        protected void gvQuestions_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            int index = gvQuestions.SelectedIndex;
-
-            DataTable dt = (DataTable)ViewState["questions"];
-
-            txtQuestion.Text = dt.Rows[index]["Question"].ToString();
-            txtA.Text = dt.Rows[index]["A"].ToString();
-            txtB.Text = dt.Rows[index]["B"].ToString();
-            txtC.Text = dt.Rows[index]["C"].ToString();
-            txtD.Text = dt.Rows[index]["D"].ToString();
-
-            ddlCorrect.SelectedValue = dt.Rows[index]["Correct"].ToString();
-
-            txtMarks.Text = dt.Rows[index]["Marks"].ToString();
-
-            // Store index of editing row
-            ViewState["editRowIndex"] = index;
-        }
-
         protected void btnPublish_Click(object sender, EventArgs e)
         {
-
-            using (SqlConnection con = new SqlConnection(connStr))
+            try
             {
-
-                con.Open();
-
-                string examInsert = "";
-
-                // IF EDIT MODE
-                if (isEdit)
+                if (ddlTarget.SelectedValue == "" || ddlExamType.SelectedValue == "")
                 {
-                    string getExam = "";
-
-                    if (ddlExamType.SelectedValue == "module")
-                        getExam = "SELECT examid FROM Exam WHERE moduleid=@id";
-                    else
-                        getExam = "SELECT examid FROM Exam WHERE courseid=@id";
-
-                    SqlCommand getCmd = new SqlCommand(getExam, con);
-
-                    if (ddlExamType.SelectedValue == "module")
-                        getCmd.Parameters.AddWithValue("@id", ddlTarget.SelectedValue);
-                    else
-                        getCmd.Parameters.AddWithValue("@id", ddlTarget.SelectedValue);
-
-                    object result = getCmd.ExecuteScalar();
-
-                    if (result != null)
-                        examId = Convert.ToInt32(result);
-
-                    // remove old questions
-                    string del = "DELETE FROM ExamQuestion WHERE examid=@examid";
-
-                    SqlCommand delCmd = new SqlCommand(del, con);
-                    delCmd.Parameters.AddWithValue("@examid", examId);
-                    delCmd.ExecuteNonQuery();
-                }
-                else
-                {
-
-                    // CREATE NEW EXAM
-                    string checkExam = "";
-
-                    if (ddlExamType.SelectedValue == "module")
-                        checkExam = "SELECT examid FROM Exam WHERE moduleid=@id";
-                    else
-                        checkExam = "SELECT examid FROM Exam WHERE courseid=@id";
-
-                    SqlCommand checkCmd = new SqlCommand(checkExam, con);
-                    checkCmd.Parameters.AddWithValue("@id", ddlTarget.SelectedValue);
-
-                    object existingExam = checkCmd.ExecuteScalar();
-
-                    if (existingExam != null)
-                    {
-                        examId = Convert.ToInt32(existingExam);
-                    }
-                    else
-                    {
-                        if (ddlExamType.SelectedValue == "module")
-                            examInsert = @"INSERT INTO Exam(moduleid,examtitle,totalmarks)
-                       OUTPUT INSERTED.examid
-                       VALUES(@target,@title,0)";
-                        else
-                            examInsert = @"INSERT INTO Exam(courseid,examtitle,totalmarks)
-                       OUTPUT INSERTED.examid
-                       VALUES(@target,@title,0)";
-
-                        SqlCommand cmd = new SqlCommand(examInsert, con);
-
-                        cmd.Parameters.AddWithValue("@target", ddlTarget.SelectedValue);
-                        cmd.Parameters.AddWithValue("@title", txtExamTitle.Text);
-
-                        examId = (int)cmd.ExecuteScalar();
-                    }
-
+                    lblMessage.Text = "Select exam type and target.";
+                    return;
                 }
 
-                // INSERT QUESTIONS
                 DataTable questions = (DataTable)ViewState["questions"];
 
-                foreach (DataRow r in questions.Rows)
+                if (questions.Rows.Count == 0)
                 {
-
-                    SqlCommand qCmd = new SqlCommand(
-                    @"INSERT INTO ExamQuestion
-            (examid,questiontext,optionA,optionB,optionC,optionD,correctanswer,marks)
-            VALUES
-            (@exam,@q,@A,@B,@C,@D,@correct,@marks)", con);
-
-                    qCmd.Parameters.AddWithValue("@exam", examId);
-                    qCmd.Parameters.AddWithValue("@q", r["Question"]);
-                    qCmd.Parameters.AddWithValue("@A", r["A"]);
-                    qCmd.Parameters.AddWithValue("@B", r["B"]);
-                    qCmd.Parameters.AddWithValue("@C", r["C"]);
-                    qCmd.Parameters.AddWithValue("@D", r["D"]);
-                    qCmd.Parameters.AddWithValue("@correct", r["Correct"]);
-                    qCmd.Parameters.AddWithValue("@marks", r["Marks"]);
-
-                    qCmd.ExecuteNonQuery();
-
+                    lblMessage.Text = "Add at least one question.";
+                    return;
                 }
 
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
+                    SqlTransaction trans = con.BeginTransaction();
+
+                    try
+                    {
+                        string insertExam = ddlExamType.SelectedValue == "module"
+                            ? @"INSERT INTO Exam(moduleid, examtitle, totalmarks)
+                                OUTPUT INSERTED.examid
+                                VALUES(@target, @title, 0)"
+                            : @"INSERT INTO Exam(courseid, examtitle, totalmarks)
+                                OUTPUT INSERTED.examid
+                                VALUES(@target, @title, 0)";
+
+                        SqlCommand cmd = new SqlCommand(insertExam, con, trans);
+                        cmd.Parameters.Add("@target", SqlDbType.Int).Value = Convert.ToInt32(ddlTarget.SelectedValue);
+                        cmd.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = Server.HtmlEncode(txtExamTitle.Text);
+
+                        examId = (int)cmd.ExecuteScalar();
+
+                        foreach (DataRow r in questions.Rows)
+                        {
+                            SqlCommand qCmd = new SqlCommand(@"
+                                INSERT INTO ExamQuestion
+                                (examid, questiontext, optionA, optionB, optionC, optionD, correctanswer, marks)
+                                VALUES
+                                (@eid, @q, @A, @B, @C, @D, @correct, @marks)", con, trans);
+
+                            qCmd.Parameters.Add("@eid", SqlDbType.Int).Value = examId;
+                            qCmd.Parameters.Add("@q", SqlDbType.NVarChar).Value = r["Question"];
+                            qCmd.Parameters.Add("@A", SqlDbType.NVarChar).Value = r["A"];
+                            qCmd.Parameters.Add("@B", SqlDbType.NVarChar).Value = r["B"];
+                            qCmd.Parameters.Add("@C", SqlDbType.NVarChar).Value = r["C"];
+                            qCmd.Parameters.Add("@D", SqlDbType.NVarChar).Value = r["D"];
+                            qCmd.Parameters.Add("@correct", SqlDbType.Char).Value = r["Correct"];
+                            qCmd.Parameters.Add("@marks", SqlDbType.Int).Value = r["Marks"];
+
+                            qCmd.ExecuteNonQuery();
+                        }
+
+                        trans.Commit();
+                        Response.Redirect("ViewCourses.aspx");
+                    }
+                    catch
+                    {
+                        trans.Rollback();
+                        lblMessage.Text = "Failed to publish exam.";
+                    }
+                }
             }
-
-            Response.Redirect("ViewCourses.aspx");
-
-        }
-
-        protected void btnDraft_Click(object sender, EventArgs e)
-        {
-
-            using (SqlConnection con = new SqlConnection(connStr))
+            catch
             {
-
-                string q = "";
-
-                if (ddlExamType.SelectedValue == "module")
-                {
-                    q = "INSERT INTO Exam(moduleid,examtitle,totalmarks) VALUES(@target,@title,0)";
-                }
-                else
-                {
-                    q = "INSERT INTO Exam(courseid,examtitle,totalmarks) VALUES(@target,@title,0)";
-                }
-
-                SqlCommand cmd = new SqlCommand(q, con);
-
-                cmd.Parameters.AddWithValue("@target", ddlTarget.SelectedValue);
-                cmd.Parameters.AddWithValue("@title", txtExamTitle.Text);
-
-            }
-
-        }
-
-        protected void ddlQuestionFilter_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            using (SqlConnection con = new SqlConnection(connStr))
-            {
-                con.Open();
-
-                string q = "";
-
-                if (ddlQuestionFilter.SelectedValue == "module")
-                {
-                    q = @"SELECT questiontext, optionA, optionB, optionC, optionD, correctanswer, marks
-                  FROM ExamQuestion q
-                  JOIN Exam e ON q.examid = e.examid
-                  WHERE e.moduleid IN
-                  (SELECT moduleid FROM Module WHERE courseid=@courseid)";
-                }
-                else if (ddlQuestionFilter.SelectedValue == "course")
-                {
-                    q = @"SELECT questiontext, optionA, optionB, optionC, optionD, correctanswer, marks
-                  FROM ExamQuestion q
-                  JOIN Exam e ON q.examid = e.examid
-                  WHERE e.courseid=@courseid";
-                }
-                else
-                {
-                    q = @"SELECT questiontext, optionA, optionB, optionC, optionD, correctanswer, marks
-                  FROM ExamQuestion q
-                  JOIN Exam e ON q.examid = e.examid
-                  WHERE e.courseid=@courseid
-                  OR e.moduleid IN
-                  (SELECT moduleid FROM Module WHERE courseid=@courseid)";
-                }
-
-                SqlCommand cmd = new SqlCommand(q, con);
-                cmd.Parameters.AddWithValue("@courseid", courseId);
-
-                gvQuestions.DataSource = cmd.ExecuteReader();
-                gvQuestions.DataBind();
+                lblMessage.Text = "Unexpected error occurred.";
             }
         }
 
         protected void btnCancel_Click(object sender, EventArgs e)
         {
-
             Response.Redirect("ViewCourses.aspx");
-
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
