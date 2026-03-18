@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Data;
+
 namespace LearnSphere_WAPP.Lecturer
 {
     public partial class CreateCourse : System.Web.UI.Page
@@ -138,50 +141,22 @@ namespace LearnSphere_WAPP.Lecturer
                     return;
                 }
 
-                // -------- FILE UPLOAD --------
+                // -------- GENERATED THUMBNAIL --------
                 string thumbnailPath = null;
 
-                if (fileThumbnail.HasFile)
+                if (ViewState["ThumbnailPath"] != null)
                 {
-                    string extension = Path.GetExtension(fileThumbnail.FileName).ToLower();
-                    string mime = fileThumbnail.PostedFile.ContentType;
+                    thumbnailPath = ViewState["ThumbnailPath"].ToString();
+                }
+                else
+                {
+                    // fallback → auto-generate if user didn’t click preview
+                    string color = txtColor.Text;
 
-                    string[] allowedExt = { ".jpg", ".jpeg", ".png" };
+                    if (string.IsNullOrWhiteSpace(color))
+                        color = "#3b82f6";
 
-                    if (Array.IndexOf(allowedExt, extension) < 0)
-                    {
-                        lblMessage.Text = "Invalid file extension.";
-                        return;
-                    }
-
-                    if (!(mime == "image/jpeg" || mime == "image/png"))
-                    {
-                        lblMessage.Text = "Invalid file type.";
-                        return;
-                    }
-
-                    if (fileThumbnail.PostedFile.ContentLength > 2 * 1024 * 1024)
-                    {
-                        lblMessage.Text = "File too large (max 2MB).";
-                        return;
-                    }
-
-                    if (fileThumbnail.FileName.Contains(".."))
-                    {
-                        lblMessage.Text = "Invalid file name.";
-                        return;
-                    }
-
-                    string fileName = Guid.NewGuid().ToString() + extension;
-                    string savePath = Server.MapPath("~/uploads/course_thumbnails/");
-
-                    if (!Directory.Exists(savePath))
-                        Directory.CreateDirectory(savePath);
-
-                    string fullPath = Path.Combine(savePath, fileName);
-                    fileThumbnail.SaveAs(fullPath);
-
-                    thumbnailPath = "~/uploads/course_thumbnails/" + fileName;
+                    thumbnailPath = GenerateThumbnail(color);
                 }
 
                 // -------- DATABASE --------
@@ -190,11 +165,11 @@ namespace LearnSphere_WAPP.Lecturer
                     con.Open();
 
                     string query = @"
-                        INSERT INTO Course
-                        (ownerid, coursename, description, price, creationtime, deletiontime, category, status)
-                        OUTPUT INSERTED.courseid
-                        VALUES
-                        (@ownerid, @name, @desc, @price, GETDATE(), NULL, @category, 0)";
+                INSERT INTO Course
+                (ownerid, coursename, description, price, creationtime, deletiontime, category, thumbnail, status)
+                OUTPUT INSERTED.courseid
+                VALUES
+                (@ownerid, @name, @desc, @price, GETDATE(), NULL, @category, @thumbnail, 0)";
 
                     SqlCommand cmd = new SqlCommand(query, con);
 
@@ -203,6 +178,9 @@ namespace LearnSphere_WAPP.Lecturer
                     cmd.Parameters.Add("@desc", SqlDbType.NVarChar, 1000).Value = description;
                     cmd.Parameters.Add("@price", SqlDbType.Decimal).Value = price;
                     cmd.Parameters.Add("@category", SqlDbType.NVarChar, 50).Value = category;
+
+                    // 🔥 NEW THUMBNAIL PARAM
+                    cmd.Parameters.Add("@thumbnail", SqlDbType.NVarChar, 255).Value = thumbnailPath;
 
                     int newCourseId = (int)cmd.ExecuteScalar();
 
@@ -215,6 +193,63 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 // 🔐 SAFE ERROR MESSAGE
                 lblMessage.Text = "Something went wrong. Please try again.";
+            }
+        }
+
+
+        private string GenerateThumbnail(string colorHex)
+        {
+            int width = 500;
+            int height = 300;
+
+            // 🔥 Ensure folder exists
+            string folderPath = Server.MapPath("~/GeneratedThumbnails/");
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            string fileName = "thumb_" + Guid.NewGuid().ToString() + ".png";
+            string fullPath = Path.Combine(folderPath, fileName);
+
+            try
+            {
+                using (Bitmap bmp = new Bitmap(width, height))
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    // Base color
+                    Color baseColor = ColorTranslator.FromHtml(colorHex);
+                    g.Clear(baseColor);
+
+                    Random rand = new Random();
+
+                    // Draw random shapes
+                    for (int i = 0; i < 20; i++)
+                    {
+                        int x = rand.Next(width);
+                        int y = rand.Next(height);
+                        int size = rand.Next(30, 120);
+
+                        Color shapeColor = Color.FromArgb(
+                            rand.Next(40, 120),
+                            255, 255, 255);
+
+                        using (Brush brush = new SolidBrush(shapeColor))
+                        {
+                            if (rand.Next(2) == 0)
+                                g.FillEllipse(brush, x, y, size, size);
+                            else
+                                g.FillRectangle(brush, x, y, size, size);
+                        }
+                    }
+
+                    // 🔥 IMPORTANT: Save AFTER drawing & inside using
+                    bmp.Save(fullPath, ImageFormat.Png);
+                }
+
+                return "~/GeneratedThumbnails/" + fileName;
+            }
+            catch
+            {
+                return "~/images/default-course.png"; // fallback
             }
         }
 
@@ -240,6 +275,18 @@ namespace LearnSphere_WAPP.Lecturer
 
             Response.Cookies.Add(new HttpCookie("ASP.NET_SessionId", ""));
             Response.Redirect("~/Login.aspx");
+        }
+
+        protected void btnPreview_Click(object sender, EventArgs e)
+        {
+            string color = txtColor.Text;
+
+            string path = GenerateThumbnail(color);
+
+            imgPreview.ImageUrl = ResolveUrl(path);
+
+            // store for later saving
+            ViewState["ThumbnailPath"] = path;
         }
     }
 }

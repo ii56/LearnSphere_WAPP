@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Create Course</title>
-    <link href="courses.css" rel="stylesheet" />
+    <link href="lecturer.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -155,15 +155,36 @@
 
 
             <!-- THUMBNAIL (RESTORED UI) -->
-            <label>Course Thumbnail</label>
+<label>Thumbnail Style</label>
 
-            <div class="upload-box">
-                <p>Drag and drop an image here, or click to select</p>
+<div class="thumbnail-generator">
 
-                <asp:FileUpload ID="fileThumbnail"
-                    runat="server"
-                    CssClass="modern-input" />
-            </div>
+    <label>Select Base Color</label>
+
+    <asp:TextBox ID="txtColor"
+        runat="server"
+        Text="#3b82f6"
+        CssClass="modern-input"
+        TextMode="Color" />
+
+    <br /><br />
+
+    <asp:Button ID="btnPreview"
+        runat="server"
+        Text="Preview Design"
+        CssClass="btn-modern"
+        OnClick="btnPreview_Click" />
+
+    <br /><br />
+
+    <!-- PREVIEW IMAGE -->
+    <asp:Image ID="imgPreview"
+        runat="server"
+        Width="250px"
+        Height="150px"
+        Style="border-radius:10px; border:1px solid #ccc;" />
+
+</div>
 
 
             <!-- CATEGORY + LEVEL -->

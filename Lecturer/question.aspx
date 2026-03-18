@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Ask Question</title>
-    <link href="question.css" rel="stylesheet" />
+    <link href="lecturer.css" rel="stylesheet" />
 </head>
 
 <body>

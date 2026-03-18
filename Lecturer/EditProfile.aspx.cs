@@ -20,8 +20,7 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["userid"] == null || Session["usertype"] == null ||
-                Session["usertype"].ToString() != "Lecturer")
+            if (Session["userid"] == null || Session["usertype"] == null)
             {
                 Response.Redirect("~/Login.aspx");
                 return;
@@ -39,8 +38,26 @@ namespace LearnSphere_WAPP.Lecturer
                 {
                     imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
                 }
+
                 LoadSidebarProfileImage();
                 LoadProfile();
+
+                // 🔥 ADD THIS
+                LoadRoleOptions();
+                LoadVerificationHistory();
+            }
+        }
+        private string GetCurrentRoleFromDB()
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string q = "SELECT usertype FROM [User] WHERE userid=@id";
+
+                SqlCommand cmd = new SqlCommand(q, con);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
+
+                con.Open();
+                return cmd.ExecuteScalar().ToString();
             }
         }
 
@@ -87,8 +104,160 @@ namespace LearnSphere_WAPP.Lecturer
                     txtDescription.Text = reader["description"]?.ToString();
                 }
             }
+        }
 
-            LoadVerificationDocuments();
+        private void LoadRoleOptions()
+        {
+            string role = Session["usertype"].ToString();
+
+            txtCurrentRole.Text = role;
+
+            ddlRequestedRole.Items.Clear();
+            ddlRequestedRole.Items.Add(new ListItem("Select Role", ""));
+
+            if (role == "General")
+            {
+                ddlRequestedRole.Items.Add("Student");
+                ddlRequestedRole.Items.Add("Lecturer");
+            }
+            else if (role == "Lecturer")
+            {
+                ddlRequestedRole.Items.Add("Admin");
+            }
+            else if (role == "Admin")
+            {
+                ddlRequestedRole.Items.Add("SuperAdmin");
+            }
+        }
+
+        protected void btnSendVerification_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(ddlRequestedRole.SelectedValue))
+            {
+                lblVerificationMsg.Text = "Please select a role.";
+                return;
+            }
+
+            if (!fuVerificationDoc.HasFile)
+            {
+                lblVerificationMsg.Text = "Please upload a document.";
+                return;
+            }
+            string ext = Path.GetExtension(fuVerificationDoc.FileName).ToLower();
+            string mime = fuVerificationDoc.PostedFile.ContentType;
+
+            if (ext != ".pdf" || mime != "application/pdf")
+            {
+                lblVerificationMsg.Text = "Only valid PDF files allowed.";
+                return;
+            }
+
+            if (fuVerificationDoc.PostedFile.ContentLength > 5 * 1024 * 1024)
+            {
+                lblVerificationMsg.Text = "File too large (max 5MB).";
+                return;
+            }
+
+            // 🔐 ROLE VALIDATION (VERY IMPORTANT)
+            string currentRole = GetCurrentRoleFromDB();
+            string requestedRole = ddlRequestedRole.SelectedValue;
+
+            bool valid = false;
+
+            if (currentRole == "General" &&
+                (requestedRole == "Student" || requestedRole == "Lecturer"))
+                valid = true;
+
+            else if (currentRole == "Lecturer" && requestedRole == "Admin")
+                valid = true;
+
+            else if (currentRole == "Admin" && requestedRole == "SuperAdmin")
+                valid = true;
+
+            if (!valid)
+            {
+                lblVerificationMsg.Text = "Invalid role request.";
+                return;
+            }
+
+            // 🔐 CHECK EXISTING PENDING REQUEST
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                con.Open();
+                string check = @"
+SELECT COUNT(*) 
+FROM VerificationRequest
+WHERE userid=@uid 
+AND requestedrole=@role
+AND status='Pending'";
+
+                SqlCommand checkCmd = new SqlCommand(check, con);
+                checkCmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+                checkCmd.Parameters.Add("@role", SqlDbType.NVarChar).Value = requestedRole;
+                int exists = (int)checkCmd.ExecuteScalar();
+
+                if (exists > 0)
+                {
+                    lblVerificationMsg.Text = "You already have a pending request.";
+                    return;
+                }
+            }
+
+            // -------- SAVE FILE --------
+            string folder = Server.MapPath("~/Uploads/VerificationDocs/");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            string fileName = Guid.NewGuid().ToString() + ".pdf";
+            string fullPath = Path.Combine(folder, fileName);
+
+            fuVerificationDoc.SaveAs(fullPath);
+
+            string relPath = "~/Uploads/VerificationDocs/" + fileName;
+
+            // -------- INSERT REQUEST --------
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string query = @"
+            INSERT INTO VerificationRequest
+            (userid, currentrole, requestedrole, documentpath, status, requesttime)
+            VALUES
+            (@uid, @current, @requested, @doc, 'Pending', GETDATE())";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+                cmd.Parameters.Add("@current", SqlDbType.NVarChar).Value = currentRole;
+                cmd.Parameters.Add("@requested", SqlDbType.NVarChar).Value = requestedRole;
+                cmd.Parameters.Add("@doc", SqlDbType.NVarChar).Value = relPath;
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+
+            lblVerificationMsg.ForeColor = System.Drawing.Color.Green;
+            lblVerificationMsg.Text = "Verification request sent successfully.";
+
+            LoadVerificationHistory();
+        }
+
+        private void LoadVerificationHistory()
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string query = @"
+            SELECT requestedrole, status, requesttime
+            FROM VerificationRequest
+            WHERE userid=@uid
+            ORDER BY requesttime DESC";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+
+                con.Open();
+                rptVerificationHistory.DataSource = cmd.ExecuteReader();
+                rptVerificationHistory.DataBind();
+            }
         }
 
         protected void btnSave_Click(object sender, EventArgs e)
@@ -244,77 +413,6 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 lblMessage.Text = "Error updating profile.";
             }
-        }
-
-        private void LoadVerificationDocuments()
-        {
-            using (SqlConnection con = new SqlConnection(connStr))
-            {
-                string query = @"SELECT fileurl, uploadtime
-                                 FROM Material
-                                 WHERE userid=@id AND filetype='VERIFICATION'
-                                 ORDER BY uploadtime DESC";
-
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
-
-                con.Open();
-                rptVerificationDocs.DataSource = cmd.ExecuteReader();
-                rptVerificationDocs.DataBind();
-            }
-        }
-
-        protected void btnUploadVerification_Click(object sender, EventArgs e)
-        {
-            if (!fuVerificationDoc.HasFile)
-            {
-                lblVerificationMsg.Text = "Select a file.";
-                return;
-            }
-
-            string ext = Path.GetExtension(fuVerificationDoc.FileName).ToLower();
-
-            if (ext != ".pdf")
-            {
-                lblVerificationMsg.Text = "Only PDF allowed.";
-                return;
-            }
-
-            if (fuVerificationDoc.PostedFile.ContentLength > 5 * 1024 * 1024)
-            {
-                lblVerificationMsg.Text = "Max size 5MB.";
-                return;
-            }
-
-            string folder = Server.MapPath("~/Uploads/VerificationDocs/");
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
-
-            string newName = Guid.NewGuid().ToString() + ".pdf";
-            string path = Path.Combine(folder, newName);
-
-            fuVerificationDoc.SaveAs(path);
-
-            string relPath = "~/Uploads/VerificationDocs/" + newName;
-
-            using (SqlConnection con = new SqlConnection(connStr))
-            {
-                string query = @"INSERT INTO Material
-                                 (clickcount, filetype, userid, fileurl)
-                                 VALUES (0, 'VERIFICATION', @uid, @url)";
-
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
-                cmd.Parameters.Add("@url", SqlDbType.NVarChar).Value = relPath;
-
-                con.Open();
-                cmd.ExecuteNonQuery();
-            }
-
-            lblVerificationMsg.ForeColor = System.Drawing.Color.Green;
-            lblVerificationMsg.Text = "Uploaded successfully.";
-
-            LoadVerificationDocuments();
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)

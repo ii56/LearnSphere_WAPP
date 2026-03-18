@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Edit and Publish</title>
-    <link href="CreateCourse.css" rel="stylesheet" />
+    <link href="lecturer.css" rel="stylesheet" />
 </head>
 
 <body>

@@ -179,6 +179,7 @@
     <Content Include="Lecturer\Forums.aspx" />
     <Content Include="Lecturer\Forums.css" />
     <Content Include="Lecturer\LEARNSPHERE_sign.png" />
+    <Content Include="Lecturer\lecturer.css" />
     <Content Include="Lecturer\LecturerDashboard.aspx" />
     <Content Include="Lecturer\LecturerDashboard.css" />
     <Content Include="Lecturer\MakeExam.aspx" />

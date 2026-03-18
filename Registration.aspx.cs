@@ -7,78 +7,174 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using BCrypt.Net;
+using System.Data;
 
 namespace LearnSphere_WAPP
 {
     public partial class Registration : System.Web.UI.Page
     {
+        string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (!IsPostBack)
+            {
+                ShowStep(1);
+            }
         }
-        protected void cvUsername_ServerValidate(object source, System.Web.UI.WebControls.ServerValidateEventArgs args)
-        {
-            string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
 
+        // ================= STEP CONTROL =================
+        private void ShowStep(int step)
+        {
+            pnlStep1.Visible = step == 1;
+            pnlStep2.Visible = step == 2;
+            pnlStep3.Visible = step == 3;
+
+            lblStep.Text = step.ToString();
+        }
+
+        // ================= USERNAME VALIDATION =================
+        protected void cvUsername_ServerValidate(object source, ServerValidateEventArgs args)
+        {
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
 
-                string query = "SELECT COUNT(*) FROM [User] WHERE uname = @uname";
+                string query = "SELECT COUNT(*) FROM [User] WHERE uname=@uname";
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@uname", uname.Text);
+                cmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text.Trim();
 
-                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                int count = (int)cmd.ExecuteScalar();
 
-                if (count > 0)
-                    args.IsValid = false;
-                else
-                    args.IsValid = true;
+                args.IsValid = count == 0;
             }
         }
 
+        // ================= STEP 1 → STEP 2 =================
+        protected void btnNext1_Click(object sender, EventArgs e)
+        {
+            Page.Validate("Step1");
+
+            if (!Page.IsValid)
+                return;
+
+            ShowStep(2);
+        }
+
+        // ================= STEP 2 → STEP 3 =================
+        protected void btnNext2_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(email.Text))
+            {
+                errMsg.Text = "Email is required";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(pwd.Text))
+            {
+                errMsg.Text = "Password is required";
+                return;
+            }
+
+            if (pwd.Text != pwd2.Text)
+            {
+                errMsg.Text = "Passwords do not match";
+                return;
+            }
+
+            errMsg.Text = "";
+            ShowStep(3);
+        }
+
+        // ================= BACK BUTTONS =================
+        protected void btnBack1_Click(object sender, EventArgs e)
+        {
+            ShowStep(1);
+        }
+
+        protected void btnBack2_Click(object sender, EventArgs e)
+        {
+            ShowStep(2);
+        }
+
+        // ================= REGISTER =================
         protected void btnRegister_Click(object sender, EventArgs e)
         {
-            if (Page.IsValid)
+            // 🔐 BASIC VALIDATION
+            if (string.IsNullOrWhiteSpace(fname.Text) ||
+                string.IsNullOrWhiteSpace(lname.Text) ||
+                string.IsNullOrWhiteSpace(age.Text) ||
+                string.IsNullOrWhiteSpace(gender.SelectedValue))
             {
-                try
-                {
-                    string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+                errMsg.Text = "Please complete all fields";
+                return;
+            }
 
-                    using (SqlConnection con = new SqlConnection(connStr))
+            int ageValue;
+            if (!int.TryParse(age.Text, out ageValue) || ageValue < 1 || ageValue > 120)
+            {
+                errMsg.Text = "Invalid age";
+                return;
+            }
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
+
+                    // 🔥 FINAL USERNAME CHECK (race condition protection)
+                    string checkQuery = "SELECT COUNT(*) FROM [User] WHERE uname=@uname";
+                    SqlCommand checkCmd = new SqlCommand(checkQuery, con);
+                    checkCmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text.Trim();
+
+                    int exists = (int)checkCmd.ExecuteScalar();
+
+                    if (exists > 0)
                     {
-                        con.Open();
-                        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(pwd.Text);
-
-                        string query = @"INSERT INTO [User]
-                        (uname, email, pwd, fname, lname, age, gender, creationtime, deletiontime, usertype, status)
-                        VALUES
-                        (@uname, @email, @pwd, @fname, @lname, @age, @gender, @creationtime, NULL, @usertype, @status)";
-
-                        SqlCommand cmd = new SqlCommand(query, con);
-
-                        cmd.Parameters.AddWithValue("@uname", uname.Text);
-                        cmd.Parameters.AddWithValue("@email", email.Text);
-                        cmd.Parameters.AddWithValue("@pwd", hashedPassword);
-                        cmd.Parameters.AddWithValue("@fname", fname.Text);
-                        cmd.Parameters.AddWithValue("@lname", lname.Text);
-                        cmd.Parameters.AddWithValue("@age", age.Text);
-                        cmd.Parameters.AddWithValue("@gender", gender.SelectedValue);
-                        cmd.Parameters.AddWithValue("@creationtime", DateTime.Now);
-                        cmd.Parameters.AddWithValue("@usertype", usertype.SelectedValue);
-                        cmd.Parameters.AddWithValue("@status", 1);
-
-                        cmd.ExecuteNonQuery();
-
-                        Session["RegistrationSuccess"] = "Registration successful! Please login";
-                        Response.Redirect("Login.aspx");
+                        errMsg.Text = "Username already exists!";
+                        ShowStep(1);
+                        return;
                     }
+
+                    // 🔐 HASH PASSWORD
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(pwd.Text);
+
+                    // 🔐 INSERT USER
+                    string query = @"INSERT INTO [User]
+                    (uname, email, pwd, fname, lname, age, gender, creationtime, deletiontime, usertype, status)
+                    VALUES
+                    (@uname, @email, @pwd, @fname, @lname, @age, @gender, @creationtime, NULL, @usertype, @status)";
+
+                    SqlCommand cmd = new SqlCommand(query, con);
+
+                    cmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text.Trim();
+                    cmd.Parameters.Add("@email", SqlDbType.NVarChar, 100).Value = email.Text.Trim();
+                    cmd.Parameters.Add("@pwd", SqlDbType.NVarChar).Value = hashedPassword;
+
+                    cmd.Parameters.Add("@fname", SqlDbType.NVarChar, 50).Value = fname.Text.Trim();
+                    cmd.Parameters.Add("@lname", SqlDbType.NVarChar, 50).Value = lname.Text.Trim();
+
+                    cmd.Parameters.Add("@age", SqlDbType.Int).Value = ageValue;
+                    cmd.Parameters.Add("@gender", SqlDbType.NVarChar, 10).Value = gender.SelectedValue;
+
+                    cmd.Parameters.Add("@creationtime", SqlDbType.DateTime).Value = DateTime.Now;
+
+                    // 🔥 DEFAULT ROLE
+                    cmd.Parameters.Add("@usertype", SqlDbType.NVarChar, 20).Value = "Public";
+
+                    cmd.Parameters.Add("@status", SqlDbType.Int).Value = 1;
+
+                    cmd.ExecuteNonQuery();
+
+                    // ✅ SUCCESS
+                    Session["RegistrationSuccess"] = "Registration successful! Please login.";
+                    Response.Redirect("Login.aspx");
                 }
-                catch (Exception ex)
-                {
-                    errMsg.ForeColor = System.Drawing.Color.Red;
-                    errMsg.Text = "Registration failed: " + ex.Message;
-                }
+            }
+            catch (Exception)
+            {
+                errMsg.Text = "Registration failed. Please try again.";
             }
         }
     }

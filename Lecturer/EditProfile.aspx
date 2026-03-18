@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Edit Profile</title>
-    <link href="EditProfile.css" rel="stylesheet" />
+    <link href="lecturer.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -228,40 +228,84 @@
 
 
         <!-- VERIFICATION -->
-        <div class="form-card-modern" style="margin-top:30px;">
-            <h3>Verification</h3>
+<!-- ROLE VERIFICATION REQUEST -->
+<div class="form-card-modern" style="margin-top:30px;">
+    <h3>Request Role Upgrade</h3>
 
-            <asp:FileUpload ID="fuVerificationDoc"
-                runat="server"
-                CssClass="modern-input" />
+    <p class="sub-text">
+        Submit a request to upgrade your account role. Approval is required.
+    </p>
 
-            <asp:RegularExpressionValidator
-                ControlToValidate="fuVerificationDoc"
-                ValidationExpression="^.*\.(pdf)$"
-                ErrorMessage="Only PDF files allowed."
-                CssClass="validation-error"
-                ValidationGroup="profileGroup"
-                runat="server" />
+    <!-- CURRENT ROLE DISPLAY -->
+    <label>Current Role</label>
+    <asp:TextBox ID="txtCurrentRole"
+        runat="server"
+        CssClass="modern-input"
+        Enabled="false" />
 
-            <asp:Button ID="btnUploadVerification"
-                runat="server"
-                Text="Upload Document"
-                CssClass="btn-modern"
-                OnClick="btnUploadVerification_Click" />
+    <br />
 
-            <asp:Label ID="lblVerificationMsg" runat="server" />
+    <!-- ROLE SELECTION (DYNAMICALLY FILLED IN .CS) -->
+    <label>Request New Role *</label>
+    <asp:DropDownList ID="ddlRequestedRole"
+        runat="server"
+        CssClass="modern-input">
+    </asp:DropDownList>
 
-            <asp:Repeater ID="rptVerificationDocs" runat="server">
-                <ItemTemplate>
-                    <div class="verification-doc-item">
-                        <a href='<%# ResolveUrl(Eval("fileurl").ToString()) %>' target="_blank">
-                            View Document
-                        </a>
-                    </div>
-                </ItemTemplate>
-            </asp:Repeater>
+    <asp:RequiredFieldValidator
+        ControlToValidate="ddlRequestedRole"
+        InitialValue=""
+        ErrorMessage="Please select a role."
+        CssClass="validation-error"
+        ValidationGroup="verifyGroup"
+        runat="server" />
 
-        </div>
+    <br /><br />
+
+    <!-- DOCUMENT UPLOAD -->
+    <label>Upload Supporting Document (PDF only) *</label>
+
+    <asp:FileUpload ID="fuVerificationDoc"
+        runat="server"
+        CssClass="modern-input" />
+
+    <br /><br />
+
+    <!-- SUBMIT BUTTON -->
+    <asp:Button ID="btnSendVerification"
+        runat="server"
+        Text="Send Verification Request"
+        CssClass="btn-modern"
+        ValidationGroup="verifyGroup"
+        OnClick="btnSendVerification_Click" />
+
+    <br /><br />
+
+    <!-- STATUS MESSAGE -->
+    <asp:Label ID="lblVerificationMsg" runat="server" />
+
+    <br />
+
+    <!-- REQUEST HISTORY (VERY GOOD FEATURE) -->
+    <asp:Repeater ID="rptVerificationHistory" runat="server">
+        <ItemTemplate>
+            <div class="verification-item">
+
+                <b>Requested:</b> <%# Eval("requestedrole") %> <br />
+                <b>Status:</b> 
+                <span class='<%# Eval("status").ToString().ToLower() %>'>
+                    <%# Eval("status") %>
+                </span>
+                <br />
+
+                <b>Date:</b> <%# Eval("requesttime", "{0:dd MMM yyyy}") %>
+
+                <hr />
+            </div>
+        </ItemTemplate>
+    </asp:Repeater>
+
+</div>
 
 
 <!-- PROFILE IMAGE -->

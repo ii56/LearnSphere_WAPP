@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Forums</title>
-    <link href="Forums.css?v=3" rel="stylesheet" />
+    <link href="lecturer.css" rel="stylesheet" />
 </head>
 
 <body>

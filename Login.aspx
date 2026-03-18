@@ -5,9 +5,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Login</title>
-    <link href="registration.css?v=2" rel="stylesheet" />
+    <link href="registration.css?v=4" rel="stylesheet" />
 </head>
 <body>
+    <div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
     <form id="form1" runat="server">
         <div class="registration-container">
             <h2>Login</h2>

@@ -69,13 +69,31 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.TextBox txtDescription;
 
         /// <summary>
-        /// fileThumbnail control.
+        /// txtColor control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fileThumbnail;
+        protected global::System.Web.UI.WebControls.TextBox txtColor;
+
+        /// <summary>
+        /// btnPreview control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnPreview;
+
+        /// <summary>
+        /// imgPreview control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Image imgPreview;
 
         /// <summary>
         /// ddlCategory control.
