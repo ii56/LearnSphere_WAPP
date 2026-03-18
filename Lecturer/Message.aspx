@@ -36,8 +36,6 @@
                 </div>
 
                 <div class="profile-info">
-
-                    <!-- SAFE USERNAME -->
                     <div class="profile-name">
                         <%= Session["uname"] != null ? Server.HtmlEncode(Session["uname"].ToString()) : "" %>
                     </div>
@@ -47,7 +45,6 @@
                             ? "Verified Lecturer"
                             : "General User" %>
                     </div>
-
                 </div>
             </div>
 
@@ -66,12 +63,12 @@
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN -->
     <div class="main-content">
 
         <div class="chat-container">
 
-            <!-- LEFT SIDEBAR -->
+            <!-- LEFT -->
             <div class="chat-sidebar">
 
                 <!-- SEARCH -->
@@ -79,7 +76,7 @@
                     <asp:TextBox ID="txtSearchUser"
                         runat="server"
                         CssClass="search-box"
-                        placeholder="Search users by name..." />
+                        placeholder="Search users..." />
 
                     <asp:Button ID="btnSearchUser"
                         runat="server"
@@ -101,11 +98,12 @@
                                     CommandName="ViewProfile"
                                     CommandArgument='<%# Eval("userid") %>'
                                     OnCommand="ViewProfile_Command"
-                                    CssClass="avatar-link">
+                                    CssClass="avatar-link"
+                                    CausesValidation="false">
 
                                     <img src='<%# Eval("ProfileImage") != DBNull.Value 
                                         ? ResolveUrl(Eval("ProfileImage").ToString()) 
-                                        : ResolveUrl("~/images/default-user.png") %>'
+                                        : ResolveUrl("~/images/default-user.png") %>' 
                                         class="user-avatar" />
 
                                 </asp:LinkButton>
@@ -144,11 +142,12 @@
                                 CommandName="ViewProfile"
                                 CommandArgument='<%# Eval("userid") %>'
                                 OnCommand="ViewProfile_Command"
-                                CssClass="avatar-link">
+                                CssClass="avatar-link"
+                                CausesValidation="false">
 
                                 <img src='<%# Eval("ProfileImage") != DBNull.Value 
                                     ? ResolveUrl(Eval("ProfileImage").ToString()) 
-                                    : ResolveUrl("~/images/default-user.png") %>'
+                                    : ResolveUrl("~/images/default-user.png") %>' 
                                     class="conversation-avatar" />
 
                             </asp:LinkButton>
@@ -170,7 +169,7 @@
 
             </div>
 
-            <!-- CHAT AREA -->
+            <!-- CHAT -->
             <div class="chat-main">
 
                 <div class="chat-header">
@@ -191,11 +190,12 @@
                                     CommandArgument='<%# Eval("SenderID") %>'
                                     OnCommand="ViewProfile_Command"
                                     CssClass="avatar-link"
+                                    CausesValidation="false"
                                     Visible='<%# Convert.ToInt32(Eval("IsMine")) == 0 %>'>
 
                                     <img src='<%# Eval("ProfileImage") != DBNull.Value 
                                         ? ResolveUrl(Eval("ProfileImage").ToString()) 
-                                        : ResolveUrl("~/images/default-user.png") %>'
+                                        : ResolveUrl("~/images/default-user.png") %>' 
                                         class="message-avatar" />
 
                                 </asp:LinkButton>
@@ -237,7 +237,7 @@
             </div>
 
             <!-- PROFILE POPUP -->
-            <div class="profile-popup" id="profilePopup" runat="server" visible="false">
+            <div class="profile-popup" id="profilePopup" runat="server" style="display:none;">
 
                 <div class="profile-card-inner">
 
@@ -265,9 +265,21 @@
 </form>
 
 <script>
+// CLOSE POPUP WHEN CLICK OUTSIDE
 document.addEventListener("click", function (e) {
+    var popup = document.getElementById("<%= profilePopup.ClientID %>");
     var card = document.querySelector(".profile-card-inner");
-    if (card && !card.contains(e.target)) {
+
+    if (!popup) return;
+
+    if (card && !card.contains(e.target) && !e.target.closest(".avatar-link")) {
+        popup.style.display = "none";
+    }
+});
+
+// ESC TO CLOSE
+document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
         var popup = document.getElementById("<%= profilePopup.ClientID %>");
         if (popup) popup.style.display = "none";
     }
