@@ -97,7 +97,6 @@
                                 <asp:LinkButton runat="server"
                                     CommandName="ViewProfile"
                                     CommandArgument='<%# Eval("userid") %>'
-                                    OnCommand="ViewProfile_Command"
                                     CssClass="avatar-link"
                                     CausesValidation="false">
 
@@ -141,7 +140,6 @@
                             <asp:LinkButton runat="server"
                                 CommandName="ViewProfile"
                                 CommandArgument='<%# Eval("userid") %>'
-                                OnCommand="ViewProfile_Command"
                                 CssClass="avatar-link"
                                 CausesValidation="false">
 
@@ -188,7 +186,6 @@
                                 <asp:LinkButton runat="server"
                                     CommandName="ViewProfile"
                                     CommandArgument='<%# Eval("SenderID") %>'
-                                    OnCommand="ViewProfile_Command"
                                     CssClass="avatar-link"
                                     CausesValidation="false"
                                     Visible='<%# Convert.ToInt32(Eval("IsMine")) == 0 %>'>

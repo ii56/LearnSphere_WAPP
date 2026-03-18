@@ -127,48 +127,32 @@ namespace LearnSphere_WAPP.Lecturer
         }
 
         // 🔐 VIEW PROFILE (WITH AUTHORIZATION)
-        protected void ViewProfile_Command(object sender, CommandEventArgs e)
+        private void ShowProfile(int userID)
         {
-            int userID;
-            if (!int.TryParse(e.CommandArgument.ToString(), out userID))
-                return;
-
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
         SELECT fname + ' ' + lname AS FullName,
                email, usertype, ProfileImage, Description, status
         FROM [User]
-        WHERE userid=@id
-        AND (
-            userid=@currentUser
-            OR EXISTS (
-                SELECT 1 FROM ChatConversation
-                WHERE (userid=@currentUser AND SecondUserID=@id)
-                   OR (userid=@id AND SecondUserID=@currentUser)
-            )
-        )";
+        WHERE userid=@id";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = userID;
-                cmd.Parameters.Add("@currentUser", SqlDbType.Int).Value = CurrentUserID;
 
                 conn.Open();
                 SqlDataReader dr = cmd.ExecuteReader();
 
                 if (dr.Read())
                 {
-                    // 🔐 SAFE TEXT
                     lblProfileName.Text = Server.HtmlEncode(dr["FullName"].ToString());
                     lblProfileEmail.Text = Server.HtmlEncode(dr["email"].ToString());
                     lblProfileRole.Text = Server.HtmlEncode(dr["usertype"].ToString());
                     lblProfileDesc.Text = Server.HtmlEncode(dr["Description"].ToString());
 
-                    // 🔐 SAFE STATUS
                     int status = dr["status"] != DBNull.Value ? Convert.ToInt32(dr["status"]) : 0;
                     lblProfileStatus.Text = status == 1 ? "Active" : "Inactive";
 
-                    // 🔥 FIXED IMAGE HANDLING (VERY IMPORTANT)
                     string finalImageUrl = ResolveUrl("~/images/default-user.png");
 
                     if (dr["ProfileImage"] != DBNull.Value)
@@ -178,44 +162,29 @@ namespace LearnSphere_WAPP.Lecturer
                         if (!string.IsNullOrEmpty(path))
                         {
                             if (path.StartsWith("~/"))
-                            {
                                 finalImageUrl = ResolveUrl(path);
-                            }
                             else if (path.StartsWith("images/"))
-                            {
                                 finalImageUrl = ResolveUrl("~/" + path);
-                            }
                             else if (path.StartsWith("http"))
-                            {
-                                finalImageUrl = path; // external URL
-                            }
+                                finalImageUrl = path;
                             else
-                            {
-                                // fallback if only filename stored
                                 finalImageUrl = ResolveUrl("~/images/" + path);
-                            }
                         }
                     }
 
                     imgProfileCard.ImageUrl = finalImageUrl;
 
-                    // 🎨 ROLE STYLING
                     string role = dr["usertype"].ToString().ToLower();
                     imgProfileCard.CssClass = "popup-avatar";
 
-                    if (role == "lecturer")
-                        imgProfileCard.CssClass += " avatar-lecturer";
-                    else if (role == "admin")
-                        imgProfileCard.CssClass += " avatar-admin";
-                    else if (role == "student")
-                        imgProfileCard.CssClass += " avatar-student";
-                    else
-                        imgProfileCard.CssClass += " avatar-public";
+                    if (role == "lecturer") imgProfileCard.CssClass += " avatar-lecturer";
+                    else if (role == "admin") imgProfileCard.CssClass += " avatar-admin";
+                    else if (role == "student") imgProfileCard.CssClass += " avatar-student";
+                    else imgProfileCard.CssClass += " avatar-public";
 
-                    // ✔ VERIFIED BADGE
                     lblVerifyBadge.Visible = role == "lecturer";
 
-                    // 🔥 SHOW POPUP (CORRECT FOR FLEX)
+                    // 🔥 IMPORTANT FIX
                     profilePopup.Style["display"] = "flex";
                 }
             }
@@ -224,6 +193,18 @@ namespace LearnSphere_WAPP.Lecturer
         // 🔐 OPEN CHAT
         protected void rptConversations_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
+            // ✅ ONLY handle ViewProfile when explicitly clicked
+            if (e.CommandName == "ViewProfile")
+            {
+                int userID;
+                if (!int.TryParse(e.CommandArgument.ToString(), out userID))
+                    return;
+
+                ShowProfile(userID);
+                return; // 🔥 STOP further execution
+            }
+
+            // ✅ ONLY handle OpenChat here
             if (e.CommandName == "OpenChat")
             {
                 int convId;
@@ -241,6 +222,7 @@ namespace LearnSphere_WAPP.Lecturer
         // 🔐 SEND MESSAGE
         protected void btnSend_Click(object sender, EventArgs e)
         {
+            profilePopup.Style["display"] = "none";
             if (CurrentConversationID == 0 || !CanAccessConversation(CurrentConversationID))
                 return;
 
@@ -334,6 +316,18 @@ namespace LearnSphere_WAPP.Lecturer
         // 🔐 START CHAT
         protected void rptSearchResults_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
+            // 🔥 STRICT separation
+
+            if (e.CommandName == "ViewProfile")
+            {
+                int userID;
+                if (!int.TryParse(e.CommandArgument.ToString(), out userID))
+                    return;
+
+                ShowProfile(userID);
+                return; // 🔥 IMPORTANT
+            }
+
             if (e.CommandName == "StartChat")
             {
                 int targetId;
