@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Xml.Linq;
 
 namespace LearnSphere_WAPP.Admin
 {
-    public partial class AdminDashboard : System.Web.UI.Page
+    public partial class AdminChangePassword : System.Web.UI.Page
     {
         static SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString);
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
@@ -22,19 +19,10 @@ namespace LearnSphere_WAPP.Admin
                 Response.Redirect("../Login.aspx");
             }
 
-            if (!Page.IsPostBack)
+            if (!IsPostBack)
             {
-                LoadSidebarProfileImage();
                 lblWelcome.Text = "Welcome " + Session["uname"];
-                con.Open();
-
-                lblTotalUsers.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where not status = 'Deleted'", con).ExecuteScalar().ToString();
-                lblTotalStudents.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where usertype = 'Student' and not status = 'Deleted'", con).ExecuteScalar().ToString();
-                lblTotalLecturers.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where usertype = 'Lecturer' and not status = 'Deleted'", con).ExecuteScalar().ToString();
-                lblTotalCourses.Text = new SqlCommand("SELECT COUNT(*) FROM Course", con).ExecuteScalar().ToString();
-                lblTotalForums.Text = new SqlCommand("SELECT COUNT(*) FROM ForumPost", con).ExecuteScalar().ToString();
-
-                con.Close();
+                LoadSidebarProfileImage();
             }
         }
         public void LoadSidebarProfileImage()
@@ -64,7 +52,33 @@ namespace LearnSphere_WAPP.Admin
         {
             Session.Abandon();
             Request.Cookies.Clear();
-            Response.Redirect("../Login.aspx");
+            Response.Redirect("~/Login.aspx");
+        }
+
+        protected void btnSave_Click(object sender, EventArgs e)
+        {
+            if (txtNewPassword.Text == txtNewPassword2.Text)
+            {
+                var passwordManager = new PasswordManager();
+                string hashedPassword = passwordManager.HashPassword(txtNewPassword.Text);
+
+                con.Open();
+
+                string query = "update [User] set pwd = '" + hashedPassword + "' where userid = '" + Session["userid"] + "'";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.ExecuteNonQuery();
+
+                Response.Write("<script>alert('Password change successfully'); window.location='AdminEditProfile.aspx';</script>");
+
+            }
+        }
+
+        private class PasswordManager
+        {
+            public string HashPassword(string password)
+            {
+                return BCrypt.Net.BCrypt.HashPassword(password);
+            }
         }
     }
 }

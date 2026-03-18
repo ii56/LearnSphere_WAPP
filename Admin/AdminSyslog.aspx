@@ -17,7 +17,7 @@
                     <a href="UserManagement.aspx" class="nav-item">User Management</a>
                     <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
                     <a href="Database.aspx" class="nav-item">Database</a>
-                    <a href="Forums.aspx" class="nav-item">Forums</a>
+                    <a href="AdminForums.aspx" class="nav-item">Forums</a>
                     <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
                     <a href="AdminSyslog.aspx" class="nav-item active">Syslog</a>
                 </div>
@@ -25,7 +25,7 @@
                 <div class="sidebar-profile">
                     <div class="profile-box admin">
                         <div class="profile-img-wrapper">
-                            <img id="imgSidebarProfile" runat="server" class="profile-img" />
+                            <img id="sidebarImg" runat="server" class="profile-img" />
                             <div class="verification-badge">✔</div>
                         </div>
 
@@ -37,14 +37,14 @@
                         </div>
                     </div>
 
-                    <a href="Message.aspx" class="nav-item message-link">
+                    <a href="AdminMessage.aspx" class="nav-item message-link">
                         Messaging
                         <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
                             <span class="message-badge"><%= Session["unreadCount"] %></span>
                     <% } %>
                     </a>
 
-                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" />
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
                 </div>
             </div>
 
@@ -77,7 +77,7 @@
     
                 </div>
 
-                <asp:GridView ID="GridView1" runat="server" CssClass="admin-table" AutoGenerateColumns="False" Width="100%" AllowPaging="true" PageSize="16" OnPageIndexChanging="GridView1_PageIndexChanging">
+                <asp:GridView ID="GridView1" runat="server" CssClass="admin-table" AutoGenerateColumns="False" Width="100%" AllowPaging="true" PageSize="14" OnPageIndexChanging="GridView1_PageIndexChanging" >
                     <Columns>
                         <asp:BoundField DataField="userid" HeaderText="User ID" ItemStyle-Width="6%"/>
                         <asp:BoundField DataField="usertype" HeaderText="UserType" ItemStyle-Width="8%"/>

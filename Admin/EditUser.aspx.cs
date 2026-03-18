@@ -20,10 +20,11 @@ namespace LearnSphere_WAPP.Admin
             userid = Request.QueryString["userid"] != null ? Convert.ToInt32(Request.QueryString["userid"]) : 0;
             if (!IsPostBack)
             {
+                LoadSidebarProfileImage();
                 lblWelcome.Text = "Welcome " + Session["uname"];
                 if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
                 {
-                    Response.Redirect("Login.aspx");
+                    Response.Redirect("../Login.aspx");
                 }
                 if (userid != 0)
                 {
@@ -38,6 +39,28 @@ namespace LearnSphere_WAPP.Admin
                     Response.Redirect("UserManagement.aspx");
                 }
             }
+        }
+        public void LoadSidebarProfileImage()
+        {
+            string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
+
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@id", Session["userid"]);
+
+            con.Open();
+
+            object result = cmd.ExecuteScalar();
+
+            if (result != null && result != DBNull.Value)
+            {
+                string imagePath = result.ToString();
+                sidebarImg.Src = ResolveUrl(imagePath);
+            }
+            else
+            {
+                sidebarImg.Src = ResolveUrl("~/images/default-user.png");
+            }
+            con.Close();
         }
 
         private void loadUserDetails()
@@ -82,6 +105,13 @@ namespace LearnSphere_WAPP.Admin
             Response.Write("<script>alert('User updated successfully'); window.location='UserManagement.aspx';</script>");
 
             con.Close();
+        }
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            Session.Abandon();
+            Request.Cookies.Clear();
+            Response.Redirect("../Login.aspx");
         }
     }
 }

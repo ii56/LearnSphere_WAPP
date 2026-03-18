@@ -123,9 +123,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="About.aspx" />
+    <Content Include="Admin\AdminChangePassword.aspx" />
     <Content Include="Admin\AdminCSS.css" />
     <Content Include="Admin\AdminDashboard.aspx" />
     <Content Include="Admin\AdminEditProfile.aspx" />
+    <Content Include="Admin\AdminForums.aspx" />
+    <Content Include="Admin\AdminMessage.aspx" />
+    <Content Include="Admin\AdminViewCourse.aspx" />
+    <Content Include="Admin\AdminViewForums.aspx" />
     <Content Include="Admin\CourseManagement.aspx" />
     <Content Include="Admin\Database.aspx" />
     <Content Include="Admin\EditUser.aspx" />
@@ -267,6 +272,13 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin\AdminChangePassword.aspx.cs">
+      <DependentUpon>AdminChangePassword.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminChangePassword.aspx.designer.cs">
+      <DependentUpon>AdminChangePassword.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Admin\AdminDashboard.aspx.cs">
       <DependentUpon>AdminDashboard.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -280,6 +292,34 @@
     </Compile>
     <Compile Include="Admin\AdminEditProfile.aspx.designer.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminForums.aspx.cs">
+      <DependentUpon>AdminForums.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminForums.aspx.designer.cs">
+      <DependentUpon>AdminForums.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminMessage.aspx.cs">
+      <DependentUpon>AdminMessage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminMessage.aspx.designer.cs">
+      <DependentUpon>AdminMessage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminViewCourse.aspx.cs">
+      <DependentUpon>AdminViewCourse.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminViewCourse.aspx.designer.cs">
+      <DependentUpon>AdminViewCourse.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminViewForums.aspx.cs">
+      <DependentUpon>AdminViewForums.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminViewForums.aspx.designer.cs">
+      <DependentUpon>AdminViewForums.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\CourseManagement.aspx.cs">
       <DependentUpon>CourseManagement.aspx</DependentUpon>

@@ -1,10 +1,10 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Database.aspx.cs" Inherits="LearnSphere_WAPP.Admin.Database" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AdminForums.aspx.cs" Inherits="LearnSphere_WAPP.Admin.AdminForums1" %>
 
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Database</title>
+    <title>Forums</title>
     <link href="~/Admin/AdminCSS.css" rel="stylesheet" runat="server" />
 </head>
 <body>
@@ -16,8 +16,8 @@
                     <a href="AdminDashboard.aspx" class="nav-item">Dashboard</a>
                     <a href="UserManagement.aspx" class="nav-item">User Management</a>
                     <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
-                    <a href="Database.aspx" class="nav-item active">Database</a>
-                    <a href="AdminForums.aspx" class="nav-item">Forums</a>
+                    <a href="Database.aspx" class="nav-item">Database</a>
+                    <a href="AdminForums.aspx" class="nav-item active">Forums</a>
                     <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
                     <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
                 </div>
@@ -44,19 +44,24 @@
                         <% } %>
                     </a>
 
-                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click1" />
                 </div>
             </div>
 
             <div class="main-content">
-                <div class="dashboard-header">
-                    <h2>Database</h2>
-                    <asp:Label ID="lblWelcome" runat="server" CssClass="welcome-text" />
-                </div>
-
-
+                        <h2>Course Forums</h2>
+                    <asp:GridView ID="gvCourses" runat="server" AutoGenerateColumns="False" CssClass="forum-table" OnRowCommand="gvCourses_RowCommand">
+                        <Columns>
+                            <asp:BoundField DataField="coursename" HeaderText="Course Name" />
+                            <asp:TemplateField>
+                                <ItemTemplate>
+                                    <asp:Button ID="btnView" runat="server" Text="View Forum" CommandName="ViewForum" CommandArgument='<%# Eval("courseid") %>' CssClass="btn-view" Visible='<%# Convert.ToBoolean(Eval("HasForum")) %>' />
+                                    <asp:Button ID="btnDelete" runat="server" Text="Delete Forum" CommandName="DeleteForum" CommandArgument='<%# Eval("courseid") %>' CssClass="btn-danger" Visible='<%# Convert.ToBoolean(Eval("HasForum")) %>' />
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                        </Columns>
+                   </asp:GridView>
             </div>
-
         </div>
     </form>
 </body>
