@@ -348,5 +348,85 @@ namespace LearnSphere_WAPP.Lecturer
             Session.Abandon();
             Response.Redirect("~/Login.aspx");
         }
+
+        protected void btnDraft_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Validate basic inputs
+                if (ddlTarget.SelectedValue == "" || ddlExamType.SelectedValue == "")
+                {
+                    lblMessage.Text = "Select exam type and target.";
+                    return;
+                }
+
+                DataTable questions = (DataTable)ViewState["questions"];
+
+                if (questions == null || questions.Rows.Count == 0)
+                {
+                    lblMessage.Text = "Add at least one question before saving draft.";
+                    return;
+                }
+
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
+                    SqlTransaction trans = con.BeginTransaction();
+
+                    try
+                    {
+                        // Insert exam (draft)
+                        string insertExam = ddlExamType.SelectedValue == "module"
+                            ? @"INSERT INTO Exam(moduleid, examtitle, totalmarks)
+                       OUTPUT INSERTED.examid
+                       VALUES(@target, @title, 0)"
+                            : @"INSERT INTO Exam(courseid, examtitle, totalmarks)
+                       OUTPUT INSERTED.examid
+                       VALUES(@target, @title, 0)";
+
+                        SqlCommand cmd = new SqlCommand(insertExam, con, trans);
+                        cmd.Parameters.Add("@target", SqlDbType.Int).Value = Convert.ToInt32(ddlTarget.SelectedValue);
+                        cmd.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = Server.HtmlEncode(txtExamTitle.Text);
+
+                        examId = (int)cmd.ExecuteScalar();
+
+                        // Insert questions
+                        foreach (DataRow r in questions.Rows)
+                        {
+                            SqlCommand qCmd = new SqlCommand(@"
+                        INSERT INTO ExamQuestion
+                        (examid, questiontext, optionA, optionB, optionC, optionD, correctanswer, marks)
+                        VALUES
+                        (@eid, @q, @A, @B, @C, @D, @correct, @marks)", con, trans);
+
+                            qCmd.Parameters.Add("@eid", SqlDbType.Int).Value = examId;
+                            qCmd.Parameters.Add("@q", SqlDbType.NVarChar).Value = r["Question"];
+                            qCmd.Parameters.Add("@A", SqlDbType.NVarChar).Value = r["A"];
+                            qCmd.Parameters.Add("@B", SqlDbType.NVarChar).Value = r["B"];
+                            qCmd.Parameters.Add("@C", SqlDbType.NVarChar).Value = r["C"];
+                            qCmd.Parameters.Add("@D", SqlDbType.NVarChar).Value = r["D"];
+                            qCmd.Parameters.Add("@correct", SqlDbType.Char).Value = r["Correct"];
+                            qCmd.Parameters.Add("@marks", SqlDbType.Int).Value = r["Marks"];
+
+                            qCmd.ExecuteNonQuery();
+                        }
+
+                        trans.Commit();
+
+                        lblMessage.ForeColor = System.Drawing.Color.Green;
+                        lblMessage.Text = "Draft saved successfully!";
+                    }
+                    catch
+                    {
+                        trans.Rollback();
+                        lblMessage.Text = "Failed to save draft.";
+                    }
+                }
+            }
+            catch
+            {
+                lblMessage.Text = "Unexpected error occurred.";
+            }
+        }
     }
 }

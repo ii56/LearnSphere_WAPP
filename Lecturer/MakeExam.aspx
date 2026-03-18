@@ -37,8 +37,6 @@
                 </div>
 
                 <div class="profile-info">
-
-                    <!-- FIXED HERE -->
                     <div class="profile-name">
                         <%= Session["uname"] != null ? Server.HtmlEncode(Session["uname"].ToString()) : "" %>
                     </div>
@@ -48,7 +46,6 @@
                             ? "Verified Lecturer" 
                             : "General User" %>
                     </div>
-
                 </div>
             </div>
 
@@ -63,8 +60,8 @@
                 runat="server"
                 Text="Logout"
                 CssClass="logout-btn"
-                OnClick="btnLogout_Click" />
-
+                OnClick="btnLogout_Click"
+                CausesValidation="false" />
         </div>
     </div>
 
@@ -81,7 +78,8 @@
                 ID="vsSummary"
                 runat="server"
                 ForeColor="Red"
-                CssClass="validation-summary" />
+                CssClass="validation-summary"
+                ValidationGroup="ExamGroup" />
 
             <!-- Exam Type -->
             <label>Exam Type</label>
@@ -95,7 +93,6 @@
                 <asp:ListItem Text="Select Exam Type" Value=""></asp:ListItem>
                 <asp:ListItem Text="Module Exam" Value="module"></asp:ListItem>
                 <asp:ListItem Text="Course Exam" Value="course"></asp:ListItem>
-
             </asp:DropDownList>
 
             <asp:RequiredFieldValidator
@@ -103,6 +100,7 @@
                 InitialValue=""
                 ErrorMessage="Select exam type"
                 ForeColor="Red"
+                ValidationGroup="ExamGroup"
                 runat="server" />
 
             <!-- Target -->
@@ -110,7 +108,8 @@
 
             <asp:DropDownList ID="ddlTarget"
                 runat="server"
-                CssClass="modern-input">
+                CssClass="modern-input"
+                AppendDataBoundItems="true">
                 <asp:ListItem Text="Select Module or Course" Value=""></asp:ListItem>
             </asp:DropDownList>
 
@@ -119,6 +118,7 @@
                 InitialValue=""
                 ErrorMessage="Select a target"
                 ForeColor="Red"
+                ValidationGroup="ExamGroup"
                 runat="server" />
 
             <!-- Exam Title -->
@@ -127,12 +127,14 @@
             <asp:TextBox ID="txtExamTitle"
                 runat="server"
                 CssClass="modern-input"
-                MaxLength="100" />
+                MaxLength="100"
+                Placeholder="Enter exam title..." />
 
             <asp:RequiredFieldValidator
                 ControlToValidate="txtExamTitle"
                 ErrorMessage="Enter exam title"
                 ForeColor="Red"
+                ValidationGroup="ExamGroup"
                 runat="server" />
 
             <hr />
@@ -146,26 +148,32 @@
                 runat="server"
                 TextMode="MultiLine"
                 CssClass="modern-input"
-                MaxLength="500" />
+                MaxLength="500"
+                Placeholder="Enter your question..." />
 
             <asp:RequiredFieldValidator
                 ControlToValidate="txtQuestion"
                 ErrorMessage="Enter question"
                 ForeColor="Red"
+                ValidationGroup="QuestionGroup"
                 runat="server" />
 
             <!-- OPTIONS -->
             <label>Option A</label>
             <asp:TextBox ID="txtA" runat="server" CssClass="modern-input" MaxLength="200" />
+            <asp:RequiredFieldValidator ControlToValidate="txtA" ErrorMessage="Enter option A" ForeColor="Red" ValidationGroup="QuestionGroup" runat="server" />
 
             <label>Option B</label>
             <asp:TextBox ID="txtB" runat="server" CssClass="modern-input" MaxLength="200" />
+            <asp:RequiredFieldValidator ControlToValidate="txtB" ErrorMessage="Enter option B" ForeColor="Red" ValidationGroup="QuestionGroup" runat="server" />
 
             <label>Option C</label>
             <asp:TextBox ID="txtC" runat="server" CssClass="modern-input" MaxLength="200" />
+            <asp:RequiredFieldValidator ControlToValidate="txtC" ErrorMessage="Enter option C" ForeColor="Red" ValidationGroup="QuestionGroup" runat="server" />
 
             <label>Option D</label>
             <asp:TextBox ID="txtD" runat="server" CssClass="modern-input" MaxLength="200" />
+            <asp:RequiredFieldValidator ControlToValidate="txtD" ErrorMessage="Enter option D" ForeColor="Red" ValidationGroup="QuestionGroup" runat="server" />
 
             <!-- CORRECT ANSWER -->
             <label>Correct Answer</label>
@@ -179,7 +187,6 @@
                 <asp:ListItem Text="B" Value="B"></asp:ListItem>
                 <asp:ListItem Text="C" Value="C"></asp:ListItem>
                 <asp:ListItem Text="D" Value="D"></asp:ListItem>
-
             </asp:DropDownList>
 
             <asp:RequiredFieldValidator
@@ -187,6 +194,7 @@
                 InitialValue=""
                 ErrorMessage="Select correct answer"
                 ForeColor="Red"
+                ValidationGroup="QuestionGroup"
                 runat="server" />
 
             <!-- MARKS -->
@@ -195,12 +203,14 @@
             <asp:TextBox ID="txtMarks"
                 runat="server"
                 CssClass="modern-input"
-                Text="1" />
+                Text="1"
+                TextMode="Number" />
 
             <asp:RequiredFieldValidator
                 ControlToValidate="txtMarks"
                 ErrorMessage="Enter marks"
                 ForeColor="Red"
+                ValidationGroup="QuestionGroup"
                 runat="server" />
 
             <asp:RangeValidator
@@ -210,6 +220,7 @@
                 Type="Integer"
                 ErrorMessage="Marks must be between 1 and 100"
                 ForeColor="Red"
+                ValidationGroup="QuestionGroup"
                 runat="server" />
 
             <!-- BUTTONS -->
@@ -217,13 +228,8 @@
                 runat="server"
                 Text="Add Question"
                 CssClass="btn-modern"
+                ValidationGroup="QuestionGroup"
                 OnClick="btnAddQuestion_Click" />
-
-            <asp:Button ID="btnReview"
-                runat="server"
-                Text="Review Questions"
-                CssClass="btn-modern-secondary"
-                OnClick="btnReview_Click" />
 
             <hr />
 
@@ -231,42 +237,54 @@
             <asp:DropDownList ID="ddlQuestionFilter"
                 runat="server"
                 CssClass="modern-input"
-                AutoPostBack="true"
-                OnSelectedIndexChanged="ddlQuestionFilter_SelectedIndexChanged">
+                AutoPostBack="true">
 
                 <asp:ListItem Text="All Questions" Value="all"></asp:ListItem>
                 <asp:ListItem Text="Module Questions" Value="module"></asp:ListItem>
                 <asp:ListItem Text="Course Questions" Value="course"></asp:ListItem>
-
             </asp:DropDownList>
 
             <!-- GRID -->
             <asp:GridView ID="gvQuestions"
                 runat="server"
                 CssClass="modern-table"
-                AutoGenerateColumns="true"
-                AutoGenerateSelectButton="true"
-                OnSelectedIndexChanged="gvQuestions_SelectedIndexChanged" />
+                AutoGenerateColumns="false"
+                EmptyDataText="No questions added yet">
+
+                <Columns>
+                    <asp:BoundField DataField="Question" HeaderText="Question" />
+                    <asp:BoundField DataField="A" HeaderText="A" />
+                    <asp:BoundField DataField="B" HeaderText="B" />
+                    <asp:BoundField DataField="C" HeaderText="C" />
+                    <asp:BoundField DataField="D" HeaderText="D" />
+                    <asp:BoundField DataField="Correct" HeaderText="Answer" />
+                    <asp:BoundField DataField="Marks" HeaderText="Marks" />
+                    <asp:CommandField ShowSelectButton="true" />
+                </Columns>
+            </asp:GridView>
 
             <hr />
 
-            <!-- ACTIONS -->
+            <!-- ACTION BUTTONS -->
             <asp:Button ID="btnPublish"
                 runat="server"
                 Text="Publish Exam"
                 CssClass="btn-modern"
+                ValidationGroup="ExamGroup"
                 OnClick="btnPublish_Click" />
 
             <asp:Button ID="btnDraft"
                 runat="server"
                 Text="Save Draft"
                 CssClass="btn-modern-secondary"
+                CausesValidation="false"
                 OnClick="btnDraft_Click" />
 
             <asp:Button ID="btnCancel"
                 runat="server"
                 Text="Cancel"
                 CssClass="btn-delete"
+                CausesValidation="false"
                 OnClick="btnCancel_Click" />
 
             <br /><br />
