@@ -1,0 +1,313 @@
+﻿/* Base Layout */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc;
+    color: #1f2937;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    padding: 60px 80px;
+    display: flex;
+    justify-content: center; /* Centers the form horizontally */
+    background: #f1f5f9;
+}
+
+/* Sidebar Navigation (Reused from Forums.css for consistency) */
+.sidebar {
+    width: 250px;
+    background: #1e293b;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sidebar-title {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 40px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #cbd5e1;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: 0.2s;
+    display: block;
+}
+
+    .nav-item:hover {
+        background: #334155;
+        color: white;
+    }
+
+    .nav-item.active {
+        background: #2563eb;
+        color: white;
+    }
+
+.sidebar-profile {
+    margin-top: 20px;
+}
+
+.profile-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid transparent;
+}
+
+    .profile-box.not-verified {
+        border-color: #94a3b8;
+    }
+
+        .profile-box.not-verified:hover {
+            box-shadow: 0 0 15px rgba(148, 163, 184, 0.4);
+        }
+
+.profile-img-wrapper {
+    position: relative;
+}
+
+.profile-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e5e7eb;
+}
+
+.profile-info {
+    color: white;
+}
+
+.profile-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.profile-status {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.logout-btn {
+    width: 100%;
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+}
+
+    .logout-btn:hover {
+        background: #b91c1c;
+    }
+
+.message-link {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+}
+
+.message-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 12px;
+}
+
+/* Form Container Styles */
+.form-container {
+    background: white;
+    padding: 45px 50px;
+    border-radius: 18px;
+    box-shadow: 0 20px 45px rgba(0,0,0,0.07);
+    width: 100%;
+    max-width: 700px;
+    transition: 0.3s;
+    height: fit-content;
+}
+
+    .form-container h2 {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 30px;
+        color: #0f172a;
+    }
+
+/* Specific to answer.aspx preview box */
+.question-preview-box {
+    background-color: #f8fafc;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #3b82f6;
+    margin-bottom: 25px;
+}
+
+.question-title-preview {
+    font-size: 16px;
+    color: #1e293b;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.question-content-preview {
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.5;
+}
+
+/* Form Inputs */
+.form-group {
+    margin-bottom: 22px;
+    display: flex;
+    flex-direction: column;
+}
+
+    .form-group label {
+        font-weight: 500;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: #334155;
+    }
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    transition: 0.2s;
+    box-sizing: border-box; /* Ensures padding doesn't break width */
+}
+
+    .form-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* File upload styling */
+input[type="file"] {
+    margin-top: 4px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+    background-color: #f8fafc;
+    cursor: pointer;
+    font-size: 13px;
+    color: #475569;
+}
+
+    input[type="file"]::file-selector-button {
+        background: #e2e8f0;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        color: #1e293b;
+        cursor: pointer;
+        margin-right: 10px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #cbd5e1;
+        }
+
+/* Form Actions / Buttons */
+.form-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    color: white;
+    padding: 12px 26px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37,99,235,0.35);
+    }
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: #1f2937;
+    padding: 12px 26px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+    .btn-secondary:hover {
+        background: #e2e8f0;
+    }
+
+.error-message {
+    margin-top: 15px;
+    color: #dc2626;
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 1000px) {
+    .main-content {
+        padding: 40px 30px;
+    }
+
+    .form-container {
+        padding: 30px;
+    }
+}
+
+@media (max-width: 700px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+}

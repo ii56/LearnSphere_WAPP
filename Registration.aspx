@@ -76,7 +76,7 @@
                     <asp:ListItem>Admin</asp:ListItem>
                     <asp:ListItem>Lecturer</asp:ListItem>
                     <asp:ListItem>Student</asp:ListItem>
-                    <asp:ListItem>Public</asp:ListItem>
+                    <asp:ListItem>General</asp:ListItem>
                 </asp:DropDownList>
                 <asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server" ErrorMessage="User type is required plese choose one." ControlToValidate="usertype" InitialValue="" ForeColor="Red"></asp:RequiredFieldValidator>
             </div>

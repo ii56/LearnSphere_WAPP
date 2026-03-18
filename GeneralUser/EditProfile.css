@@ -1,0 +1,253 @@
+﻿/* General Page Styling */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc; /* Matches Dashboard bg */
+    color: #1f2937;
+    overflow: hidden;
+}
+
+.layout {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar Styling - Exactly as your Dashboard */
+.sidebar {
+    width: 250px;
+    background: #1e293b;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+.sidebar-title {
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    letter-spacing: 0.5px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #cbd5e1;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+    display: block;
+    font-weight: 500;
+}
+
+    .nav-item:hover {
+        background: #334155;
+        color: white;
+    }
+
+    .nav-item.active {
+        background: #2563eb;
+        color: white;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    }
+
+/* Sidebar Profile Box */
+.profile-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid transparent;
+}
+
+    .profile-box.not-verified {
+        border-color: #94a3b8;
+    }
+
+.profile-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e5e7eb;
+}
+
+.profile-info {
+    color: white;
+}
+
+.profile-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.profile-status {
+    font-size: 12px;
+    opacity: 0.9;
+    color: #94a3b8;
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    padding: 50px;
+    overflow-y: auto;
+    background-color: #f8fafc;
+}
+
+/* Form Headers */
+.profile-header h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.sub-text {
+    color: #6b7280;
+    margin-top: 8px;
+    font-size: 15px;
+    margin-bottom: 30px;
+    display: block;
+}
+
+/* Profile Form Cards - Based on your Course Card design */
+.profile-card {
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    margin-bottom: 30px;
+    border: 1px solid #f1f5f9;
+}
+
+    .profile-card h3 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-weight: 700;
+        font-size: 18px;
+        color: #1f2937;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 12px;
+    }
+
+/* Grid System for Inputs */
+.row {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.col {
+    flex: 1;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 8px;
+}
+
+/* Modern Inputs - Polished slate style */
+.modern-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    font-size: 14px;
+    color: #1f2937;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+    .modern-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        background-color: #fff;
+    }
+
+    .modern-input:disabled {
+        background-color: #f1f5f9;
+        color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+/* Image Upload Section */
+.profile-upload-section {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.profile-preview-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Buttons - Matches your primary/outline theme */
+.btn-save-main {
+    background: #2563eb;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 15px;
+}
+
+    .btn-save-main:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+.btn-secondary-action {
+    background: transparent;
+    color: #10b981;
+    border: 1px solid #10b981;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .btn-secondary-action:hover {
+        background: #10b981;
+        color: white;
+    }
+
+/* Feedback Messages */
+#lblMessage, #lblVerificationMsg {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+    .row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .profile-upload-section {
+        flex-direction: column;
+        text-align: center;
+    }
+}

@@ -156,6 +156,21 @@
     <Content Include="Content\Site.css" />
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
+    <Content Include="GeneralUser\answer.aspx" />
+    <Content Include="GeneralUser\EditProfile.aspx" />
+    <Content Include="GeneralUser\EditProfile.css" />
+    <Content Include="GeneralUser\ForumDetail.aspx" />
+    <Content Include="GeneralUser\Forums.aspx" />
+    <Content Include="GeneralUser\Forums.css" />
+    <Content Include="GeneralUser\Message.aspx" />
+    <Content Include="GeneralUser\Message.css" />
+    <Content Include="GeneralUser\MyCourse.aspx" />
+    <Content Include="GeneralUser\MyCourse.css" />
+    <Content Include="GeneralUser\question.aspx" />
+    <Content Include="GeneralUser\question.css" />
+    <Content Include="GeneralUser\ViewCourse.css" />
+    <Content Include="GeneralUser\ViewCourses.aspx" />
+    <Content Include="GeneralUser\ViewForum.aspx" />
     <Content Include="Global.asax" />
     <Content Include="LEARNSPHERE.png" />
     <Content Include="LEARNSPHERE_sign.png" />
@@ -194,7 +209,8 @@
     <Content Include="Lecturer\ViewStudents.aspx" />
     <Content Include="Lecturer\ViewStudents.css" />
     <Content Include="Login.aspx" />
-    <Content Include="PublicUser\PublicDashboard.aspx" />
+    <Content Include="GeneralUser\GeneralDashboard.aspx" />
+    <Content Include="GeneralUser\GeneralDashboard.css" />
     <Content Include="Registration.aspx" />
     <Content Include="registration.css" />
     <Content Include="Scripts\bootstrap.bundle.js" />
@@ -262,36 +278,42 @@
   <ItemGroup>
     <Compile Include="Admin\AdminDashboard.aspx.cs">
       <DependentUpon>AdminDashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\AdminDashboard.aspx.designer.cs">
       <DependentUpon>AdminDashboard.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\AdminEditProfile.aspx.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\AdminEditProfile.aspx.designer.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\CourseManagement.aspx.cs">
       <DependentUpon>CourseManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\CourseManagement.aspx.designer.cs">
       <DependentUpon>CourseManagement.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\Database.aspx.cs">
       <DependentUpon>Database.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\Database.aspx.designer.cs">
       <DependentUpon>Database.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\PlatformUsage.aspx.cs">
       <DependentUpon>PlatformUsage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\PlatformUsage.aspx.designer.cs">
       <DependentUpon>PlatformUsage.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\UserManagement.aspx.cs">
       <DependentUpon>UserManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin\UserManagement.aspx.designer.cs">
       <DependentUpon>UserManagement.aspx</DependentUpon>
@@ -325,6 +347,69 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\answer.aspx.cs">
+      <DependentUpon>answer.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\answer.aspx.designer.cs">
+      <DependentUpon>answer.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\EditProfile.aspx.cs">
+      <DependentUpon>EditProfile.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\EditProfile.aspx.designer.cs">
+      <DependentUpon>EditProfile.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\ForumDetail.aspx.cs">
+      <DependentUpon>ForumDetail.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\ForumDetail.aspx.designer.cs">
+      <DependentUpon>ForumDetail.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\Forums.aspx.cs">
+      <DependentUpon>Forums.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\Forums.aspx.designer.cs">
+      <DependentUpon>Forums.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\Message.aspx.cs">
+      <DependentUpon>Message.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\Message.aspx.designer.cs">
+      <DependentUpon>Message.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\MyCourse.aspx.cs">
+      <DependentUpon>MyCourse.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\MyCourse.aspx.designer.cs">
+      <DependentUpon>MyCourse.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\question.aspx.cs">
+      <DependentUpon>question.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\question.aspx.designer.cs">
+      <DependentUpon>question.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\ViewCourses.aspx.cs">
+      <DependentUpon>ViewCourses.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\ViewCourses.aspx.designer.cs">
+      <DependentUpon>ViewCourses.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\ViewForum.aspx.cs">
+      <DependentUpon>ViewForum.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\ViewForum.aspx.designer.cs">
+      <DependentUpon>ViewForum.aspx</DependentUpon>
     </Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -484,12 +569,12 @@
       <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PublicUser\PublicDashboard.aspx.cs">
-      <DependentUpon>PublicDashboard.aspx</DependentUpon>
+    <Compile Include="GeneralUser\GeneralDashboard.aspx.cs">
+      <DependentUpon>GeneralDashboard.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="PublicUser\PublicDashboard.aspx.designer.cs">
-      <DependentUpon>PublicDashboard.aspx</DependentUpon>
+    <Compile Include="GeneralUser\GeneralDashboard.aspx.designer.cs">
+      <DependentUpon>GeneralDashboard.aspx</DependentUpon>
     </Compile>
     <Compile Include="Registration.aspx.cs">
       <DependentUpon>Registration.aspx</DependentUpon>

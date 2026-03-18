@@ -85,8 +85,9 @@ namespace LearnSphere_WAPP
                     Response.Redirect("StudentDashboard.aspx");
                     break;
 
-                case "Public":
-                    Response.Redirect("~/PublicUser/PublicDashboard.aspx");
+                case "General":
+                    Syslog.action(Convert.ToInt32(Session["userid"]), "Log In");
+                    Response.Redirect("~/GeneralUser/GeneralDashboard.aspx");
                     break;
 
                 default:
