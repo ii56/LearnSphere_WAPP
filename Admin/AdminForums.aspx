@@ -49,18 +49,22 @@
             </div>
 
             <div class="main-content">
-                        <h2>Course Forums</h2>
-                    <asp:GridView ID="gvCourses" runat="server" AutoGenerateColumns="False" CssClass="forum-table" OnRowCommand="gvCourses_RowCommand">
-                        <Columns>
-                            <asp:BoundField DataField="coursename" HeaderText="Course Name" />
-                            <asp:TemplateField>
-                                <ItemTemplate>
-                                    <asp:Button ID="btnView" runat="server" Text="View Forum" CommandName="ViewForum" CommandArgument='<%# Eval("courseid") %>' CssClass="btn-view" Visible='<%# Convert.ToBoolean(Eval("HasForum")) %>' />
-                                    <asp:Button ID="btnDelete" runat="server" Text="Delete Forum" CommandName="DeleteForum" CommandArgument='<%# Eval("courseid") %>' CssClass="btn-danger" Visible='<%# Convert.ToBoolean(Eval("HasForum")) %>' />
-                                </ItemTemplate>
-                            </asp:TemplateField>
-                        </Columns>
-                   </asp:GridView>
+                <h2>Course Forums</h2>
+                <asp:GridView ID="gvCourses" runat="server" AutoGenerateColumns="False" CssClass="forum-table" OnRowCommand="gvCourses_RowCommand">
+                    <Columns>
+                        <asp:BoundField DataField="coursename" HeaderText="Course Name" />
+                        <asp:TemplateField>
+                            <ItemTemplate>
+                                <asp:Button ID="btnView" runat="server" Text="View Forum" CommandName="ViewForum" CommandArgument='<%# Eval("courseid") %>' CssClass="btn-view" Visible='<%# Convert.ToBoolean(Eval("HasForum")) %>' />
+                                <asp:Button ID="btnDelete" runat="server" Text="Delete Forum" CommandName="DeleteForum" CommandArgument='<%# Eval("courseid") %>' CssClass="btn-danger" Visible='<%# Convert.ToBoolean(Eval("HasForum")) %>' />
+                                <asp:Label ID="lblNoForum" runat="server"
+                                    Text="No forum yet"
+                                    CssClass="no-forum-text"
+                                    Visible='<%# !Convert.ToBoolean(Eval("HasForum")) %>' />
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+               </asp:GridView>
             </div>
         </div>
     </form>

@@ -69,15 +69,6 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label lblTags;
 
         /// <summary>
-        /// btnAskQuestion control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnAskQuestion;
-
-        /// <summary>
         /// rptQuestions control.
         /// </summary>
         /// <remarks>

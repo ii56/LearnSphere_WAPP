@@ -59,6 +59,7 @@
                     <asp:TextBox ID="txtSearch" runat="server" CssClass="search-box" placeholder="Search user..." AutoPostBack="True" OnTextChanged="txtSearch_TextChanged" />
 
                     <div class="sort-controls">
+                        <asp:CheckBox ID="chkPending" runat="server" Text="Pending" AutoPostBack="True" OnCheckedChanged="chkPending_CheckedChanged" />
                         <asp:DropDownList ID="Sortby" runat="server" AutoPostBack="True" OnSelectedIndexChanged="Sortby_SelectedIndexChanged">
                             <asp:ListItem>User ID</asp:ListItem>
                             <asp:ListItem>Username</asp:ListItem>
@@ -93,6 +94,9 @@
 
                                 <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-edit" CommandName="EditUser" CommandArgument='<%# Eval("userid") %>' />
                                 <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-delete" CommandName="DeleteUser" CommandArgument='<%# Eval("userid") %>' OnClientClick="return confirm('Delete this user account?');" />
+                                <asp:Button ID="btnVerify" runat="server" Text="Verify" CssClass="btn-verify" 
+                                    CommandName="VerifyUser" CommandArgument='<%# Eval("userid") %>' 
+                                    Visible='<%# HasPendingRequest(Eval("userid")) %>' />
 
                             </ItemTemplate>
                         </asp:TemplateField>

@@ -11,7 +11,7 @@ namespace LearnSphere_WAPP.Admin
 {
 
 
-    public partial class UserManagement
+    public partial class AdminVerifyUser
     {
 
         /// <summary>
@@ -51,57 +51,93 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label lblWelcome;
 
         /// <summary>
-        /// txtSearch control.
+        /// lblRequestId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSearch;
+        protected global::System.Web.UI.WebControls.Label lblRequestId;
 
         /// <summary>
-        /// chkPending control.
+        /// lblUserId control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox chkPending;
+        protected global::System.Web.UI.WebControls.Label lblUserId;
 
         /// <summary>
-        /// Sortby control.
+        /// lblCurrentRole control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList Sortby;
+        protected global::System.Web.UI.WebControls.Label lblCurrentRole;
 
         /// <summary>
-        /// Order control.
+        /// lblRequestedRole control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList Order;
+        protected global::System.Web.UI.WebControls.Label lblRequestedRole;
 
         /// <summary>
-        /// GridView1 control.
+        /// lblRequestTime control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView GridView1;
+        protected global::System.Web.UI.WebControls.Label lblRequestTime;
 
         /// <summary>
-        /// lblResult control.
+        /// lblStatus control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblResult;
+        protected global::System.Web.UI.WebControls.Label lblStatus;
+
+        /// <summary>
+        /// lblRemarks control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblRemarks;
+
+        /// <summary>
+        /// btnApprove control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnApprove;
+
+        /// <summary>
+        /// btnDecline control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnDecline;
+
+        /// <summary>
+        /// docFrame control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlIframe docFrame;
     }
 }

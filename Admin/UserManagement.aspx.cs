@@ -57,64 +57,42 @@ namespace LearnSphere_WAPP.Admin
             {
                 con.Open();
                 string query;
+
                 if (Session["usertype"].ToString() == "Admin")
-                    query = "Select userid, uname, email, fname, lname, age, gender, creationtime, usertype, status from [User] where not usertype = 'Admin' and not usertype = 'SuperAdmin' and not status = 'Deleted'";
+                    query = "SELECT u.userid, u.uname, u.email, u.fname, u.lname, u.age, u.gender, u.creationtime, u.usertype, u.status " +
+                            "FROM [User] u WHERE NOT u.usertype='Admin' AND NOT u.usertype='SuperAdmin' AND NOT u.status='Deleted'";
                 else
-                    query = "Select userid, uname, email, fname, lname, age, gender, creationtime, usertype, status from [User] where not usertype = 'SuperAdmin' and not status = 'Deleted'";
-                SqlCommand cmd = new SqlCommand(query, con);
+                    query = "SELECT u.userid, u.uname, u.email, u.fname, u.lname, u.age, u.gender, u.creationtime, u.usertype, u.status " +
+                            "FROM [User] u WHERE NOT u.usertype='SuperAdmin' AND NOT u.status='Deleted'";
+
                 if (!string.IsNullOrEmpty(txtSearch.Text))
                 {
-                    cmd.CommandText += " and uname Like @search";
-                    cmd.Parameters.AddWithValue("@search", "%" + txtSearch.Text + "%");
+                    query += " AND u.uname LIKE @search";
                 }
+
+                if (chkPending.Checked)
+                {
+                    query += " AND EXISTS (SELECT 1 FROM VerificationRequest v WHERE v.userid=u.userid AND v.status='Pending')";
+                }
+
+                // 排序
                 switch (Sortby.Text)
                 {
-                    case "User ID":
-                        cmd.CommandText += " order by userid";
-                        break;
-
-                    case "Username":
-                        cmd.CommandText += " order by uname";
-                        break;
-
-                    case "Age":
-                        cmd.CommandText += " order by age";
-                        break;
-
-                    case "Gender":
-                        cmd.CommandText += " order by gender";
-                        break;
-
-                    case "Creation Time":
-                        cmd.CommandText += " order by creationtime";
-                        break;
-
-                    case "User Type":
-                        cmd.CommandText += " order by usertype";
-                        break;
-
-                    case "Status":
-                        cmd.CommandText += " order by status";
-                        break;
-
-                    default:
-                        cmd.CommandText += " order by userid";
-                        break;
+                    case "User ID": query += " ORDER BY u.userid"; break;
+                    case "Username": query += " ORDER BY u.uname"; break;
+                    case "Age": query += " ORDER BY u.age"; break;
+                    case "Gender": query += " ORDER BY u.gender"; break;
+                    case "Creation Time": query += " ORDER BY u.creationtime"; break;
+                    case "User Type": query += " ORDER BY u.usertype"; break;
+                    case "Status": query += " ORDER BY u.status"; break;
+                    default: query += " ORDER BY u.userid"; break;
                 }
-                switch (Order.Text)
-                {
-                    case "Ascending":
-                        cmd.CommandText += " asc";
-                        break;
+                query += (Order.Text == "Descending") ? " DESC" : " ASC";
 
-                    case "Descending":
-                        cmd.CommandText += " desc";
-                        break;
+                SqlCommand cmd = new SqlCommand(query, con);
+                if (!string.IsNullOrEmpty(txtSearch.Text))
+                    cmd.Parameters.AddWithValue("@search", "%" + txtSearch.Text + "%");
 
-                    default:
-                        cmd.CommandText += " asc";
-                        break;
-                }
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -122,14 +100,7 @@ namespace LearnSphere_WAPP.Admin
                 GridView1.DataSource = dt;
                 GridView1.DataBind();
 
-                if (dt.Rows.Count == 0)
-                {
-                    lblResult.Text = "No user found";
-                }
-                else
-                {
-                    lblResult.Text = "";
-                }
+                lblResult.Text = dt.Rows.Count == 0 ? "No user found" : "";
             }
             catch (Exception e)
             {
@@ -185,6 +156,12 @@ namespace LearnSphere_WAPP.Admin
 
                 loadUsers();
             }
+
+            if (e.CommandName == "VerifyUser")
+            {
+                string userId = e.CommandArgument.ToString();
+                Response.Redirect("AdminVerifyUser.aspx?userid=" + userId);
+            }
         }
 
         protected void txtSearch_TextChanged(object sender, EventArgs e)
@@ -202,6 +179,34 @@ namespace LearnSphere_WAPP.Admin
         protected void GridView1_PageIndexChanging1(object sender, GridViewPageEventArgs e)
         {
             GridView1.PageIndex = e.NewPageIndex;
+            loadUsers();
+        }
+        
+        protected bool HasPendingRequest(object userId)
+        {
+            if (userId == null) return false;
+
+            string query = "SELECT COUNT(*) FROM VerificationRequest WHERE userid=@userid AND status='Pending'";
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@userid", userId);
+            try
+            {
+                con.Open();
+                int count = (int)cmd.ExecuteScalar();
+                return count > 0;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        protected void chkPending_CheckedChanged(object sender, EventArgs e)
+        {
             loadUsers();
         }
     }

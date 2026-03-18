@@ -55,6 +55,7 @@
                     <asp:Label ID="lblWelcome" runat="server" CssClass="welcome-text" />
                 </div>
                 
+                <h2>System Overview</h2>
                 <div class="stats-grid">
 
                     <div class="stat-card blue">
@@ -84,6 +85,22 @@
 
                 </div>
 
+                <h2>Pending Request</h2>
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-title">Lecturers Validation</div>
+                        <asp:Label ID="lecturersVal" runat="server" CssClass="stat-number" />
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-title">Students Validation</div>
+                        <asp:Label ID="studentsVal" runat="server" CssClass="stat-number" />
+                    </div>
+                    <div class="stat-card pink">
+                        <div class="stat-title">Courses Validation</div>
+                        <asp:Label ID="coursesVal" runat="server" CssClass="stat-number" />
+                    </div>
+                </div>
+
                 <div class="quick-actions-section">
                     <h3>Quick Actions</h3>
                     <div class="quick-card-grid">
@@ -110,6 +127,11 @@
                         <a href="AdminSyslog.aspx" class="quick-card">
                             <div class="quick-card-title">System Log</div>
                             <div class="quick-card-desc">view system log of user action</div>
+                        </a>
+
+                        <a href="../Chatbot/AdminChatbotKnowledge.aspx" class="quick-card">
+                            <div class="quick-card-title">Manage Chatbot</div>
+                            <div class="quick-card-desc">manage chatbot rule and knowledge base</div>
                         </a>
                     </div>
                 </div>

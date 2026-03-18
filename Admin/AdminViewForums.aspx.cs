@@ -23,8 +23,8 @@ namespace LearnSphere_WAPP.Admin
                 return;
             }
 
-            //if (!int.TryParse(Request.QueryString["courseid"], out courseId))
-            //    Response.Redirect("AdminForums.aspx");
+            if (!int.TryParse(Request.QueryString["courseid"], out courseId))
+                Response.Redirect("AdminForums.aspx");
 
             if (!IsPostBack)
             {
@@ -61,7 +61,7 @@ namespace LearnSphere_WAPP.Admin
                 }
                 else
                 {
-                    sidebarImg.Src = ResolveUrl("~/images/default-user.png");
+                    sidebarImg.Src = ResolveUrl("../images/default-user.png");
                 }
             }
         }
@@ -69,12 +69,12 @@ namespace LearnSphere_WAPP.Admin
         protected string GetProfileImage(object imageObj)
         {
             if (imageObj == null || imageObj == DBNull.Value)
-                return ResolveUrl("~/images/default-user.png");
+                return ResolveUrl("../images/default-user.png");
 
             string path = imageObj.ToString();
 
             if (string.IsNullOrEmpty(path))
-                return ResolveUrl("~/images/default-user.png");
+                return ResolveUrl("../images/default-user.png");
 
             return ResolveUrl(path);
         }
@@ -103,7 +103,7 @@ namespace LearnSphere_WAPP.Admin
                 }
                 else
                 {
-                    //Response.Redirect("AdminForums.aspx");
+                    Response.Redirect("AdminForums.aspx");
                 }
             }
         }
@@ -156,11 +156,6 @@ namespace LearnSphere_WAPP.Admin
             }
 
             return result;
-        }
-
-        protected void btnAskQuestion_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("question.aspx?courseid=" + courseId);
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)

@@ -11,7 +11,7 @@ namespace LearnSphere_WAPP.Admin
 {
 
 
-    public partial class AdminDashboard
+    public partial class AdminReply
     {
 
         /// <summary>
@@ -42,84 +42,129 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
-        /// lblWelcome control.
+        /// lblQuestionTitle control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblWelcome;
+        protected global::System.Web.UI.WebControls.Label lblQuestionTitle;
 
         /// <summary>
-        /// lblTotalUsers control.
+        /// lblQuestionContent control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalUsers;
+        protected global::System.Web.UI.WebControls.Label lblQuestionContent;
 
         /// <summary>
-        /// lblTotalStudents control.
+        /// ValidationSummary1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalStudents;
+        protected global::System.Web.UI.WebControls.ValidationSummary ValidationSummary1;
 
         /// <summary>
-        /// lblTotalLecturers control.
+        /// txtAnswer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalLecturers;
+        protected global::System.Web.UI.WebControls.TextBox txtAnswer;
 
         /// <summary>
-        /// lblTotalCourses control.
+        /// reqAnswer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalCourses;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator reqAnswer;
 
         /// <summary>
-        /// lblTotalForums control.
+        /// fileUploadFile control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalForums;
+        protected global::System.Web.UI.WebControls.FileUpload fileUploadFile;
 
         /// <summary>
-        /// lecturersVal control.
+        /// regexFile control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lecturersVal;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator regexFile;
 
         /// <summary>
-        /// studentsVal control.
+        /// fileUploadImage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label studentsVal;
+        protected global::System.Web.UI.WebControls.FileUpload fileUploadImage;
 
         /// <summary>
-        /// coursesVal control.
+        /// regexImage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label coursesVal;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator regexImage;
+
+        /// <summary>
+        /// txtVideoUrl control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtVideoUrl;
+
+        /// <summary>
+        /// regexVideoUrl control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator regexVideoUrl;
+
+        /// <summary>
+        /// btnPostAnswer control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnPostAnswer;
+
+        /// <summary>
+        /// btnCancel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnCancel;
+
+        /// <summary>
+        /// lblMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblMessage;
     }
 }

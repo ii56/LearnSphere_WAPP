@@ -127,8 +127,11 @@
     <Content Include="Admin\AdminCSS.css" />
     <Content Include="Admin\AdminDashboard.aspx" />
     <Content Include="Admin\AdminEditProfile.aspx" />
+    <Content Include="Admin\AdminForumDetails.aspx" />
     <Content Include="Admin\AdminForums.aspx" />
     <Content Include="Admin\AdminMessage.aspx" />
+    <Content Include="Admin\AdminReply.aspx" />
+    <Content Include="Admin\AdminVerifyUser.aspx" />
     <Content Include="Admin\AdminViewCourse.aspx" />
     <Content Include="Admin\AdminViewForums.aspx" />
     <Content Include="Admin\CourseManagement.aspx" />
@@ -293,6 +296,13 @@
     <Compile Include="Admin\AdminEditProfile.aspx.designer.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Admin\AdminForumDetails.aspx.cs">
+      <DependentUpon>AdminForumDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminForumDetails.aspx.designer.cs">
+      <DependentUpon>AdminForumDetails.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Admin\AdminForums.aspx.cs">
       <DependentUpon>AdminForums.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -306,6 +316,20 @@
     </Compile>
     <Compile Include="Admin\AdminMessage.aspx.designer.cs">
       <DependentUpon>AdminMessage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminReply.aspx.cs">
+      <DependentUpon>AdminReply.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminReply.aspx.designer.cs">
+      <DependentUpon>AdminReply.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Admin\AdminVerifyUser.aspx.cs">
+      <DependentUpon>AdminVerifyUser.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AdminVerifyUser.aspx.designer.cs">
+      <DependentUpon>AdminVerifyUser.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\AdminViewCourse.aspx.cs">
       <DependentUpon>AdminViewCourse.aspx</DependentUpon>

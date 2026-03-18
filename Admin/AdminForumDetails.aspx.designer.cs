@@ -11,7 +11,7 @@ namespace LearnSphere_WAPP.Admin
 {
 
 
-    public partial class AdminDashboard
+    public partial class AdminForumDetails
     {
 
         /// <summary>
@@ -42,84 +42,138 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
-        /// lblWelcome control.
+        /// lnkBack control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblWelcome;
+        protected global::System.Web.UI.WebControls.HyperLink lnkBack;
 
         /// <summary>
-        /// lblTotalUsers control.
+        /// imgQuestionUser control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalUsers;
+        protected global::System.Web.UI.WebControls.Image imgQuestionUser;
 
         /// <summary>
-        /// lblTotalStudents control.
+        /// lblQuestionUser control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalStudents;
+        protected global::System.Web.UI.WebControls.Label lblQuestionUser;
 
         /// <summary>
-        /// lblTotalLecturers control.
+        /// lblQuestionDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalLecturers;
+        protected global::System.Web.UI.WebControls.Label lblQuestionDate;
 
         /// <summary>
-        /// lblTotalCourses control.
+        /// lblQuestionTitle control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalCourses;
+        protected global::System.Web.UI.WebControls.Label lblQuestionTitle;
 
         /// <summary>
-        /// lblTotalForums control.
+        /// lblQuestionContent control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblTotalForums;
+        protected global::System.Web.UI.WebControls.Label lblQuestionContent;
 
         /// <summary>
-        /// lecturersVal control.
+        /// litTags control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lecturersVal;
+        protected global::System.Web.UI.WebControls.Literal litTags;
 
         /// <summary>
-        /// studentsVal control.
+        /// btnLikeQuestion control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label studentsVal;
+        protected global::System.Web.UI.WebControls.LinkButton btnLikeQuestion;
 
         /// <summary>
-        /// coursesVal control.
+        /// likeCount control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label coursesVal;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl likeCount;
+
+        /// <summary>
+        /// btnDislikeQuestion control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnDislikeQuestion;
+
+        /// <summary>
+        /// dislikeCount control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl dislikeCount;
+
+        /// <summary>
+        /// btnAnswer control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnAnswer;
+
+        /// <summary>
+        /// rptAnswers control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptAnswers;
+
+        /// <summary>
+        /// lblNoAnswers control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblNoAnswers;
+
+        /// <summary>
+        /// lblMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblMessage;
     }
 }

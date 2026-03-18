@@ -25,7 +25,7 @@ namespace LearnSphere_WAPP.Admin
 
             string role = Session["usertype"].ToString();
 
-            if (role != "Admin" && role != "Lecturer")
+            if (role != "Admin" && role != "Lecturer" && role != "SuperAdmin")
             {
                 Response.Redirect("~/Unauthorized.aspx");
                 return;

@@ -60,10 +60,6 @@
                     </div>
                 </div>
 
-                <div class="forum-actions">
-                    <asp:Button ID="btnAskQuestion" runat="server" Text="Ask Question" CssClass="btn-primary" OnClick="btnAskQuestion_Click" />
-                </div>
-
                 <asp:Repeater ID="rptQuestions" runat="server" OnItemCommand="rptQuestions_ItemCommand">
                 <ItemTemplate>
 
@@ -103,11 +99,11 @@
                         <div class="card-actions">
 
                             <a class="btn-view"
-                               href='ForumDetail.aspx?postid=<%# Eval("postid") %>&courseid=<%# Request.QueryString["courseid"] %>'
+                               href='AdminForumDetails.aspx?postid=<%# Eval("postid") %>&courseid=<%# Request.QueryString["courseid"] %>'
                             </a>
 
                             <a class="btn-comment"
-                               href='Answer.aspx?postid=<%# Eval("postid") %>'>
+                               href='AdminReply.aspx?postid=<%# Eval("postid") %>&courseid=<%# Request.QueryString["courseid"] %>'>
                                 Comment
                             </a>
 

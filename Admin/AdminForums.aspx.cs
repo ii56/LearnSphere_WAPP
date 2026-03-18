@@ -51,7 +51,7 @@ namespace LearnSphere_WAPP.Admin
                 }
                 else
                 {
-                    sidebarImg.Src = ResolveUrl("~/images/default-user.png");
+                    sidebarImg.Src = ResolveUrl("../images/default-user.png");
                 }
             }
         }
@@ -69,11 +69,9 @@ namespace LearnSphere_WAPP.Admin
                     SELECT c.courseid, c.coursename,
                     CASE WHEN f.forumid IS NULL THEN 0 ELSE 1 END AS HasForum
                     FROM Course c
-                    LEFT JOIN CourseForum f ON c.courseid = f.courseid
-                    WHERE c.ownerid = @ownerid";
+                    LEFT JOIN CourseForum f ON c.courseid = f.courseid";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@ownerid", Session["userid"]);
 
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
@@ -100,7 +98,7 @@ namespace LearnSphere_WAPP.Admin
             }
             else if (e.CommandName == "ViewForum")
             {
-                Response.Redirect("ViewForum.aspx?courseid=" + courseId);
+                Response.Redirect("AdminViewForums.aspx?courseid=" + courseId);
             }
         }
 
@@ -108,13 +106,35 @@ namespace LearnSphere_WAPP.Admin
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string query = "DELETE FROM CourseForum WHERE courseid = @courseid";
-
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@courseid", courseId);
-
                 conn.Open();
-                cmd.ExecuteNonQuery();
+
+                string query1 = "SELECT forumid FROM CourseForum WHERE courseid = @courseid";
+
+                SqlCommand cmd1 = new SqlCommand(query1, conn);
+                cmd1.Parameters.Add("@courseid", SqlDbType.Int).Value = courseId;
+
+                object result = cmd1.ExecuteScalar();
+
+                if (result == null)
+                {
+                    return;
+                }
+
+                int forumId = Convert.ToInt32(result);
+
+                string query2 = "DELETE FROM ForumPost WHERE forumid = @forumid";
+
+                SqlCommand cmd2 = new SqlCommand(query2, conn);
+                cmd2.Parameters.Add("@forumid", SqlDbType.Int).Value = forumId;
+
+                cmd2.ExecuteNonQuery();
+
+                string query3 = "DELETE FROM CourseForum WHERE courseid = @courseid";
+
+                SqlCommand cmd3 = new SqlCommand(query3, conn);
+                cmd3.Parameters.Add("@courseid", SqlDbType.Int).Value = courseId;
+
+                cmd3.ExecuteNonQuery();
             }
         }
 
