@@ -14,11 +14,11 @@
                 <div>
                     <div class="sidebar-title">LearnSphere</div>
                     <a href="AdminDashboard.aspx" class="nav-item">Dashboard</a>
-                    <a href="UserManagement.aspx" class="nav-item active">User Management</a>
+                    <a href="UserManagement.aspx" class="nav-item">User Management</a>
                     <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
                     <a href="Database.aspx" class="nav-item">Database</a>
                     <a href="AdminForums.aspx" class="nav-item">Forums</a>
-                    <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
+                    <a href="AdminEditProfile.aspx" class="nav-item active">Edit Profile</a>
                     <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
                 </div>
 
@@ -37,7 +37,7 @@
                         </div>
                     </div>
 
-                    <a href="Message.aspx" class="nav-item message-link">
+                    <a href="AdminMessage.aspx" class="nav-item message-link">
                         Messaging
                         <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
                             <span class="message-badge"><%= Session["unreadCount"] %></span>
@@ -50,7 +50,7 @@
 
             <div class="main-content">
                 <div class="dashboard-header">
-                    <h2>User Management</h2>
+                    <h2>Edit Password</h2>
                     <asp:Label ID="lblWelcome" runat="server" CssClass="welcome-text" />
                 </div>
 

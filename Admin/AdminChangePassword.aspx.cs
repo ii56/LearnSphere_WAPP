@@ -11,7 +11,7 @@ namespace LearnSphere_WAPP.Admin
 {
     public partial class AdminChangePassword : System.Web.UI.Page
     {
-        static SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString);
+        static SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString);
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))

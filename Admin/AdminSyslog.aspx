@@ -37,7 +37,7 @@
                         </div>
                     </div>
 
-                    <a href="Message.aspx" class="nav-item message-link">
+                    <a href="AdminMessage.aspx" class="nav-item message-link">
                         Messaging
                         <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
                             <span class="message-badge"><%= Session["unreadCount"] %></span>
@@ -77,7 +77,7 @@
     
                 </div>
 
-                <asp:GridView ID="GridView1" runat="server" CssClass="admin-table" AutoGenerateColumns="False" Width="100%" AllowPaging="true" PageSize="14" OnPageIndexChanging="GridView1_PageIndexChanging">
+                <asp:GridView ID="GridView1" runat="server" CssClass="admin-table" AutoGenerateColumns="False" Width="100%" AllowPaging="true" PageSize="14" OnPageIndexChanging="GridView1_PageIndexChanging" >
                     <Columns>
                         <asp:BoundField DataField="userid" HeaderText="User ID" ItemStyle-Width="6%"/>
                         <asp:BoundField DataField="usertype" HeaderText="UserType" ItemStyle-Width="8%"/>

@@ -37,7 +37,7 @@
                         </div>
                     </div>
 
-                    <a href="Message.aspx" class="nav-item message-link">
+                    <a href="AdminMessage.aspx" class="nav-item message-link">
                         Messaging
                         <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
                             <span class="message-badge"><%= Session["unreadCount"] %></span>
