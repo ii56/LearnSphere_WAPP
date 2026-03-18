@@ -194,3 +194,47 @@ body {
     /* 🔥 subtle polish */
     filter: drop-shadow(0 5px 10px rgba(0,0,0,0.15));
 }
+
+/* Register redirect section */
+.register-redirect {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Link style */
+.btn-link-register {
+    margin-left: 5px;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+    .btn-link-register:hover {
+        text-decoration: underline;
+        color: #1d4ed8;
+    }
+
+/* Login redirect section */
+.login-redirect {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Link styling */
+.btn-link-login {
+    margin-left: 5px;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+    .btn-link-login:hover {
+        text-decoration: underline;
+        color: #1d4ed8;
+    }

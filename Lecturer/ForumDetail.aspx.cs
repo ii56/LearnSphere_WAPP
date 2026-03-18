@@ -114,11 +114,35 @@ namespace LearnSphere_WAPP.Lecturer
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
                     string query = @"
-                        SELECT p.*, u.uname, u.ProfileImage
-                        FROM ForumPost p
-                        INNER JOIN [User] u ON p.userid = u.userid
-                        WHERE p.postid = @id
-                        AND p.deletiontime IS NULL";
+SELECT 
+    p.postid,
+    p.title,
+    p.content,
+    p.tags,
+    p.creationtime,
+    p.userid,
+    u.uname,
+    u.ProfileImage,
+
+    ISNULL(SUM(CASE WHEN v.votetype = 1 THEN 1 ELSE 0 END), 0) AS upvotes,
+    ISNULL(SUM(CASE WHEN v.votetype = -1 THEN 1 ELSE 0 END), 0) AS downvotes
+
+FROM ForumPost p
+INNER JOIN [User] u ON p.userid = u.userid
+LEFT JOIN ForumVote v ON p.postid = v.postid
+
+WHERE p.postid = @id
+AND p.deletiontime IS NULL
+
+GROUP BY 
+    p.postid,
+    p.title,
+    p.content,
+    p.tags,
+    p.creationtime,
+    p.userid,
+    u.uname,
+    u.ProfileImage";
 
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = postId;
@@ -133,8 +157,8 @@ namespace LearnSphere_WAPP.Lecturer
                         lblQuestionUser.Text = Server.HtmlEncode(reader["uname"].ToString());
                         lblQuestionDate.Text = Convert.ToDateTime(reader["creationtime"]).ToString("dd MMM yyyy");
 
-                        lblUpvotes.Text = "▲ " + reader["upvotes"].ToString();
-                        lblDownvotes.Text = " ▼ " + reader["downvotes"].ToString();
+                        likeCount.InnerText = reader["upvotes"].ToString();
+                        dislikeCount.InnerText = reader["downvotes"].ToString();
 
                         imgQuestionUser.ImageUrl = GetProfileImage(reader["ProfileImage"]);
                         litTags.Text = FormatTags(reader["tags"]);
@@ -158,12 +182,33 @@ namespace LearnSphere_WAPP.Lecturer
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
                     string query = @"
-                        SELECT p.*, u.uname, u.ProfileImage
-                        FROM ForumPost p
-                        INNER JOIN [User] u ON p.userid = u.userid
-                        WHERE p.parentid = @postid
-                        AND p.deletiontime IS NULL
-                        ORDER BY p.creationtime ASC";
+SELECT 
+    p.postid,
+    p.content,
+    p.creationtime,
+    p.userid,
+    u.uname,
+    u.ProfileImage,
+
+    ISNULL(SUM(CASE WHEN v.votetype = 1 THEN 1 ELSE 0 END), 0) AS upvotes,
+    ISNULL(SUM(CASE WHEN v.votetype = -1 THEN 1 ELSE 0 END), 0) AS downvotes
+
+FROM ForumPost p
+INNER JOIN [User] u ON p.userid = u.userid
+LEFT JOIN ForumVote v ON p.postid = v.postid
+
+WHERE p.parentid = @postid
+AND p.deletiontime IS NULL
+
+GROUP BY 
+    p.postid,
+    p.content,
+    p.creationtime,
+    p.userid,
+    u.uname,
+    u.ProfileImage
+
+ORDER BY p.creationtime ASC";
 
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.Add("@postid", SqlDbType.Int).Value = postId;
@@ -178,9 +223,9 @@ namespace LearnSphere_WAPP.Lecturer
                     lblNoAnswers.Visible = dt.Rows.Count == 0;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                lblMessage.Text = "Error loading answers.";
+                lblMessage.Text = ex.Message;
             }
         }
 
@@ -212,13 +257,22 @@ namespace LearnSphere_WAPP.Lecturer
         // 🔐 DELETE HANDLER (POST ONLY)
         protected void rptAnswers_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
+            int pid = Convert.ToInt32(e.CommandArgument);
+
             if (e.CommandName == "DeletePost")
             {
-                int deletePostId = Convert.ToInt32(e.CommandArgument);
-
-                DeletePost(deletePostId);
-                LoadAnswers();
+                DeletePost(pid);
             }
+            else if (e.CommandName == "LikeAnswer")
+            {
+                HandleVote(pid, 1);
+            }
+            else if (e.CommandName == "DislikeAnswer")
+            {
+                HandleVote(pid, -1);
+            }
+
+            LoadAnswers();
         }
 
         private void DeletePost(int deletePostId)
@@ -270,6 +324,87 @@ namespace LearnSphere_WAPP.Lecturer
 
             int postUserId = Convert.ToInt32(postUserIdObj);
             return postUserId == userId;
+        }
+
+        private void HandleVote(int postId, int voteType)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                string checkQuery = "SELECT votetype FROM ForumVote WHERE postid=@pid AND userid=@uid";
+                SqlCommand checkCmd = new SqlCommand(checkQuery, conn);
+                checkCmd.Parameters.AddWithValue("@pid", postId);
+                checkCmd.Parameters.AddWithValue("@uid", userId);
+
+                object existingVote = checkCmd.ExecuteScalar();
+
+                if (existingVote != null)
+                {
+                    int currentVote = Convert.ToInt32(existingVote);
+
+                    if (currentVote == voteType)
+                    {
+                        // remove vote
+                        SqlCommand del = new SqlCommand(
+                            "DELETE FROM ForumVote WHERE postid=@pid AND userid=@uid", conn);
+                        del.Parameters.AddWithValue("@pid", postId);
+                        del.Parameters.AddWithValue("@uid", userId);
+                        del.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        // switch vote
+                        SqlCommand upd = new SqlCommand(
+                            "UPDATE ForumVote SET votetype=@type WHERE postid=@pid AND userid=@uid", conn);
+                        upd.Parameters.AddWithValue("@type", voteType);
+                        upd.Parameters.AddWithValue("@pid", postId);
+                        upd.Parameters.AddWithValue("@uid", userId);
+                        upd.ExecuteNonQuery();
+                    }
+                }
+                else
+                {
+                    // insert
+                    SqlCommand ins = new SqlCommand(
+                        "INSERT INTO ForumVote(postid, userid, votetype) VALUES(@pid, @uid, @type)", conn);
+                    ins.Parameters.AddWithValue("@pid", postId);
+                    ins.Parameters.AddWithValue("@uid", userId);
+                    ins.Parameters.AddWithValue("@type", voteType);
+                    ins.ExecuteNonQuery();
+                }
+            }
+        }
+
+        protected void Vote_Command(object sender, CommandEventArgs e)
+        {
+            int postId;
+
+            // ✅ SAFE parsing (no crash)
+            if (!int.TryParse(e.CommandArgument?.ToString(), out postId))
+            {
+                lblMessage.Text = "Invalid post ID.";
+                return;
+            }
+
+            if (e.CommandName == "LikeQuestion")
+                HandleVote(postId, 1);
+            else if (e.CommandName == "DislikeQuestion")
+                HandleVote(postId, -1);
+
+            LoadQuestion();
+        }
+
+        protected void btnLikeQuestion_Click(object sender, EventArgs e)
+        {
+            HandleVote(postId, 1);
+            LoadQuestion();
+        }
+
+        protected void btnDislikeQuestion_Click(object sender, EventArgs e)
+        {
+            HandleVote(postId, -1);
+            LoadQuestion();
         }
     }
 }

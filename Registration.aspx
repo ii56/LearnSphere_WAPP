@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Registration</title>
-    <link href="registration.css?v=3" rel="stylesheet" />
+    <link href="registration.css?v=6" rel="stylesheet" />
 </head>
 <body>
         <div class="blob blob1"></div>
@@ -117,7 +117,16 @@
     </asp:Panel>
 
     <asp:Label ID="errMsg" runat="server" CssClass="error-message" />
+    <div class="login-redirect">
+    <span>Already have an account?</span>
 
+    <asp:HyperLink ID="lnkLogin"
+        runat="server"
+        NavigateUrl="~/Login.aspx"
+        CssClass="btn-link-login">
+        Login here
+    </asp:HyperLink>
+</div>
 </div>
 
 </form>

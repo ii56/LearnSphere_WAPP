@@ -114,21 +114,28 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 string query = @"
                                 SELECT p.postid,
-                                       p.title,
-                                       p.content,
-                                       p.tags,
-                                       p.upvotes,
-                                       p.downvotes,
-                                       p.creationtime,
-                                       u.uname,
-                                       u.ProfileImage
-                                FROM ForumPost p
-                                INNER JOIN CourseForum f ON p.forumid = f.forumid
-                                INNER JOIN [User] u ON p.userid = u.userid
-                                WHERE f.courseid = @courseid
-                                AND p.parentid IS NULL
-                                AND p.deletiontime IS NULL
-                                ORDER BY p.creationtime DESC";
+       p.title,
+       p.content,
+       p.tags,
+       p.creationtime,
+       u.uname,
+       u.ProfileImage,
+
+       SUM(CASE WHEN v.votetype = 1 THEN 1 ELSE 0 END) AS upvotes,
+       SUM(CASE WHEN v.votetype = -1 THEN 1 ELSE 0 END) AS downvotes
+
+FROM ForumPost p
+INNER JOIN CourseForum f ON p.forumid = f.forumid
+INNER JOIN [User] u ON p.userid = u.userid
+LEFT JOIN ForumVote v ON p.postid = v.postid
+
+WHERE f.courseid = @courseid
+AND p.parentid IS NULL
+AND p.deletiontime IS NULL
+
+GROUP BY p.postid, p.title, p.content, p.tags, p.creationtime, u.uname, u.ProfileImage
+
+ORDER BY p.creationtime DESC";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@courseid", courseId);
@@ -172,7 +179,72 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void rptQuestions_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
+            int postId;
+            if (!int.TryParse(e.CommandArgument.ToString(), out postId))
+                return;
 
+            int userId = Convert.ToInt32(Session["userid"]);
+
+            int voteType = 0;
+
+            if (e.CommandName == "Like")
+                voteType = 1;
+            else if (e.CommandName == "Dislike")
+                voteType = -1;
+            else
+                return;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                // 🔍 Check if user already voted
+                string checkQuery = "SELECT votetype FROM ForumVote WHERE postid=@pid AND userid=@uid";
+                SqlCommand checkCmd = new SqlCommand(checkQuery, conn);
+                checkCmd.Parameters.AddWithValue("@pid", postId);
+                checkCmd.Parameters.AddWithValue("@uid", userId);
+
+                object existingVote = checkCmd.ExecuteScalar();
+
+                if (existingVote != null)
+                {
+                    int currentVote = Convert.ToInt32(existingVote);
+
+                    if (currentVote == voteType)
+                    {
+                        // 🔥 Same vote clicked again → REMOVE vote
+                        string deleteQuery = "DELETE FROM ForumVote WHERE postid=@pid AND userid=@uid";
+                        SqlCommand delCmd = new SqlCommand(deleteQuery, conn);
+                        delCmd.Parameters.AddWithValue("@pid", postId);
+                        delCmd.Parameters.AddWithValue("@uid", userId);
+                        delCmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        // 🔥 Change vote (like ↔ dislike)
+                        string updateQuery = "UPDATE ForumVote SET votetype=@type WHERE postid=@pid AND userid=@uid";
+                        SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
+                        updateCmd.Parameters.AddWithValue("@type", voteType);
+                        updateCmd.Parameters.AddWithValue("@pid", postId);
+                        updateCmd.Parameters.AddWithValue("@uid", userId);
+                        updateCmd.ExecuteNonQuery();
+                    }
+                }
+                else
+                {
+                    // 🔥 Insert new vote
+                    string insertQuery = @"INSERT INTO ForumVote(postid, userid, votetype)
+                                  VALUES(@pid, @uid, @type)";
+                    SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
+                    insertCmd.Parameters.AddWithValue("@pid", postId);
+                    insertCmd.Parameters.AddWithValue("@uid", userId);
+                    insertCmd.Parameters.AddWithValue("@type", voteType);
+                    insertCmd.ExecuteNonQuery();
+                }
+            }
+
+            // 🔥 Refresh UI
+            LoadQuestions();
         }
     }
 }

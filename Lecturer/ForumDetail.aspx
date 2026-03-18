@@ -115,8 +115,25 @@
                 <div class="card-footer">
 
                     <div class="stats">
-                        <asp:Label ID="lblUpvotes" runat="server" />
-                        <asp:Label ID="lblDownvotes" runat="server" />
+<div class="vote-section">
+
+    <asp:LinkButton runat="server"
+        ID="btnLikeQuestion"
+        CssClass="vote-btn like-btn"
+        OnClick="btnLikeQuestion_Click"
+        CausesValidation="false">
+        👍 <span id="likeCount" runat="server"></span>
+    </asp:LinkButton>
+
+    <asp:LinkButton runat="server"
+        ID="btnDislikeQuestion"
+        CssClass="vote-btn dislike-btn"
+        OnClick="btnDislikeQuestion_Click"
+        CausesValidation="false">
+        👎 <span id="dislikeCount" runat="server"></span>
+    </asp:LinkButton>
+
+</div>
                     </div>
 
                     <asp:Button ID="btnAnswer"
@@ -131,7 +148,7 @@
             <!-- ANSWERS -->
             <h3 style="margin:30px 0 15px 0;">Answers</h3>
 
-            <asp:Repeater ID="rptAnswers" runat="server">
+<asp:Repeater ID="rptAnswers" runat="server" OnItemCommand="rptAnswers_ItemCommand">
 
                 <ItemTemplate>
 
@@ -161,8 +178,21 @@
                         <div class="card-footer">
 
                             <div class="stats">
-                                <span>▲ <%# Eval("upvotes") %></span>
-                                <span>▼ <%# Eval("downvotes") %></span>
+<asp:LinkButton runat="server"
+    CommandName="LikeAnswer"
+    CommandArgument='<%# Eval("postid") %>'
+    CssClass="vote-btn like-btn"
+    CausesValidation="false">
+    👍 <%# Eval("upvotes") %>
+</asp:LinkButton>
+
+<asp:LinkButton runat="server"
+    CommandName="DislikeAnswer"
+    CommandArgument='<%# Eval("postid") %>'
+    CssClass="vote-btn dislike-btn"
+    CausesValidation="false">
+    👎 <%# Eval("downvotes") %>
+</asp:LinkButton>
                             </div>
 
                             <div class="card-actions">

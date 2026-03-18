@@ -105,22 +105,40 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Literal litTags;
 
         /// <summary>
-        /// lblUpvotes control.
+        /// btnLikeQuestion control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblUpvotes;
+        protected global::System.Web.UI.WebControls.LinkButton btnLikeQuestion;
 
         /// <summary>
-        /// lblDownvotes control.
+        /// likeCount control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblDownvotes;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl likeCount;
+
+        /// <summary>
+        /// btnDislikeQuestion control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton btnDislikeQuestion;
+
+        /// <summary>
+        /// dislikeCount control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl dislikeCount;
 
         /// <summary>
         /// btnAnswer control.

@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Login</title>
-    <link href="registration.css?v=4" rel="stylesheet" />
+    <link href="registration.css?v=5" rel="stylesheet" />
 </head>
 <body>
     <div class="blob blob1"></div>
@@ -35,6 +35,19 @@
 
             <asp:Button ID="btnLogin" runat="server" Text="Login" CssClass="btn-register" OnClick="btnLogin_Click" />
             <br /><br />
+
+            <br />
+
+<div class="register-redirect">
+    <span>Don't have an account?</span>
+
+    <asp:HyperLink ID="lnkRegister"
+        runat="server"
+        NavigateUrl="~/Registration.aspx"
+        CssClass="btn-link-register">
+        Register here
+    </asp:HyperLink>
+</div>
 
             <asp:Label ID="errMsg" runat="server" CssClass="error-message" />
         </div>

@@ -411,3 +411,62 @@ h2 {
     opacity: 1;
     font-weight: 500;
 }
+
+/* 🔥 REMOVE DEFAULT LINK STYLING */
+.vote-btn {
+    text-decoration: none !important;
+    border: none;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+    /* REMOVE BLUE FOCUS OUTLINE */
+    .vote-btn:focus,
+    .vote-btn:active {
+        outline: none;
+        box-shadow: none;
+    }
+
+/* 👍 LIKE BUTTON */
+.like-btn {
+    color: #6b7280; /* neutral gray */
+    transition: 0.2s;
+}
+
+    .like-btn:hover {
+        color: #22c55e; /* green */
+        transform: scale(1.1);
+    }
+
+/* 👎 DISLIKE BUTTON */
+.dislike-btn {
+    color: #6b7280;
+    transition: 0.2s;
+}
+
+    .dislike-btn:hover {
+        color: #ef4444; /* red */
+        transform: scale(1.1);
+    }
+
+/* ACTIVE STATES */
+.like-btn.active {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+.dislike-btn.active {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+.vote-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}

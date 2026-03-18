@@ -1079,6 +1079,62 @@ label {
         background: #cbd5e1;
     }
 
+/* -------------------- FORUM VOTING -------------------- */
+
+.vote-btn {
+    text-decoration: none !important;
+    border: none;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+    .vote-btn:focus,
+    .vote-btn:active {
+        outline: none;
+        box-shadow: none;
+    }
+
+.like-btn {
+    color: #6b7280;
+    transition: 0.2s;
+}
+
+    .like-btn:hover {
+        color: #22c55e;
+        transform: scale(1.1);
+    }
+
+.dislike-btn {
+    color: #6b7280;
+    transition: 0.2s;
+}
+
+    .dislike-btn:hover {
+        color: #ef4444;
+        transform: scale(1.1);
+    }
+
+.like-btn.active {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+.dislike-btn.active {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+.vote-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 /* ================================================
    DOCUMENT 4 - DASHBOARD
    ================================================ */
