@@ -6,46 +6,62 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Data;
 
 namespace LearnSphere_WAPP.Lecturer
 {
     public class ModuleView
     {
         public int moduleid { get; set; }
-
         public string modulename { get; set; }
-
         public List<LessonView> Lessons { get; set; }
-
         public bool HasExam { get; set; }
-
         public string ExamTitle { get; set; }
-
         public int QuestionCount { get; set; }
-
         public int TotalMarks { get; set; }
     }
 
     public class LessonView
     {
         public string lessontitle { get; set; }
-
         public int duration { get; set; }
     }
 
     public partial class editPublish : System.Web.UI.Page
     {
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+
         int courseId;
+        int userId;
+
+        protected void Page_Init(object sender, EventArgs e)
+        {
+            // 🔐 CSRF Protection
+            if (Session["userid"] != null)
+                ViewStateUserKey = Session["userid"].ToString();
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
+            // 🔐 AUTHENTICATION
+            if (Session["userid"] == null || Session["usertype"] == null ||
+                Session["usertype"].ToString() != "Lecturer")
             {
                 Response.Redirect("~/Login.aspx");
                 return;
             }
 
+            userId = Convert.ToInt32(Session["userid"]);
+
+            // 🔐 VALIDATE QUERY
             if (!int.TryParse(Request.QueryString["courseid"], out courseId) || courseId <= 0)
+            {
+                Response.Redirect("ViewCourses.aspx");
+                return;
+            }
+
+            // 🔐 AUTHORIZATION (CRITICAL)
+            if (!IsCourseOwner(courseId, userId))
             {
                 Response.Redirect("ViewCourses.aspx");
                 return;
@@ -53,56 +69,69 @@ namespace LearnSphere_WAPP.Lecturer
 
             if (!IsPostBack)
             {
+                LoadSidebarProfileImage();
                 LoadCourse();
                 LoadModulesAndLessons();
-                LoadSidebarProfileImage();
+            }
+        }
+
+        // 🔐 CHECK COURSE OWNERSHIP
+        private bool IsCourseOwner(int courseId, int userId)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string query = "SELECT COUNT(*) FROM Course WHERE courseid=@cid AND ownerid=@uid";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = courseId;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+
+                con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
             }
         }
 
         private void LoadSidebarProfileImage()
         {
-            if (Session["userid"] == null)
-                return;
-
-            int userId = Convert.ToInt32(Session["userid"]);
-
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
+                string query = "SELECT ProfileImage FROM [User] WHERE userid=@id";
 
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", userId);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
 
                 con.Open();
                 object result = cmd.ExecuteScalar();
 
-                if (result != null && result != DBNull.Value)
-                {
-                    imgSidebarProfile.Src = ResolveUrl(result.ToString());
-                }
-                else
-                {
-                    imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
-                }
+                imgSidebarProfile.Src = (result != null && result != DBNull.Value)
+                    ? ResolveUrl(result.ToString())
+                    : ResolveUrl("~/images/default-user.png");
             }
         }
+
         private void LoadCourse()
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = "SELECT coursename, description, price FROM Course WHERE courseid=@id";
+                string query = @"SELECT coursename, description, price 
+                                 FROM Course 
+                                 WHERE courseid=@id";
 
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", courseId);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = courseId;
 
                 con.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.Read())
                 {
-                    lblCourseName.Text = reader["coursename"].ToString();
-                    lblCourseDesc.Text = reader["description"].ToString();
+                    lblCourseName.Text = Server.HtmlEncode(reader["coursename"].ToString());
+                    lblCourseDesc.Text = Server.HtmlEncode(reader["description"].ToString());
                     lblCoursePrice.Text = "Price: $" + reader["price"].ToString();
+                }
+                else
+                {
+                    Response.Redirect("ViewCourses.aspx");
                 }
             }
         }
@@ -113,17 +142,18 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 con.Open();
 
-                string moduleQuery = @"SELECT moduleid, modulename
-                               FROM Module
-                               WHERE courseid=@courseid
-                               AND deletiontime IS NULL";
+                List<ModuleView> modules = new List<ModuleView>();
 
-                SqlCommand moduleCmd = new SqlCommand(moduleQuery, con);
-                moduleCmd.Parameters.AddWithValue("@courseid", courseId);
+                // MODULES
+                SqlCommand moduleCmd = new SqlCommand(
+                    @"SELECT moduleid, modulename 
+                      FROM Module 
+                      WHERE courseid=@courseid AND deletiontime IS NULL",
+                    con);
+
+                moduleCmd.Parameters.Add("@courseid", SqlDbType.Int).Value = courseId;
 
                 SqlDataReader moduleReader = moduleCmd.ExecuteReader();
-
-                List<ModuleView> modules = new List<ModuleView>();
 
                 while (moduleReader.Read())
                 {
@@ -131,29 +161,22 @@ namespace LearnSphere_WAPP.Lecturer
                     {
                         moduleid = Convert.ToInt32(moduleReader["moduleid"]),
                         modulename = moduleReader["modulename"].ToString(),
-                        Lessons = new List<LessonView>(),
-                        HasExam = false,
-                        ExamTitle = "",
-                        QuestionCount = 0,
-                        TotalMarks = 0
+                        Lessons = new List<LessonView>()
                     });
                 }
 
                 moduleReader.Close();
 
-
                 foreach (var module in modules)
                 {
+                    // LESSONS
+                    SqlCommand lessonCmd = new SqlCommand(
+                        @"SELECT lessontitle, duration 
+                          FROM Lesson 
+                          WHERE moduleid=@mid AND deletiontime IS NULL",
+                        con);
 
-                    // LOAD LESSONS
-
-                    string lessonQuery = @"SELECT lessontitle, duration
-                                   FROM Lesson
-                                   WHERE moduleid=@moduleid
-                                   AND deletiontime IS NULL";
-
-                    SqlCommand lessonCmd = new SqlCommand(lessonQuery, con);
-                    lessonCmd.Parameters.AddWithValue("@moduleid", module.moduleid);
+                    lessonCmd.Parameters.Add("@mid", SqlDbType.Int).Value = module.moduleid;
 
                     SqlDataReader lessonReader = lessonCmd.ExecuteReader();
 
@@ -167,108 +190,77 @@ namespace LearnSphere_WAPP.Lecturer
                     }
 
                     lessonReader.Close();
-
-
-                    // LOAD MODULE EXAM
-                    pnlCourseExam.Visible = false;
-                    string examQuery = @"SELECT TOP 1 examid, examtitle
-                     FROM Exam
-                     WHERE moduleid=@moduleid";
-
-                    SqlCommand examCmd = new SqlCommand(examQuery, con);
-                    examCmd.Parameters.AddWithValue("@moduleid", module.moduleid);
-
-                    SqlDataReader examReader = examCmd.ExecuteReader();
-
-                    if (examReader.Read())
-                    {
-                        module.HasExam = true;
-                        module.ExamTitle = examReader["examtitle"].ToString();
-
-                        int examId = Convert.ToInt32(examReader["examid"]);
-
-                        examReader.Close();
-
-                        string statsQuery = @"SELECT 
-                        COUNT(*) AS QuestionCount,
-                        ISNULL(SUM(marks),0) AS TotalMarks
-                      FROM ExamQuestion
-                      WHERE examid=@examid";
-
-                        SqlCommand statsCmd = new SqlCommand(statsQuery, con);
-                        statsCmd.Parameters.AddWithValue("@examid", examId);
-
-                        SqlDataReader statsReader = statsCmd.ExecuteReader();
-
-                        if (statsReader.Read())
-                        {
-                            module.QuestionCount = Convert.ToInt32(statsReader["QuestionCount"]);
-                            module.TotalMarks = Convert.ToInt32(statsReader["TotalMarks"]);
-                        }
-
-                        statsReader.Close();
-                    }
-                    else
-                    {
-                        examReader.Close();
-                    }
-
                 }
-
-
-                // LOAD COURSE EXAM
-                pnlCourseExam.Visible = false;
-                string courseExamQuery = @"SELECT examid, examtitle
-                                   FROM Exam
-                                   WHERE courseid=@courseid";
-
-                SqlCommand courseExamCmd = new SqlCommand(courseExamQuery, con);
-                courseExamCmd.Parameters.AddWithValue("@courseid", courseId);
-
-                SqlDataReader courseExamReader = courseExamCmd.ExecuteReader();
-
-                if (courseExamReader.Read())
-                {
-                    pnlCourseExam.Visible = true;
-
-                    lblCourseExamTitle.Text = courseExamReader["examtitle"].ToString();
-
-                    int examId = Convert.ToInt32(courseExamReader["examid"]);
-
-                    courseExamReader.Close();
-
-                    string countQuery = "SELECT COUNT(*) FROM ExamQuestion WHERE examid=@examid";
-
-                    SqlCommand countCmd = new SqlCommand(countQuery, con);
-                    countCmd.Parameters.AddWithValue("@examid", examId);
-
-                    lblCourseExamQuestions.Text = countCmd.ExecuteScalar().ToString();
-                }
-                else
-                {
-                    courseExamReader.Close();
-                }
-
 
                 rptModules.DataSource = modules;
                 rptModules.DataBind();
             }
         }
 
-        protected void btnPublish_Click(object sender, EventArgs e)
+        // 🔐 VALIDATION BEFORE PUBLISH
+        private bool IsCourseValidForPublish()
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
 
-                string query = "UPDATE Course SET status = 1 WHERE courseid=@id";
+                // Must have modules
+                SqlCommand cmd1 = new SqlCommand(
+                    "SELECT COUNT(*) FROM Module WHERE courseid=@id AND deletiontime IS NULL", con);
+                cmd1.Parameters.Add("@id", SqlDbType.Int).Value = courseId;
 
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", courseId);
-                cmd.ExecuteNonQuery();
+                if ((int)cmd1.ExecuteScalar() == 0)
+                    return false;
+
+                // Must have lessons
+                SqlCommand cmd2 = new SqlCommand(
+                    @"SELECT COUNT(*) FROM Lesson 
+                      WHERE moduleid IN (SELECT moduleid FROM Module WHERE courseid=@id)",
+                    con);
+                cmd2.Parameters.Add("@id", SqlDbType.Int).Value = courseId;
+
+                if ((int)cmd2.ExecuteScalar() == 0)
+                    return false;
+
+                return true;
             }
+        }
 
-            Response.Redirect("LecturerDashboard.aspx");
+        protected void btnPublish_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // 🔐 VALIDATION
+                if (!IsCourseValidForPublish())
+                {
+                    lblMessage.Text = "Course must contain at least one module and lesson.";
+                    return;
+                }
+
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
+
+                    SqlCommand cmd = new SqlCommand(
+                        "UPDATE Course SET status=1 WHERE courseid=@id",
+                        con);
+
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = courseId;
+
+                    cmd.ExecuteNonQuery();
+                }
+
+                Response.Redirect("LecturerDashboard.aspx");
+            }
+            catch
+            {
+                lblMessage.Text = "Error publishing course. Please try again.";
+            }
+        }
+
+        protected void btnBack_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("editCourse.aspx?courseid=" + courseId);
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
@@ -276,11 +268,6 @@ namespace LearnSphere_WAPP.Lecturer
             Session.Clear();
             Session.Abandon();
             Response.Redirect("~/Login.aspx");
-        }
-
-        protected void btnBack_Click(object sender, EventArgs e)
-        {
-            Response.Redirect("editCourse.aspx?courseid=" + courseId);
         }
     }
 }

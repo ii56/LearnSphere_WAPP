@@ -3,164 +3,246 @@
     Inherits="LearnSphere_WAPP.Lecturer.editCourse" %>
 
 <!DOCTYPE html>
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Edit Course Content</title>
     <link href="courses.css" rel="stylesheet" />
 </head>
+
 <body>
 <form id="form1" runat="server">
+
     <div class="layout">
-    <div class="sidebar">
-        <div>
-            <div class="sidebar-title">LearnSphere</div>
-            <a href="LecturerDashboard.aspx" class="nav-item">Dashboard</a>
-            <a href="CreateCourse.aspx" class="nav-item">Create Course</a>
-            <a href="ViewCourses.aspx" class="nav-item active">View Courses</a>
-            <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
-            <a href="Forums.aspx" class="nav-item">Forums</a>
-        </div>
 
-                <div class="sidebar-profile">
-                    <div class="profile-box <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") ? "verified" : "not-verified" %>">
-                        <div class="profile-img-wrapper">
-                            <img id="imgSidebarProfile" runat="server" class="profile-img" />
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div>
+                <div class="sidebar-title">LearnSphere</div>
 
-                            <% if (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") { %>
-                                <div class="verification-badge">✔</div>
-                            <% } %>
-                        </div>
+                <a href="LecturerDashboard.aspx" class="nav-item">Dashboard</a>
+                <a href="CreateCourse.aspx" class="nav-item">Create Course</a>
+                <a href="ViewCourses.aspx" class="nav-item active">View Courses</a>
+                <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
+                <a href="Forums.aspx" class="nav-item">Forums</a>
+            </div>
 
-                        <div class="profile-info">
-                            <div class="profile-name"><%= Session["uname"] %></div>
-                            <div class="profile-status">
-                                <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") 
-                                    ? "Verified Lecturer" 
-                                    : "General User" %>
-                            </div>
-                        </div>
+            <div class="sidebar-profile">
+
+                <div class="profile-box <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") ? "verified" : "not-verified" %>">
+
+                    <div class="profile-img-wrapper">
+                        <img id="imgSidebarProfile" runat="server" class="profile-img" />
+
+                        <% if (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") { %>
+                            <div class="verification-badge">✔</div>
+                        <% } %>
                     </div>
 
-                    <a href="Message.aspx" class="nav-item message-link">
-                        Messaging
-                        <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
-                            <span class="message-badge"><%= Session["unreadCount"] %></span>
-                        <% } %>
-                    </a>
+                    <div class="profile-info">
+                        <div class="profile-name">
+                            <%= Session["uname"] != null ? Server.HtmlEncode(Session["uname"].ToString()) : "" %>
+                        </div>
 
-                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
+                        <div class="profile-status">
+                            <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer")
+                                ? "Verified Lecturer"
+                                : "General User" %>
+                        </div>
+                    </div>
                 </div>
-    </div>
 
-    <div class="main-content">
-        <div class="course-info">
-            <h2><asp:Label ID="lblCourseName" runat="server" /></h2>
-            <p><asp:Label ID="lblCourseDescription" runat="server" /></p>
-            <p><strong>Price:</strong> $<asp:Label ID="lblCoursePrice" runat="server" /></p>
+                <a href="Message.aspx" class="nav-item message-link">
+                    Messaging
+                    <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
+                        <span class="message-badge">
+                            <%= Session["unreadCount"] %>
+                        </span>
+                    <% } %>
+                </a>
 
-            <div class="module-actions">
-
-                <asp:Button ID="btnAddModule"
+                <asp:Button
+                    ID="btnLogout"
                     runat="server"
-                    Text="+ Add Module"
-                    CssClass="btn btn-primary"
-                    OnClick="btnAddModule_Click" />
-
-                <asp:Button ID="btnCreateExam"
-                    runat="server"
-                    Text="Create Exam"
-                    CssClass="btn btn-success"
-                    OnClick="btnCreateExam_Click" />
-
-                <asp:Button ID="btnEditExam"
-                    runat="server"
-                    Text="Edit Exam"
-                    CssClass="btn btn-edit"
-                    OnClick="btnEditExam_Click" />
-
-                <asp:Button ID="btnDeleteExam"
-                    runat="server"
-                    Text="Delete Exam"
-                    CssClass="btn btn-delete"
-                    OnClick="btnDeleteExam_Click"
-                    OnClientClick="return confirm('Delete this exam?');" />
-
+                    Text="Logout"
+                    CssClass="logout-btn"
+                    OnClick="btnLogout_Click" />
             </div>
         </div>
 
-        <hr />
 
-        <asp:Repeater ID="rptModules"
-            runat="server"
-            OnItemDataBound="rptModules_ItemDataBound" OnItemCommand="rptModules_ItemCommand">
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
 
-            <ItemTemplate>
+            <!-- VALIDATION SUMMARY -->
+            <asp:ValidationSummary
+                ID="ValidationSummary1"
+                runat="server"
+                CssClass="validation-summary"
+                HeaderText="Please fix the following issues:" />
 
-                <div class="module-card">
+            <!-- COURSE INFO -->
+            <div class="course-info">
+                <h2>
+                    <asp:Label ID="lblCourseName" runat="server" />
+                </h2>
 
-                    <h3><%# Eval("modulename") %></h3>
+                <p>
+                    <asp:Label ID="lblCourseDescription" runat="server" />
+                </p>
+
+                <p>
+                    <strong>Price:</strong> $
+                    <asp:Label ID="lblCoursePrice" runat="server" />
+                </p>
 
                 <div class="module-actions">
 
-                    <asp:Button runat="server"
-                        Text="Edit Module"
+                    <asp:Button
+                        ID="btnAddModule"
+                        runat="server"
+                        Text="+ Add Module"
+                        CssClass="btn btn-primary"
+                        OnClick="btnAddModule_Click" />
+
+                    <asp:Button
+                        ID="btnCreateExam"
+                        runat="server"
+                        Text="Create Exam"
+                        CssClass="btn btn-success"
+                        OnClick="btnCreateExam_Click" />
+
+                    <asp:Button
+                        ID="btnEditExam"
+                        runat="server"
+                        Text="Edit Exam"
                         CssClass="btn btn-edit"
-                        CommandName="EditModule"
-                        CommandArgument='<%# Eval("moduleid") %>'
-                        OnCommand="Module_Command" />
+                        OnClick="btnEditExam_Click" />
 
-                    <asp:Button runat="server"
-                        Text="Delete Module"
+                    <asp:Button
+                        ID="btnDeleteExam"
+                        runat="server"
+                        Text="Delete Exam"
                         CssClass="btn btn-delete"
-                        CommandName="DeleteModule"
-                        CommandArgument='<%# Eval("moduleid") %>'
-                        OnCommand="Module_Command"
-                        OnClientClick="return confirm('Delete this module and all its lessons?');" />
-
-                    <asp:Button runat="server"
-                        Text="+ Add Lesson"
-                        CssClass="btn btn-secondary"
-                        CommandName="AddLesson"
-                        CommandArgument='<%# Eval("moduleid") %>'
-                        OnCommand="Module_Command" />
+                        OnClick="btnDeleteExam_Click"
+                        OnClientClick="this.disabled=true; return confirm('Delete this exam?');" />
                 </div>
+            </div>
 
-                    <asp:Repeater ID="rptLessons" runat="server">
+            <hr />
 
-                        <HeaderTemplate>
-                            <table class="lesson-table">
+
+            <!-- MODULES -->
+            <asp:Repeater
+                ID="rptModules"
+                runat="server"
+                OnItemDataBound="rptModules_ItemDataBound"
+                OnItemCommand="rptModules_ItemCommand">
+
+                <ItemTemplate>
+
+                    <div class="module-card">
+
+                        <h3>
+                            <%# Eval("modulename") != null ? Server.HtmlEncode(Eval("modulename").ToString()) : "" %>
+                        </h3>
+
+                        <div class="module-actions">
+
+                            <asp:Button
+                                runat="server"
+                                Text="Edit Module"
+                                CssClass="btn btn-edit"
+                                CommandName="EditModule"
+                                CommandArgument='<%# Eval("moduleid") %>'
+                                OnCommand="Module_Command" />
+
+                            <asp:Button
+                                runat="server"
+                                Text="Delete Module"
+                                CssClass="btn btn-delete"
+                                CommandName="DeleteModule"
+                                CommandArgument='<%# Eval("moduleid") %>'
+                                OnCommand="Module_Command"
+                                OnClientClick="this.disabled=true; return confirm('Delete this module and all its lessons?');" />
+
+                            <asp:Button
+                                runat="server"
+                                Text="+ Add Lesson"
+                                CssClass="btn btn-secondary"
+                                CommandName="AddLesson"
+                                CommandArgument='<%# Eval("moduleid") %>'
+                                OnCommand="Module_Command" />
+                        </div>
+
+
+                        <!-- LESSONS -->
+                        <asp:Repeater ID="rptLessons" runat="server">
+
+                            <HeaderTemplate>
+                                <table class="lesson-table">
+                                    <tr>
+                                        <th>Lesson Title</th>
+                                        <th>Actions</th>
+                                    </tr>
+                            </HeaderTemplate>
+
+                            <ItemTemplate>
                                 <tr>
-                                    <th>Lesson Title</th>
-                                    <th>Actions</th>
+                                    <td>
+                                        <%# Eval("lessontitle") != null ? Server.HtmlEncode(Eval("lessontitle").ToString()) : "" %>
+                                    </td>
+
+                                    <td>
+                                        <asp:Button
+                                            runat="server"
+                                            Text="Edit"
+                                            CssClass="btn btn-edit"
+                                            CommandName="EditLesson"
+                                            CommandArgument='<%# Eval("lessonid") %>'
+                                            OnCommand="Lesson_Command" />
+
+                                        <asp:Button
+                                            runat="server"
+                                            Text="Delete"
+                                            CssClass="btn btn-delete"
+                                            CommandName="DeleteLesson"
+                                            CommandArgument='<%# Eval("lessonid") %>'
+                                            OnCommand="Lesson_Command"
+                                            OnClientClick="this.disabled=true; return confirm('Delete this lesson?');" />
+                                    </td>
                                 </tr>
-                        </HeaderTemplate>
+                            </ItemTemplate>
 
-                        <ItemTemplate>
-                            <tr>
-                                <td><%# Eval("lessontitle") %></td>
-                                <td>
-                                    <asp:Button runat="server" Text="Edit" CssClass="btn btn-edit" CommandName="EditLesson" CommandArgument='<%# Eval("lessonid") %>' OnCommand="Lesson_Command" />
-                                    <asp:Button runat="server" Text="Delete" CssClass="btn btn-delete" CommandName="DeleteLesson" CommandArgument='<%# Eval("lessonid") %>' OnCommand="Lesson_Command" OnClientClick="return confirm('Delete this lesson?');" />
-                                </td>
-                            </tr>
-                        </ItemTemplate>
+                            <FooterTemplate>
+                                </table>
+                            </FooterTemplate>
 
-                        <FooterTemplate>
-                            </table>
-                        </FooterTemplate>
-                    </asp:Repeater>
+                        </asp:Repeater>
 
-                </div>
+                    </div>
 
-                <hr />
-            </ItemTemplate>
-        </asp:Repeater>
+                    <hr />
 
-        <div class="bottom-actions">
-            <asp:Button ID="btnReview" runat="server" Text="Review & Update" CssClass="btn btn-success" OnClick="btnReview_Click" />
+                </ItemTemplate>
+
+            </asp:Repeater>
+
+
+            <!-- BOTTOM ACTION -->
+            <div class="bottom-actions">
+                <asp:Button
+                    ID="btnReview"
+                    runat="server"
+                    Text="Review & Update"
+                    CssClass="btn btn-success"
+                    OnClick="btnReview_Click" />
+            </div>
+
         </div>
+
     </div>
-</div>
+
 </form>
 </body>
 </html>

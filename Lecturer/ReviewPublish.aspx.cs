@@ -6,15 +6,16 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
 namespace LearnSphere_WAPP.Lecturer
 {
     public partial class ReviewPublish : System.Web.UI.Page
     {
-        string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+        private readonly string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
+            // 🔐 Strong session validation
+            if (Session["userid"] == null || Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
             {
                 Response.Redirect("~/Login.aspx");
                 return;
@@ -28,13 +29,12 @@ namespace LearnSphere_WAPP.Lecturer
 
             if (!IsPostBack)
             {
-                LoadCourse();
-                LoadSidebarProfileImage();
-                LoadModulesAndLessons();
-            }
-            if (!IsPostBack)
-            {
+                // Step indicator
                 ViewState["Step"] = "4";
+
+                LoadSidebarProfileImage();
+                LoadCourse();
+                LoadModulesAndLessons();
             }
         }
 
@@ -45,27 +45,27 @@ namespace LearnSphere_WAPP.Lecturer
 
             int userId = Convert.ToInt32(Session["userid"]);
 
-            using (SqlConnection con = new SqlConnection(
-                ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString))
+            using (SqlConnection con = new SqlConnection(connStr))
             {
                 string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
 
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", userId);
-
-                con.Open();
-
-                object result = cmd.ExecuteScalar();
-
-                if (result != null && result != DBNull.Value)
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    string imagePath = result.ToString();
-                    Session["profileImage"] = imagePath;
-                    imgSidebarProfile.Src = ResolveUrl(imagePath);
-                }
-                else
-                {
-                    imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
+                    cmd.Parameters.AddWithValue("@id", userId);
+
+                    con.Open();
+                    object result = cmd.ExecuteScalar();
+
+                    if (result != null && result != DBNull.Value)
+                    {
+                        string imagePath = result.ToString();
+                        Session["profileImage"] = imagePath;
+                        imgSidebarProfile.Src = ResolveUrl(imagePath);
+                    }
+                    else
+                    {
+                        imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
+                    }
                 }
             }
         }
@@ -73,22 +73,35 @@ namespace LearnSphere_WAPP.Lecturer
         private void LoadCourse()
         {
             int courseId = Convert.ToInt32(Session["CurrentCourseID"]);
+            int userId = Convert.ToInt32(Session["userid"]);
 
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = "SELECT coursename, description, price FROM Course WHERE courseid=@id";
+                // 🔐 Ownership check added
+                string query = @"SELECT coursename, description, price 
+                                 FROM Course 
+                                 WHERE courseid = @id AND lecturerid = @lecturerid";
 
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", courseId);
-
-                con.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                if (reader.Read())
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    lblCourseName.Text = "Course: " + reader["coursename"].ToString();
-                    lblCourseDesc.Text = "Description: " + reader["description"].ToString();
-                    lblCoursePrice.Text = "Price: $" + reader["price"].ToString();
+                    cmd.Parameters.AddWithValue("@id", courseId);
+                    cmd.Parameters.AddWithValue("@lecturerid", userId);
+
+                    con.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        // 🔐 XSS Protection
+                        lblCourseName.Text = "Course: " + Server.HtmlEncode(reader["coursename"].ToString());
+                        lblCourseDesc.Text = "Description: " + Server.HtmlEncode(reader["description"].ToString());
+                        lblCoursePrice.Text = "Price: $" + Server.HtmlEncode(reader["price"].ToString());
+                    }
+                    else
+                    {
+                        // Unauthorized access protection
+                        Response.Redirect("CreateCourse.aspx");
+                    }
                 }
             }
         }
@@ -103,74 +116,101 @@ namespace LearnSphere_WAPP.Lecturer
 
                 string moduleQuery = @"SELECT moduleid, modulename 
                                        FROM Module 
-                                       WHERE courseid=@courseid
+                                       WHERE courseid = @courseid
                                        AND deletiontime IS NULL";
 
-                SqlCommand moduleCmd = new SqlCommand(moduleQuery, con);
-                moduleCmd.Parameters.AddWithValue("@courseid", courseId);
-
-                SqlDataReader moduleReader = moduleCmd.ExecuteReader();
-
-                List<dynamic> modules = new List<dynamic>();
-
-                while (moduleReader.Read())
+                using (SqlCommand moduleCmd = new SqlCommand(moduleQuery, con))
                 {
-                    modules.Add(new
+                    moduleCmd.Parameters.AddWithValue("@courseid", courseId);
+
+                    SqlDataReader moduleReader = moduleCmd.ExecuteReader();
+
+                    var modules = new List<dynamic>();
+
+                    while (moduleReader.Read())
                     {
-                        moduleid = moduleReader["moduleid"],
-                        modulename = moduleReader["modulename"],
-                        Lessons = new List<dynamic>()
-                    });
-                }
-
-                moduleReader.Close();
-
-                foreach (var module in modules)
-                {
-                    string lessonQuery = @"SELECT lessontitle, duration
-                                           FROM Lesson
-                                           WHERE moduleid=@moduleid
-                                           AND deletiontime IS NULL";
-
-                    SqlCommand lessonCmd = new SqlCommand(lessonQuery, con);
-                    lessonCmd.Parameters.AddWithValue("@moduleid", module.moduleid);
-
-                    SqlDataReader lessonReader = lessonCmd.ExecuteReader();
-
-                    while (lessonReader.Read())
-                    {
-                        module.Lessons.Add(new
+                        modules.Add(new
                         {
-                            lessontitle = lessonReader["lessontitle"],
-                            duration = lessonReader["duration"]
+                            moduleid = moduleReader["moduleid"],
+                            modulename = moduleReader["modulename"],
+                            Lessons = new List<dynamic>()
                         });
                     }
 
-                    lessonReader.Close();
-                }
+                    moduleReader.Close();
 
-                rptModules.DataSource = modules;
-                rptModules.DataBind();
+                    foreach (var module in modules)
+                    {
+                        string lessonQuery = @"SELECT lessontitle, duration
+                                               FROM Lesson
+                                               WHERE moduleid = @moduleid
+                                               AND deletiontime IS NULL";
+
+                        using (SqlCommand lessonCmd = new SqlCommand(lessonQuery, con))
+                        {
+                            lessonCmd.Parameters.AddWithValue("@moduleid", module.moduleid);
+
+                            SqlDataReader lessonReader = lessonCmd.ExecuteReader();
+
+                            while (lessonReader.Read())
+                            {
+                                module.Lessons.Add(new
+                                {
+                                    lessontitle = lessonReader["lessontitle"],
+                                    duration = lessonReader["duration"]
+                                });
+                            }
+
+                            lessonReader.Close();
+                        }
+                    }
+
+                    rptModules.DataSource = modules;
+                    rptModules.DataBind();
+                }
             }
         }
 
         protected void btnPublish_Click(object sender, EventArgs e)
         {
+            if (Session["CurrentCourseID"] == null || Session["userid"] == null)
+            {
+                Response.Redirect("~/Login.aspx");
+                return;
+            }
+
             int courseId = Convert.ToInt32(Session["CurrentCourseID"]);
+            int userId = Convert.ToInt32(Session["userid"]);
 
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
 
-                string query = "UPDATE Course SET status = 1 WHERE courseid=@id";
+                // 🔐 Ownership check again (CRITICAL)
+                string query = @"UPDATE Course 
+                                 SET status = 1 
+                                 WHERE courseid = @id AND lecturerid = @lecturerid";
 
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", courseId);
-                cmd.ExecuteNonQuery();
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@id", courseId);
+                    cmd.Parameters.AddWithValue("@lecturerid", userId);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    if (rowsAffected == 0)
+                    {
+                        lblMessage.Text = "❌ Unauthorized action.";
+                        lblMessage.ForeColor = System.Drawing.Color.Red;
+                        return;
+                    }
+                }
             }
 
+            // Clear session safely
             Session.Remove("CurrentCourseID");
 
+            // Success message (optional - will not show after redirect)
             Response.Redirect("LecturerDashboard.aspx");
         }
 

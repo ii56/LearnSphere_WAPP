@@ -6,19 +6,29 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Data;
 
 namespace LearnSphere_WAPP.Lecturer
 {
     public partial class Message : System.Web.UI.Page
     {
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+
+        protected void Page_Init(object sender, EventArgs e)
+        {
+            if (Session["userid"] != null)
+                ViewStateUserKey = Session["userid"].ToString();
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
+            if (Session["userid"] == null || Session["usertype"] == null ||
+                Session["usertype"].ToString() != "Lecturer")
             {
                 Response.Redirect("~/Login.aspx");
                 return;
             }
+
             if (!IsPostBack)
             {
                 LoadSidebarProfileImage();
@@ -26,6 +36,18 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        protected int CurrentUserID
+        {
+            get { return Session["userid"] != null ? Convert.ToInt32(Session["userid"]) : 0; }
+        }
+
+        protected int CurrentConversationID
+        {
+            get { return ViewState["ConversationID"] != null ? Convert.ToInt32(ViewState["ConversationID"]) : 0; }
+            set { ViewState["ConversationID"] = value; }
+        }
+
+        // 🔐 PROFILE IMAGE
         private void LoadSidebarProfileImage()
         {
             if (Session["userid"] == null)
@@ -58,53 +80,45 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        protected int CurrentUserID
+        // 🔐 CONVERSATION ACCESS
+        private bool CanAccessConversation(int convId)
         {
-            get
+            using (SqlConnection con = new SqlConnection(connStr))
             {
-                return Session["UserID"] != null ? Convert.ToInt32(Session["UserID"]) : 0;
+                string q = @"SELECT COUNT(*) FROM ChatConversation
+                             WHERE conversationid=@cid
+                             AND (userid=@uid OR SecondUserID=@uid)";
+
+                SqlCommand cmd = new SqlCommand(q, con);
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = convId;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
+
+                con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
             }
         }
 
-        protected int CurrentConversationID
-        {
-            get
-            {
-                return ViewState["ConversationID"] != null ? Convert.ToInt32(ViewState["ConversationID"]) : 0;
-            }
-            set
-            {
-                ViewState["ConversationID"] = value;
-            }
-        }
-
+        // 🔐 LOAD CONVERSATIONS
         private void LoadConversations()
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
-                                SELECT 
-                                    c.conversationid,
-                                    CASE 
-                                        WHEN c.userid = @UserID 
-                                            THEN (u2.fname + ' ' + u2.lname)
-                                        ELSE (u1.fname + ' ' + u1.lname)
-                                    END AS DisplayName,
-                                    CASE 
-                                        WHEN c.userid = @UserID 
-                                            THEN u2.ProfileImage
-                                        ELSE u1.ProfileImage
-                                    END AS ProfileImage
-                                FROM ChatConversation c
-                                LEFT JOIN [User] u1 ON c.userid = u1.userid
-                                LEFT JOIN [User] u2 ON c.SecondUserID = u2.userid
-                                WHERE 
-                                    (c.userid = @UserID OR c.SecondUserID = @UserID)
-                                    AND c.ConversationType = 'User'
-                                ORDER BY c.creationtime DESC";
+                    SELECT 
+                        c.conversationid,
+                        CASE WHEN c.userid=@uid THEN u2.userid ELSE u1.userid END AS userid,
+                        CASE WHEN c.userid=@uid THEN (u2.fname + ' ' + u2.lname)
+                             ELSE (u1.fname + ' ' + u1.lname) END AS DisplayName,
+                        CASE WHEN c.userid=@uid THEN u2.ProfileImage ELSE u1.ProfileImage END AS ProfileImage
+                    FROM ChatConversation c
+                    LEFT JOIN [User] u1 ON c.userid = u1.userid
+                    LEFT JOIN [User] u2 ON c.SecondUserID = u2.userid
+                    WHERE (c.userid=@uid OR c.SecondUserID=@uid)
+                    AND c.ConversationType='User'
+                    ORDER BY c.creationtime DESC";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@UserID", CurrentUserID);
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
 
                 conn.Open();
                 rptConversations.DataSource = cmd.ExecuteReader();
@@ -112,36 +126,148 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-
-        protected void rptMessages_ItemCommand(object source, RepeaterCommandEventArgs e)
+        // 🔐 VIEW PROFILE (WITH AUTHORIZATION)
+        protected void ViewProfile_Command(object sender, CommandEventArgs e)
         {
-
-        }
-
-        protected void rptConversations_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
-        {
-            if (e.CommandName == "OpenChat")
-            {
-                CurrentConversationID = Convert.ToInt32(e.CommandArgument);
-                LoadMessages();
-            }
-        }
-
-        protected void btnSend_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(txtMessage.Text) || CurrentConversationID == 0)
+            int userID;
+            if (!int.TryParse(e.CommandArgument.ToString(), out userID))
                 return;
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
-                INSERT INTO ChatMessage (conversationid, role, content, SenderID)
-                VALUES (@ConversationID, 'User', @Content, @SenderID)";
+        SELECT fname + ' ' + lname AS FullName,
+               email, usertype, ProfileImage, Description, status
+        FROM [User]
+        WHERE userid=@id
+        AND (
+            userid=@currentUser
+            OR EXISTS (
+                SELECT 1 FROM ChatConversation
+                WHERE (userid=@currentUser AND SecondUserID=@id)
+                   OR (userid=@id AND SecondUserID=@currentUser)
+            )
+        )";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@ConversationID", CurrentConversationID);
-                cmd.Parameters.AddWithValue("@Content", txtMessage.Text.Trim());
-                cmd.Parameters.AddWithValue("@SenderID", CurrentUserID);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = userID;
+                cmd.Parameters.Add("@currentUser", SqlDbType.Int).Value = CurrentUserID;
+
+                conn.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+
+                if (dr.Read())
+                {
+                    // 🔐 SAFE TEXT
+                    lblProfileName.Text = Server.HtmlEncode(dr["FullName"].ToString());
+                    lblProfileEmail.Text = Server.HtmlEncode(dr["email"].ToString());
+                    lblProfileRole.Text = Server.HtmlEncode(dr["usertype"].ToString());
+                    lblProfileDesc.Text = Server.HtmlEncode(dr["Description"].ToString());
+
+                    // 🔐 SAFE STATUS
+                    int status = dr["status"] != DBNull.Value ? Convert.ToInt32(dr["status"]) : 0;
+                    lblProfileStatus.Text = status == 1 ? "Active" : "Inactive";
+
+                    // 🔥 FIXED IMAGE HANDLING (VERY IMPORTANT)
+                    string finalImageUrl = ResolveUrl("~/images/default-user.png");
+
+                    if (dr["ProfileImage"] != DBNull.Value)
+                    {
+                        string path = dr["ProfileImage"].ToString().Trim();
+
+                        if (!string.IsNullOrEmpty(path))
+                        {
+                            if (path.StartsWith("~/"))
+                            {
+                                finalImageUrl = ResolveUrl(path);
+                            }
+                            else if (path.StartsWith("images/"))
+                            {
+                                finalImageUrl = ResolveUrl("~/" + path);
+                            }
+                            else if (path.StartsWith("http"))
+                            {
+                                finalImageUrl = path; // external URL
+                            }
+                            else
+                            {
+                                // fallback if only filename stored
+                                finalImageUrl = ResolveUrl("~/images/" + path);
+                            }
+                        }
+                    }
+
+                    imgProfileCard.ImageUrl = finalImageUrl;
+
+                    // 🎨 ROLE STYLING
+                    string role = dr["usertype"].ToString().ToLower();
+                    imgProfileCard.CssClass = "popup-avatar";
+
+                    if (role == "lecturer")
+                        imgProfileCard.CssClass += " avatar-lecturer";
+                    else if (role == "admin")
+                        imgProfileCard.CssClass += " avatar-admin";
+                    else if (role == "student")
+                        imgProfileCard.CssClass += " avatar-student";
+                    else
+                        imgProfileCard.CssClass += " avatar-public";
+
+                    // ✔ VERIFIED BADGE
+                    lblVerifyBadge.Visible = role == "lecturer";
+
+                    // 🔥 SHOW POPUP (CORRECT FOR FLEX)
+                    profilePopup.Style["display"] = "flex";
+                }
+            }
+        }
+
+        // 🔐 OPEN CHAT
+        protected void rptConversations_ItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+            if (e.CommandName == "OpenChat")
+            {
+                int convId;
+                if (!int.TryParse(e.CommandArgument.ToString(), out convId))
+                    return;
+
+                if (!CanAccessConversation(convId))
+                    return;
+
+                CurrentConversationID = convId;
+                LoadMessages();
+            }
+        }
+
+        // 🔐 SEND MESSAGE
+        protected void btnSend_Click(object sender, EventArgs e)
+        {
+            if (CurrentConversationID == 0 || !CanAccessConversation(CurrentConversationID))
+                return;
+
+            string msg = Server.HtmlEncode(txtMessage.Text.Trim());
+
+            if (msg.Length == 0 || msg.Length > 1000)
+                return;
+
+            if (Session["lastMsgTime"] != null)
+            {
+                DateTime last = (DateTime)Session["lastMsgTime"];
+                if ((DateTime.UtcNow - last).TotalSeconds < 2)
+                    return;
+            }
+
+            Session["lastMsgTime"] = DateTime.UtcNow;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string query = @"INSERT INTO ChatMessage 
+                                (conversationid, role, content, SenderID)
+                                VALUES (@cid, 'User', @content, @sid)";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = CurrentConversationID;
+                cmd.Parameters.Add("@content", SqlDbType.NVarChar, 1000).Value = msg;
+                cmd.Parameters.Add("@sid", SqlDbType.Int).Value = CurrentUserID;
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
@@ -151,69 +277,53 @@ namespace LearnSphere_WAPP.Lecturer
             LoadMessages();
         }
 
+        // 🔐 LOAD MESSAGES
         private void LoadMessages()
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
-                                SELECT 
-                                    m.messageid,
-                                    m.content,
-                                    m.creationtime,
-                                    m.SenderID,
-                                    u.ProfileImage,
-                                    CASE 
-                                        WHEN m.SenderID = @UserID THEN 1 
-                                        ELSE 0 
-                                    END AS IsMine
-                                FROM ChatMessage m
-                                INNER JOIN [User] u ON m.SenderID = u.userid
-                                WHERE m.conversationid = @ConversationID
-                                ORDER BY m.creationtime ASC";
+                    SELECT m.content, m.creationtime, m.SenderID, u.ProfileImage,
+                    CASE WHEN m.SenderID=@uid THEN 1 ELSE 0 END AS IsMine
+                    FROM ChatMessage m
+                    INNER JOIN [User] u ON m.SenderID=u.userid
+                    WHERE m.conversationid=@cid
+                    ORDER BY m.creationtime ASC";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@ConversationID", CurrentConversationID);
-                cmd.Parameters.AddWithValue("@UserID", CurrentUserID);
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = CurrentConversationID;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
 
                 conn.Open();
                 rptMessages.DataSource = cmd.ExecuteReader();
                 rptMessages.DataBind();
             }
+
+            // 🔥 AUTO SCROLL
+            ScriptManager.RegisterStartupScript(this, GetType(), "scroll",
+                "setTimeout(function(){var chat=document.querySelector('.chat-messages'); if(chat){chat.scrollTop=chat.scrollHeight;}},100);",
+                true);
         }
 
-        protected void txtMessage_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        protected void btnLogout_Click(object sender, EventArgs e)
-        {
-            Session.Clear();
-            Session.Abandon();
-            Response.Redirect("~/Login.aspx");
-        }
-
+        // 🔐 SEARCH USERS
         protected void btnSearchUser_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtSearchUser.Text))
+            string input = txtSearchUser.Text.Trim();
+
+            if (input.Length < 2)
                 return;
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
-                              SELECT 
-                                    userid,
-                                    fname + ' ' + lname AS FullName,
-                                    email,
-                                    ProfileImage
-                                FROM [User]
-                                WHERE 
-                                    (fname + ' ' + lname) LIKE @Search
-                                    AND userid != @CurrentUser";
+                    SELECT TOP 20 userid, fname + ' ' + lname AS FullName, email, ProfileImage
+                    FROM [User]
+                    WHERE (fname + ' ' + lname) LIKE @search
+                    AND userid != @uid";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@Search", "%" + txtSearchUser.Text.Trim() + "%");
-                cmd.Parameters.AddWithValue("@CurrentUser", CurrentUserID);
+                cmd.Parameters.Add("@search", SqlDbType.NVarChar, 100).Value = "%" + input + "%";
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
 
                 conn.Open();
                 rptSearchResults.DataSource = cmd.ExecuteReader();
@@ -221,16 +331,18 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-
-
+        // 🔐 START CHAT
         protected void rptSearchResults_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
             if (e.CommandName == "StartChat")
             {
-                int targetUserID = Convert.ToInt32(e.CommandArgument);
-                int conversationID = GetOrCreateConversation(CurrentUserID, targetUserID);
+                int targetId;
+                if (!int.TryParse(e.CommandArgument.ToString(), out targetId))
+                    return;
 
-                CurrentConversationID = conversationID;
+                int convId = GetOrCreateConversation(CurrentUserID, targetId);
+
+                CurrentConversationID = convId;
                 LoadMessages();
                 LoadConversations();
 
@@ -245,36 +357,38 @@ namespace LearnSphere_WAPP.Lecturer
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
-                string checkQuery = @"
-                                    SELECT conversationid
-                                    FROM ChatConversation
-                                    WHERE ConversationType = 'User'
-                                    AND (
-                                        (userid = @User1 AND SecondUserID = @User2)
-                                        OR
-                                        (userid = @User2 AND SecondUserID = @User1)
-                                    )";
 
-                SqlCommand checkCmd = new SqlCommand(checkQuery, conn);
-                checkCmd.Parameters.AddWithValue("@User1", user1);
-                checkCmd.Parameters.AddWithValue("@User2", user2);
+                string check = @"SELECT conversationid FROM ChatConversation
+                                 WHERE ConversationType='User'
+                                 AND ((userid=@u1 AND SecondUserID=@u2)
+                                 OR (userid=@u2 AND SecondUserID=@u1))";
 
-                object result = checkCmd.ExecuteScalar();
+                SqlCommand cmd = new SqlCommand(check, conn);
+                cmd.Parameters.Add("@u1", SqlDbType.Int).Value = user1;
+                cmd.Parameters.Add("@u2", SqlDbType.Int).Value = user2;
 
-                if (result != null)
-                    return Convert.ToInt32(result);
+                object res = cmd.ExecuteScalar();
 
-                string insertQuery = @"
-                                    INSERT INTO ChatConversation (userid, SecondUserID, ConversationType)
-                                    VALUES (@User1, @User2, 'User');
-                                    SELECT SCOPE_IDENTITY();";
+                if (res != null)
+                    return Convert.ToInt32(res);
 
-                SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
-                insertCmd.Parameters.AddWithValue("@User1", user1);
-                insertCmd.Parameters.AddWithValue("@User2", user2);
+                string insert = @"INSERT INTO ChatConversation(userid,SecondUserID,ConversationType)
+                                  VALUES(@u1,@u2,'User');
+                                  SELECT SCOPE_IDENTITY();";
 
-                return Convert.ToInt32(insertCmd.ExecuteScalar());
+                SqlCommand ins = new SqlCommand(insert, conn);
+                ins.Parameters.Add("@u1", SqlDbType.Int).Value = user1;
+                ins.Parameters.Add("@u2", SqlDbType.Int).Value = user2;
+
+                return Convert.ToInt32(ins.ExecuteScalar());
             }
+        }
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            Session.Clear();
+            Session.Abandon();
+            Response.Redirect("~/Login.aspx");
         }
     }
 }

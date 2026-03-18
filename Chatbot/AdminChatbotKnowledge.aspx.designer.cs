@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace LearnSphere_WAPP.Lecturer
+namespace LearnSphere_WAPP.Admin
 {
 
 
-    public partial class Message
+    public partial class AdminChatbotKnowledge
     {
 
         /// <summary>
@@ -24,165 +24,120 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// imgSidebarProfile control.
+        /// btnBack control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlImage imgSidebarProfile;
+        protected global::System.Web.UI.WebControls.Button btnBack;
 
         /// <summary>
-        /// btnLogout control.
+        /// hfKnowledgeID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnLogout;
+        protected global::System.Web.UI.WebControls.HiddenField hfKnowledgeID;
 
         /// <summary>
-        /// txtSearchUser control.
+        /// txtQuestion control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSearchUser;
+        protected global::System.Web.UI.WebControls.TextBox txtQuestion;
 
         /// <summary>
-        /// btnSearchUser control.
+        /// txtAnswer control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSearchUser;
+        protected global::System.Web.UI.WebControls.TextBox txtAnswer;
 
         /// <summary>
-        /// rptSearchResults control.
+        /// txtCategory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptSearchResults;
+        protected global::System.Web.UI.WebControls.TextBox txtCategory;
 
         /// <summary>
-        /// rptConversations control.
+        /// btnSaveKnowledge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptConversations;
+        protected global::System.Web.UI.WebControls.Button btnSaveKnowledge;
 
         /// <summary>
-        /// lblChatTitle control.
+        /// gvKnowledge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblChatTitle;
+        protected global::System.Web.UI.WebControls.GridView gvKnowledge;
 
         /// <summary>
-        /// rptMessages control.
+        /// hfRuleID control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptMessages;
+        protected global::System.Web.UI.WebControls.HiddenField hfRuleID;
 
         /// <summary>
-        /// txtMessage control.
+        /// txtRuleName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtMessage;
+        protected global::System.Web.UI.WebControls.TextBox txtRuleName;
 
         /// <summary>
-        /// btnSend control.
+        /// txtRuleDescription control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSend;
+        protected global::System.Web.UI.WebControls.TextBox txtRuleDescription;
 
         /// <summary>
-        /// profilePopup control.
+        /// txtRuleContent control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlGenericControl profilePopup;
+        protected global::System.Web.UI.WebControls.TextBox txtRuleContent;
 
         /// <summary>
-        /// imgProfileCard control.
+        /// btnSaveRule control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Image imgProfileCard;
+        protected global::System.Web.UI.WebControls.Button btnSaveRule;
 
         /// <summary>
-        /// lblVerifyBadge control.
+        /// gvRules control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblVerifyBadge;
-
-        /// <summary>
-        /// lblProfileName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblProfileName;
-
-        /// <summary>
-        /// lblProfileRole control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblProfileRole;
-
-        /// <summary>
-        /// lblProfileEmail control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblProfileEmail;
-
-        /// <summary>
-        /// lblProfileStatus control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblProfileStatus;
-
-        /// <summary>
-        /// lblProfileDesc control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblProfileDesc;
+        protected global::System.Web.UI.WebControls.GridView gvRules;
     }
 }

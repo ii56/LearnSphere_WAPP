@@ -42,6 +42,15 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
+        /// ValidationSummary1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ValidationSummary ValidationSummary1;
+
+        /// <summary>
         /// lblModeTitle control.
         /// </summary>
         /// <remarks>
@@ -69,6 +78,15 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.TextBox txtModuleName;
 
         /// <summary>
+        /// reqModuleName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator reqModuleName;
+
+        /// <summary>
         /// txtModuleDesc control.
         /// </summary>
         /// <remarks>
@@ -85,6 +103,24 @@ namespace LearnSphere_WAPP.Lecturer
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtOrderNumber;
+
+        /// <summary>
+        /// regexOrder control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator regexOrder;
+
+        /// <summary>
+        /// rangeOrder control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RangeValidator rangeOrder;
 
         /// <summary>
         /// btnSave control.

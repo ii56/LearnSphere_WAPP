@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using System.IO;
 using System.Web.UI.WebControls;
 
 namespace LearnSphere_WAPP.Lecturer
@@ -15,15 +17,20 @@ namespace LearnSphere_WAPP.Lecturer
 
         int questionId;
         int forumId;
-        int parentPostId;
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["userid"] == null)
+            {
                 Response.Redirect("~/Login.aspx");
+                return;
+            }
 
             if (!int.TryParse(Request.QueryString["postid"], out questionId))
+            {
                 Response.Redirect("Forums.aspx");
+                return;
+            }
 
             if (!IsPostBack)
             {
@@ -32,6 +39,8 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+
+
         private void LoadSidebarProfileImage()
         {
             if (Session["userid"] == null)
@@ -39,13 +48,12 @@ namespace LearnSphere_WAPP.Lecturer
 
             int userId = Convert.ToInt32(Session["userid"]);
 
-            using (SqlConnection con = new SqlConnection(
-                ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString))
+            using (SqlConnection con = new SqlConnection(connStr))
             {
                 string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
 
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", userId);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
 
                 con.Open();
 
@@ -54,7 +62,6 @@ namespace LearnSphere_WAPP.Lecturer
                 if (result != null && result != DBNull.Value)
                 {
                     string imagePath = result.ToString();
-                    Session["profileImage"] = imagePath;
                     imgSidebarProfile.Src = ResolveUrl(imagePath);
                 }
                 else
@@ -64,25 +71,29 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+
+
         private void LoadQuestion()
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
-                    SELECT p.title, p.content, p.forumid
-                    FROM ForumPost p
-                    WHERE p.postid = @postid";
+                    SELECT title, content, forumid
+                    FROM ForumPost
+                    WHERE postid = @postid";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@postid", questionId);
+                cmd.Parameters.Add("@postid", SqlDbType.Int).Value = questionId;
 
                 conn.Open();
+
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.Read())
                 {
-                    lblQuestionTitle.Text = reader["title"].ToString();
-                    lblQuestionContent.Text = reader["content"].ToString();
+                    lblQuestionTitle.Text = Server.HtmlEncode(reader["title"].ToString());
+                    lblQuestionContent.Text = Server.HtmlEncode(reader["content"].ToString());
+
                     forumId = Convert.ToInt32(reader["forumid"]);
                 }
                 else
@@ -92,80 +103,185 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        protected void btnLogout_Click(object sender, EventArgs e)
-        {
-            Session.Clear();
-            Session.Abandon();
-            Response.Redirect("~/Login.aspx");
-        }
+
 
         protected void btnPostAnswer_Click(object sender, EventArgs e)
         {
-            string content = txtAnswer.Text.Trim();
-            string videoUrl = txtVideoUrl.Text.Trim();
-
-            if (string.IsNullOrEmpty(content))
-            {
-                lblMessage.Text = "Answer cannot be empty.";
+            if (!Page.IsValid)
                 return;
-            }
 
-            int parentPostId;
-
-            if (!int.TryParse(Request.QueryString["postid"], out parentPostId))
+            try
             {
-                Response.Redirect("Forums.aspx");
-                return;
-            }
+                string content = txtAnswer.Text.Trim();
+                string videoUrl = txtVideoUrl.Text.Trim();
 
-            int forumId = 0;
+                if (string.IsNullOrWhiteSpace(content))
+                {
+                    lblMessage.Text = "Answer cannot be empty.";
+                    return;
+                }
 
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                string getForumQuery = "SELECT forumid FROM ForumPost WHERE postid = @postid";
+                if (content.Length > 2000)
+                {
+                    lblMessage.Text = "Answer is too long.";
+                    return;
+                }
 
-                SqlCommand getCmd = new SqlCommand(getForumQuery, conn);
-                getCmd.Parameters.AddWithValue("@postid", parentPostId);
+                // XSS protection
+                content = Server.HtmlEncode(content);
 
-                conn.Open();
-                object result = getCmd.ExecuteScalar();
+                if (!string.IsNullOrEmpty(videoUrl))
+                {
+                    Uri uriResult;
 
-                if (result == null)
+                    if (!Uri.TryCreate(videoUrl, UriKind.Absolute, out uriResult))
+                    {
+                        lblMessage.Text = "Invalid video URL.";
+                        return;
+                    }
+                }
+
+                int parentPostId;
+
+                if (!int.TryParse(Request.QueryString["postid"], out parentPostId))
                 {
                     Response.Redirect("Forums.aspx");
                     return;
                 }
 
-                forumId = Convert.ToInt32(result);
-            }
+                int forumId = 0;
 
-            using (SqlConnection conn = new SqlConnection(connStr))
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+                    string getForumQuery = "SELECT forumid FROM ForumPost WHERE postid = @postid";
+
+                    SqlCommand getCmd = new SqlCommand(getForumQuery, conn);
+                    getCmd.Parameters.Add("@postid", SqlDbType.Int).Value = parentPostId;
+
+                    conn.Open();
+
+                    object result = getCmd.ExecuteScalar();
+
+                    if (result == null)
+                    {
+                        Response.Redirect("Forums.aspx");
+                        return;
+                    }
+
+                    forumId = Convert.ToInt32(result);
+                }
+
+
+
+                string savedFileUrl = null;
+                string savedImageUrl = null;
+
+                // DOCUMENT UPLOAD
+                if (fileUploadFile.HasFile)
+                {
+                    string ext = Path.GetExtension(fileUploadFile.FileName).ToLower();
+
+                    string[] allowedDocs = { ".pdf", ".docx", ".zip" };
+
+                    if (Array.IndexOf(allowedDocs, ext) < 0)
+                    {
+                        lblMessage.Text = "Invalid document type.";
+                        return;
+                    }
+
+                    if (fileUploadFile.PostedFile.ContentLength > 5 * 1024 * 1024)
+                    {
+                        lblMessage.Text = "Document too large (max 5MB).";
+                        return;
+                    }
+
+                    string newName = Guid.NewGuid().ToString() + ext;
+
+                    string path = Server.MapPath("~/Uploads/Documents/" + newName);
+
+                    fileUploadFile.SaveAs(path);
+
+                    savedFileUrl = "~/Uploads/Documents/" + newName;
+                }
+
+
+
+                // IMAGE UPLOAD
+                if (fileUploadImage.HasFile)
+                {
+                    string ext = Path.GetExtension(fileUploadImage.FileName).ToLower();
+
+                    string[] allowedImages = { ".jpg", ".jpeg", ".png" };
+
+                    if (Array.IndexOf(allowedImages, ext) < 0)
+                    {
+                        lblMessage.Text = "Invalid image type.";
+                        return;
+                    }
+
+                    if (fileUploadImage.PostedFile.ContentLength > 3 * 1024 * 1024)
+                    {
+                        lblMessage.Text = "Image too large (max 3MB).";
+                        return;
+                    }
+
+                    string newName = Guid.NewGuid().ToString() + ext;
+
+                    string path = Server.MapPath("~/Uploads/Images/" + newName);
+
+                    fileUploadImage.SaveAs(path);
+
+                    savedImageUrl = "~/Uploads/Images/" + newName;
+                }
+
+
+
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+                    string insertQuery = @"
+                        INSERT INTO ForumPost
+                        (forumid, userid, parentid, title, content, videourl)
+                        VALUES
+                        (@forumid, @userid, @parentid, NULL, @content, @videourl)";
+
+                    SqlCommand cmd = new SqlCommand(insertQuery, conn);
+
+                    cmd.Parameters.Add("@forumid", SqlDbType.Int).Value = forumId;
+                    cmd.Parameters.Add("@userid", SqlDbType.Int).Value = Convert.ToInt32(Session["userid"]);
+                    cmd.Parameters.Add("@parentid", SqlDbType.Int).Value = parentPostId;
+                    cmd.Parameters.Add("@content", SqlDbType.NVarChar, 2000).Value = content;
+
+                    if (string.IsNullOrEmpty(videoUrl))
+                        cmd.Parameters.Add("@videourl", SqlDbType.NVarChar).Value = DBNull.Value;
+                    else
+                        cmd.Parameters.Add("@videourl", SqlDbType.NVarChar).Value = videoUrl;
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+
+                Response.Redirect("ForumDetail.aspx?postid=" + parentPostId);
+            }
+            catch
             {
-                string insertQuery = @"
-            INSERT INTO ForumPost
-            (forumid, userid, parentid, title, content, videourl)
-            VALUES
-            (@forumid, @userid, @parentid, NULL, @content, @videourl)";
-
-                SqlCommand cmd = new SqlCommand(insertQuery, conn);
-
-                cmd.Parameters.AddWithValue("@forumid", forumId);
-                cmd.Parameters.AddWithValue("@userid", Convert.ToInt32(Session["userid"]));
-                cmd.Parameters.AddWithValue("@parentid", parentPostId);
-                cmd.Parameters.AddWithValue("@content", content);
-                cmd.Parameters.AddWithValue("@videourl",
-                    string.IsNullOrEmpty(videoUrl) ? (object)DBNull.Value : videoUrl);
-
-                conn.Open();
-                cmd.ExecuteNonQuery();
+                lblMessage.Text = "An error occurred while posting the answer.";
             }
-
-            Response.Redirect("ForumDetail.aspx?postid=" + parentPostId);
         }
+
+
 
         protected void btnCancel_Click(object sender, EventArgs e)
         {
             Response.Redirect("ViewQuestion.aspx?postid=" + questionId);
+        }
+
+
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            Session.Clear();
+            Session.Abandon();
+            Response.Redirect("~/Login.aspx");
         }
     }
 }

@@ -60,6 +60,15 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Label lblQuestionContent;
 
         /// <summary>
+        /// ValidationSummary1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ValidationSummary ValidationSummary1;
+
+        /// <summary>
         /// txtAnswer control.
         /// </summary>
         /// <remarks>
@@ -67,6 +76,15 @@ namespace LearnSphere_WAPP.Lecturer
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAnswer;
+
+        /// <summary>
+        /// reqAnswer control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator reqAnswer;
 
         /// <summary>
         /// fileUploadFile control.
@@ -78,6 +96,15 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.FileUpload fileUploadFile;
 
         /// <summary>
+        /// regexFile control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator regexFile;
+
+        /// <summary>
         /// fileUploadImage control.
         /// </summary>
         /// <remarks>
@@ -87,6 +114,15 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.FileUpload fileUploadImage;
 
         /// <summary>
+        /// regexImage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator regexImage;
+
+        /// <summary>
         /// txtVideoUrl control.
         /// </summary>
         /// <remarks>
@@ -94,6 +130,15 @@ namespace LearnSphere_WAPP.Lecturer
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtVideoUrl;
+
+        /// <summary>
+        /// regexVideoUrl control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator regexVideoUrl;
 
         /// <summary>
         /// btnPostAnswer control.
