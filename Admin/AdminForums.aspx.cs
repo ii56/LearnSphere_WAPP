@@ -135,6 +135,7 @@ namespace LearnSphere_WAPP.Admin
                 cmd3.Parameters.Add("@courseid", SqlDbType.Int).Value = courseId;
 
                 cmd3.ExecuteNonQuery();
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted Forum (ForumID: " + forumId + ")");
             }
         }
 
@@ -142,6 +143,7 @@ namespace LearnSphere_WAPP.Admin
         {
             Session.Abandon();
             Request.Cookies.Clear();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
     }

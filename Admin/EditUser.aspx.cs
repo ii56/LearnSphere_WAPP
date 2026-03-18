@@ -104,6 +104,7 @@ namespace LearnSphere_WAPP.Admin
 
             Response.Write("<script>alert('User updated successfully'); window.location='UserManagement.aspx';</script>");
 
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Edit User Profile (UserID: " + userid + ")");
             con.Close();
         }
 
@@ -111,6 +112,7 @@ namespace LearnSphere_WAPP.Admin
         {
             Session.Abandon();
             Request.Cookies.Clear();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
     }

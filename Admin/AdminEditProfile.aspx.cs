@@ -112,6 +112,7 @@ namespace LearnSphere_WAPP.Admin
             cmd.ExecuteNonQuery();
 
             con.Close();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Update Profile");
             Response.Write("<script>alert('Profile Updated'); window.history.back();</script>");
         }
 
@@ -119,6 +120,7 @@ namespace LearnSphere_WAPP.Admin
         {
             Session.Abandon();
             Request.Cookies.Clear();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
 

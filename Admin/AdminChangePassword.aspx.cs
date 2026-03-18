@@ -52,6 +52,7 @@ namespace LearnSphere_WAPP.Admin
         {
             Session.Abandon();
             Request.Cookies.Clear();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
 
@@ -68,6 +69,7 @@ namespace LearnSphere_WAPP.Admin
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.ExecuteNonQuery();
 
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Update Password");
                 Response.Write("<script>alert('Password change successfully'); window.location='AdminEditProfile.aspx';</script>");
 
             }

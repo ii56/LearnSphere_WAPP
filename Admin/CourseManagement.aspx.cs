@@ -155,7 +155,7 @@ namespace LearnSphere_WAPP.Admin
                 Response.Redirect("AdminViewCourse.aspx?courseid=" + courseId);
             }
 
-            if (e.CommandName == "DeleteUser")
+            if (e.CommandName == "DeleteCourse")
             {
                 string courseId = e.CommandArgument.ToString();
 
@@ -172,6 +172,7 @@ namespace LearnSphere_WAPP.Admin
 
                 con.Close();
 
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Delete Course (CourseID: " + courseId + ")");
                 loadCourse();
             }
         }
@@ -180,6 +181,7 @@ namespace LearnSphere_WAPP.Admin
         {
             Session.Abandon();
             Request.Cookies.Clear();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
 

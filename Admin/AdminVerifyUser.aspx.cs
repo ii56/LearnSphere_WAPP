@@ -86,11 +86,13 @@ namespace LearnSphere_WAPP.Admin
         protected void btnApprove_Click(object sender, EventArgs e)
         {
             UpdateStatus("Approved");
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Approved request for user (UserID: " + requestId + ")");
         }
 
         protected void btnDecline_Click(object sender, EventArgs e)
         {
             UpdateStatus("Declined");
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Declined request for user (UserID: " + requestId + ")");
         }
 
         private void UpdateStatus(string newStatus)
@@ -115,6 +117,7 @@ namespace LearnSphere_WAPP.Admin
         {
             Session.Abandon();
             Request.Cookies.Clear();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
     }

@@ -260,11 +260,12 @@ namespace LearnSphere_WAPP.Admin
                     cmd.ExecuteNonQuery();
                 }
 
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Make comment to Post (PostID: " + parentPostId + ")");
                 Response.Redirect("AdminForumDetails.aspx?postid=" + parentPostId);
             }
             catch
             {
-                lblMessage.Text = "An error occurred while posting the answer.";
+                lblMessage.Text = "An error occurred while posting the comment.";
             }
         }
 
@@ -281,6 +282,7 @@ namespace LearnSphere_WAPP.Admin
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
     }

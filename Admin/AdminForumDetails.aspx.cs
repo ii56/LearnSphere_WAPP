@@ -297,6 +297,7 @@ ORDER BY p.creationtime ASC";
                     {
                         lblMessage.Text = "Unauthorized action.";
                     }
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Delete Post (PostID: " + deletePostId + ")");
                 }
             }
             catch
@@ -314,6 +315,7 @@ ORDER BY p.creationtime ASC";
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
 

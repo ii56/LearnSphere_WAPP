@@ -154,6 +154,7 @@ namespace LearnSphere_WAPP.Admin
 
                 con.Close();
 
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted User (UserID: " + userId + ")");
                 loadUsers();
             }
 
@@ -173,6 +174,7 @@ namespace LearnSphere_WAPP.Admin
         {
             Session.Abandon();
             Request.Cookies.Clear();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
 

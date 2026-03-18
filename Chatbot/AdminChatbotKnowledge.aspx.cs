@@ -114,6 +114,7 @@ namespace LearnSphere_WAPP.Admin
 
             }
 
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Save Chatbot Knowledge");
             ClearKnowledgeForm();
             LoadKnowledge();
         }
@@ -153,6 +154,8 @@ namespace LearnSphere_WAPP.Admin
                 conn.Open();
                 cmd.ExecuteNonQuery();
                 conn.Close();
+
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted Chatbot Knowledge");
             }
 
             LoadKnowledge();
@@ -173,6 +176,8 @@ namespace LearnSphere_WAPP.Admin
                 conn.Open();
                 cmd.ExecuteNonQuery();
                 conn.Close();
+
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Toggle Chatbot Knowledge");
             }
 
             LoadKnowledge();
@@ -288,6 +293,8 @@ namespace LearnSphere_WAPP.Admin
                     conn.Close();
                 }
 
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Update Chatbot Rule");
+
             }
 
             ClearRuleForm();
@@ -331,6 +338,7 @@ namespace LearnSphere_WAPP.Admin
                 conn.Close();
             }
 
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted Chatbot Rule");
             LoadRules();
         }
 
@@ -349,6 +357,8 @@ namespace LearnSphere_WAPP.Admin
                 conn.Open();
                 cmd.ExecuteNonQuery();
                 conn.Close();
+
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Toggle Chatbot Rule");
             }
 
             LoadRules();
