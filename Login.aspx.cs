@@ -35,7 +35,7 @@ namespace LearnSphere_WAPP
                 {
                     con.Open();
 
-                    // 🔥 CHECK USERNAME + PASSWORD DIRECTLY
+                    // CHECK USERNAME + PASSWORD DIRECTLY
                     string query = @"SELECT userid, uname, usertype 
                              FROM [User] 
                              WHERE LOWER(uname) = LOWER(@uname) 
@@ -50,7 +50,7 @@ namespace LearnSphere_WAPP
 
                     if (reader.Read())
                     {
-                        // ✅ LOGIN SUCCESS
+                        // LOGIN SUCCESS
                         Session["userid"] = reader["userid"];
                         Session["uname"] = reader["uname"];
                         Session["usertype"] = reader["usertype"];
