@@ -232,6 +232,7 @@ AND status='Pending'";
 
                 con.Open();
                 cmd.ExecuteNonQuery();
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Send Verification Request to Admin");
             }
 
             lblVerificationMsg.ForeColor = System.Drawing.Color.Green;
@@ -401,6 +402,8 @@ AND status='Pending'";
 
                         imgCmd.ExecuteNonQuery();
 
+                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Updated Profile");
+
                         Session["profileImage"] = relPath;
                     }
                 }
@@ -418,6 +421,7 @@ AND status='Pending'";
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout System");
             Response.Redirect("~/Login.aspx");
         }
     }

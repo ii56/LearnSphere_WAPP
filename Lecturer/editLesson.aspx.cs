@@ -276,6 +276,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                         string fullPath = Path.Combine(folder, fileName);
                         fuLessonFile.SaveAs(fullPath);
+                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Updated Lesson (LessonID: " + lessonId + ")");
                     }
                 }
 
@@ -296,6 +297,7 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }

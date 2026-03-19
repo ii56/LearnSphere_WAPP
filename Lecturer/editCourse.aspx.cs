@@ -270,6 +270,7 @@ namespace LearnSphere_WAPP.Lecturer
                     cmd3.ExecuteNonQuery();
 
                     trans.Commit();
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted Module (ModuleID: " + moduleId + ")");
                 }
                 catch
                 {
@@ -300,6 +301,7 @@ namespace LearnSphere_WAPP.Lecturer
                     cmd2.ExecuteNonQuery();
 
                     trans.Commit();
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted Lesson (LessonID: " + lessonId + ")");
                 }
                 catch
                 {
@@ -322,6 +324,7 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
 
@@ -351,6 +354,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                 con.Open();
                 cmd.ExecuteNonQuery();
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted Exam (CourseID: " + courseId + ")");
             }
         }
     }

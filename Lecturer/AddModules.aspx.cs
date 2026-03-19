@@ -194,6 +194,7 @@ namespace LearnSphere_WAPP.Lecturer
                     cmd.Parameters.AddWithValue("@desc", moduleDesc);
 
                     cmd.ExecuteNonQuery();
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Module Added (ModuleName: " + moduleName + ")");
                 }
 
                 txtModuleName.Text = "";
@@ -287,6 +288,7 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
 

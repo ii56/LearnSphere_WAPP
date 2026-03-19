@@ -322,6 +322,7 @@ namespace LearnSphere_WAPP.Lecturer
                         }
 
                         trans.Commit();
+                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Publish Exam (ExamID: " + examId + ")");
                         Response.Redirect("ViewCourses.aspx");
                     }
                     catch
@@ -346,6 +347,7 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout System");
             Response.Redirect("~/Login.aspx");
         }
 
@@ -415,6 +417,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                         lblMessage.ForeColor = System.Drawing.Color.Green;
                         lblMessage.Text = "Draft saved successfully!";
+                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Saved Draft (ExamID: " + examId + ")");
                     }
                     catch
                     {

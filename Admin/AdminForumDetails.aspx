@@ -180,8 +180,7 @@
                                                 CssClass="btn-delete"
                                                 CommandName="DeletePost"
                                                 CommandArgument='<%# Eval("postid") %>'
-                                                OnClientClick="return confirm('Are you sure you want to delete this answer?');"
-                                                Visible='<%# IsOwner(Eval("userid")) %>' />
+                                                OnClientClick="return confirm('Are you sure you want to delete this answer?');"/>
 
                                 </div>
 

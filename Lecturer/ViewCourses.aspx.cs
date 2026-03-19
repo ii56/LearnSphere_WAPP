@@ -185,6 +185,7 @@ AND deletiontime IS NULL
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@id", courseId);
                 cmd.ExecuteNonQuery();
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted Course (CourseID: " + courseId + ")");
             }
 
             lblMessage.Text = "Course deleted successfully.";
@@ -194,6 +195,7 @@ AND deletiontime IS NULL
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
 

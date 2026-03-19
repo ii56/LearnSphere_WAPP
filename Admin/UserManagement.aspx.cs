@@ -149,12 +149,11 @@ namespace LearnSphere_WAPP.Admin
                 cmd.Parameters.AddWithValue("@deletiontime", DateTime.Now);
                 cmd.ExecuteNonQuery();
 
-                LearnSphere_WAPP.Syslog.action((int)Session["userid"], "Deleted user (userid:" + userId + ")");
+                LearnSphere_WAPP.Syslog.action((int)Session["userid"], "Deleted User (UserID:" + userId + ")");
                 Response.Write("<script>alert('User Deleted'); window.history.back();</script>");
 
                 con.Close();
 
-                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted User (UserID: " + userId + ")");
                 loadUsers();
             }
 
