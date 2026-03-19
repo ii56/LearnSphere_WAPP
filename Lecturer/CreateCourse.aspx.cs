@@ -17,7 +17,6 @@ namespace LearnSphere_WAPP.Lecturer
     {
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
 
-        // 🔐 CSRF PROTECTION
         protected void Page_Init(object sender, EventArgs e)
         {
             if (Session["userid"] != null)
@@ -26,7 +25,7 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // 🔐 AUTH CHECK
+            // AUTH CHECK
             if (Session["userid"] == null || Session["usertype"] == null ||
                 Session["usertype"].ToString() != "Lecturer")
             {
@@ -72,7 +71,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // 🔐 PROFILE IMAGE SAFE LOAD
+        // PROFILE IMAGE SAFE LOAD
         private void LoadSidebarProfileImage()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -112,7 +111,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                 decimal.TryParse(txtPrice.Text, out price);
 
-                // 🚫 PREVENT EMPTY DRAFTS
+                // PREVENT EMPTY DRAFTS
                 if (string.IsNullOrWhiteSpace(courseName) &&
                     string.IsNullOrWhiteSpace(description) &&
                     string.IsNullOrWhiteSpace(category) &&
@@ -124,7 +123,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                 int courseId;
 
-                // ✅ CREATE OR USE EXISTING DRAFT
+                // CREATE OR USE EXISTING DRAFT
                 if (Session["CurrentCourseID"] == null)
                 {
                     using (SqlConnection con = new SqlConnection(connStr))
@@ -198,7 +197,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // 🔐 VERIFY LECTURER EXISTS
+        // VERIFY LECTURER EXISTS
         private bool IsValidLecturer(int userId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
