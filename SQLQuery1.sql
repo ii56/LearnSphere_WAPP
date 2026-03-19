@@ -1,5 +1,7 @@
-﻿SELECT u.uname, i.courseid
-FROM Invoice i
-INNER JOIN [User] u ON i.userid = u.userid
-WHERE i.courseid IN (30,31)
-ORDER BY i.courseid;
+﻿CREATE TABLE [dbo].[Syslog] (
+    [Id]       INT           IDENTITY (1, 1) NOT NULL,
+    [userid]   INT           NOT NULL,
+    [action]   NVARCHAR (50) NOT NULL,
+    [dateTime] DATETIME      NOT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);

@@ -36,14 +36,14 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void Page_Init(object sender, EventArgs e)
         {
-            // 🔐 CSRF Protection
+            // CSRF Protection
             if (Session["userid"] != null)
                 ViewStateUserKey = Session["userid"].ToString();
         }
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // 🔐 AUTHENTICATION
+            // AUTHENTICATION
             if (Session["userid"] == null || Session["usertype"] == null ||
                 Session["usertype"].ToString() != "Lecturer")
             {
@@ -53,14 +53,14 @@ namespace LearnSphere_WAPP.Lecturer
 
             userId = Convert.ToInt32(Session["userid"]);
 
-            // 🔐 VALIDATE QUERY
+            // VALIDATE QUERY
             if (!int.TryParse(Request.QueryString["courseid"], out courseId) || courseId <= 0)
             {
                 Response.Redirect("ViewCourses.aspx");
                 return;
             }
 
-            // 🔐 AUTHORIZATION (CRITICAL)
+            // AUTHORIZATION
             if (!IsCourseOwner(courseId, userId))
             {
                 Response.Redirect("ViewCourses.aspx");
@@ -75,7 +75,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // 🔐 CHECK COURSE OWNERSHIP
+        //CHECK COURSE OWNERSHIP
         private bool IsCourseOwner(int courseId, int userId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -197,7 +197,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // 🔐 VALIDATION BEFORE PUBLISH
+        // VALIDATION BEFORE PUBLISH
         private bool IsCourseValidForPublish()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -230,7 +230,7 @@ namespace LearnSphere_WAPP.Lecturer
         {
             try
             {
-                // 🔐 VALIDATION
+                // VALIDATION
                 if (!IsCourseValidForPublish())
                 {
                     lblMessage.Text = "Course must contain at least one module and lesson.";

@@ -157,7 +157,7 @@ namespace LearnSphere_WAPP.Lecturer
                 return;
             }
 
-            // ROLE VALIDATION (VERY IMPORTANT)
+            // ROLE VALIDATION
             string currentRole = GetCurrentRoleFromDB();
             string requestedRole = ddlRequestedRole.SelectedValue;
 
@@ -270,7 +270,7 @@ AND status='Pending'";
                 string desc = txtDescription.Text.Trim();
                 string password = txtPassword.Text;
 
-                // 🔒 VALIDATION
+                // VALIDATION
                 if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                 {
                     lblMessage.Text = "Invalid email format.";
@@ -349,7 +349,7 @@ AND status='Pending'";
                         cmd.ExecuteNonQuery();
                     }
 
-                    // 🔒 IMAGE UPLOAD SECURITY
+                    // IMAGE UPLOAD SECURITY
                     if (fuProfileImage.HasFile)
                     {
                         string ext = Path.GetExtension(fuProfileImage.FileName).ToLower();
