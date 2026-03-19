@@ -96,6 +96,7 @@ namespace LearnSphere_WAPP.Student
                 lblMessage.CssClass = "alert alert-success";
                 lblMessage.Visible = true;
                 LoadCourses();
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Enroll self to course (CourseID: " + courseId + ")");
             }
             else if (e.CommandName == "OpenPayment")
             {
@@ -132,6 +133,8 @@ namespace LearnSphere_WAPP.Student
                         invCmd.Parameters.AddWithValue("@now", DateTime.Now);
                         invCmd.Parameters.AddWithValue("@deadline", DateTime.Now.AddDays(30));
                         invCmd.ExecuteNonQuery();
+
+                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Make Payment (CourseID: " + courseId + ", Amount: " + amount + ")");
                     }
                 }
                 catch
@@ -184,6 +187,7 @@ namespace LearnSphere_WAPP.Student
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }

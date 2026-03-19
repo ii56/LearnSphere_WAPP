@@ -144,6 +144,7 @@ namespace LearnSphere_WAPP.Student
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }

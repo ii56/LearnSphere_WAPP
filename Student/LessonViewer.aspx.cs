@@ -283,6 +283,7 @@ namespace LearnSphere_WAPP.Student
                     lblMessage.Visible = true;
                     btnComplete.Enabled = false;
                     btnComplete.Text = "Already Completed";
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Completed Lesson (LessonID: " + lessonId + ")");
                     LoadCourseStructure();
                 }
             }
@@ -297,6 +298,7 @@ namespace LearnSphere_WAPP.Student
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }

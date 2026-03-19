@@ -139,6 +139,7 @@ namespace LearnSphere_WAPP.Student
             lblMessage.Text = "Successfully unenrolled from the course.";
             lblMessage.CssClass = "alert alert-success";
             lblMessage.Visible = true;
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Unenrolled from course (CourseID: " + courseId + ")");
             LoadCourses();
         }
 
@@ -146,6 +147,7 @@ namespace LearnSphere_WAPP.Student
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }
