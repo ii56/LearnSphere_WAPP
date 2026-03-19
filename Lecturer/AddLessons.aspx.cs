@@ -36,6 +36,12 @@ namespace LearnSphere_WAPP.Lecturer
                 return;
             }
 
+            if (Session["CurrentCourseID"] == null)
+            {
+                Response.Redirect("ViewCourses.aspx"); // better UX
+                return;
+            }
+
             if (!IsPostBack)
             {
                 LoadSidebarProfileImage();

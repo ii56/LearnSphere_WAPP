@@ -242,7 +242,7 @@ namespace LearnSphere_WAPP.Lecturer
                     con.Open();
 
                     SqlCommand cmd = new SqlCommand(
-                        "UPDATE Course SET status=1 WHERE courseid=@id",
+                        "UPDATE Course SET status='Active' WHERE courseid=@id",
                         con);
 
                     cmd.Parameters.Add("@id", SqlDbType.Int).Value = courseId;

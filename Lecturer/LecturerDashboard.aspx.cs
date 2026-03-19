@@ -100,7 +100,7 @@ namespace LearnSphere_WAPP.Lecturer
                                         FROM Course
                                         WHERE ownerid = @id
                                         AND deletiontime IS NULL
-                                        AND status = 1
+                                        AND status = 'Active'
                                         ORDER BY creationtime DESC", con);
 
                 da.SelectCommand.Parameters.AddWithValue("@id", lecturerId);

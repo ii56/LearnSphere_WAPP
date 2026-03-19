@@ -131,7 +131,7 @@
 
             <asp:RegularExpressionValidator
                 ControlToValidate="txtCourseName"
-                ValidationExpression="^[a-zA-Z0-9\s]{3,100}$"
+ValidationExpression="^[a-zA-Z0-9\s\-\+\#\(\)\.]{3,100}$"
                 ErrorMessage="Invalid course title"
                 CssClass="validation-error"
                 runat="server" />
@@ -152,39 +152,6 @@
                 ErrorMessage="Description is required"
                 CssClass="validation-error"
                 runat="server" />
-
-
-            <!-- THUMBNAIL (RESTORED UI) -->
-<label>Thumbnail Style</label>
-
-<div class="thumbnail-generator">
-
-    <label>Select Base Color</label>
-
-    <asp:TextBox ID="txtColor"
-        runat="server"
-        Text="#3b82f6"
-        CssClass="modern-input"
-        TextMode="Color" />
-
-    <br /><br />
-
-    <asp:Button ID="btnPreview"
-        runat="server"
-        Text="Preview Design"
-        CssClass="btn-modern"
-        OnClick="btnPreview_Click" />
-
-    <br /><br />
-
-    <!-- PREVIEW IMAGE -->
-    <asp:Image ID="imgPreview"
-        runat="server"
-        Width="250px"
-        Height="150px"
-        Style="border-radius:10px; border:1px solid #ccc;" />
-
-</div>
 
 
             <!-- CATEGORY + LEVEL -->

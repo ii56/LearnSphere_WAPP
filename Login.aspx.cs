@@ -36,8 +36,8 @@ namespace LearnSphere_WAPP
                     con.Open();
 
                     string query = @"SELECT userid, uname, pwd, usertype 
-                             FROM [User] 
-                             WHERE uname = @uname AND status = 1";
+FROM [User] 
+WHERE LOWER(uname) = LOWER(@uname) AND status = 'Active'";
 
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
@@ -48,7 +48,7 @@ namespace LearnSphere_WAPP
                     {
                         string storedHash = reader["pwd"].ToString();
 
-                        if (BCrypt.Net.BCrypt.Verify(pwd.Text, storedHash))
+                        if (BCrypt.Net.BCrypt.Verify(pwd.Text.Trim(), storedHash))
                         {
                             Session["userid"] = reader["userid"];
                             Session["uname"] = reader["uname"];

@@ -54,6 +54,24 @@
                     <asp:Label ID="lblWelcome" runat="server" CssClass="welcome-text" />
                 </div>
 
+                <div class="quick-actions-section">
+                    <h3>Select Database</h3>
+                    <asp:Button ID="btnUser" runat="server" Text="Users" OnClick="btnUser_Click" CssClass="btn-primary" />
+                    <asp:Button ID="btnCourse" runat="server" Text="Courses" OnClick="btnCourse_Click" CssClass="btn-primary" />
+                    <asp:Button ID="btnModule" runat="server" Text="Modules" OnClick="btnModule_Click" CssClass="btn-primary" />
+                </div>
+
+                <br />
+
+                <asp:GridView ID="GridView1" runat="server"
+                    CssClass="admin-table" 
+                    AutoGenerateColumns="True" 
+                    Width="100%" 
+                    AllowPaging="true" 
+                    PageSize="14" 
+                    OnPageIndexChanging="GridView1_PageIndexChanging">
+                </asp:GridView>
+
 
             </div>
 

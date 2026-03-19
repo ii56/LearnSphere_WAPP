@@ -105,11 +105,12 @@
                     CommandArgument="<%# Container.DataItemIndex %>"
                     OnClientClick="return confirm('Remove this student from course?');" />
 
-                <asp:Button ID="btnReceipt" runat="server"
-                    Text="View Receipt"
-                    CssClass="btn-receipt"
-                    CommandName="ViewReceipt"
-                    CommandArgument="<%# Container.DataItemIndex %>" />
+<asp:LinkButton ID="btnView"
+    runat="server"
+    Text="View Receipt"
+    CssClass="btn-view"
+    CommandName="ViewReceipt"
+    CommandArgument="<%# Container.DataItemIndex %>" />
 
             </ItemTemplate>
         </asp:TemplateField>

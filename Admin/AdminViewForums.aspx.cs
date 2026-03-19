@@ -168,7 +168,55 @@ namespace LearnSphere_WAPP.Admin
 
         protected void rptQuestions_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
+            int pid = Convert.ToInt32(e.CommandArgument);
 
+            if (e.CommandName == "Delete")
+            {
+                int deletePostId = Convert.ToInt32(e.CommandArgument);
+
+                try
+                {
+                    using (SqlConnection con = new SqlConnection(connStr))
+                    {
+                        con.Open();
+
+                        string deleteChildQuery = @"
+                    UPDATE ForumPost
+                    SET deletiontime = GETDATE()
+                    WHERE parentid = @pid
+                    AND deletiontime IS NULL";
+
+                        SqlCommand cmdChild = new SqlCommand(deleteChildQuery, con);
+                        cmdChild.Parameters.Add("@pid", SqlDbType.Int).Value = deletePostId;
+                        cmdChild.ExecuteNonQuery();
+
+                        string deleteMainQuery = @"
+                    UPDATE ForumPost
+                    SET deletiontime = GETDATE()
+                    WHERE postid = @pid
+                    AND deletiontime IS NULL";
+
+                        SqlCommand cmdMain = new SqlCommand(deleteMainQuery, con);
+                        cmdMain.Parameters.Add("@pid", SqlDbType.Int).Value = deletePostId;
+
+                        int rows = cmdMain.ExecuteNonQuery();
+
+                        if (rows == 0)
+                        {
+                            Response.Write("<script>alert('Delete failed!');</script>");
+                            return;
+                        }
+
+                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Admin Delete Post (PostID: " + deletePostId + ")");
+                        LoadForumDetails();
+                        LoadQuestions();
+                    }
+                }
+                catch
+                {
+                    Response.Write("<script>alert('Delete failed!');</script>");
+                }
+            }
         }
 
         protected void btnLogout_Click1(object sender, EventArgs e)

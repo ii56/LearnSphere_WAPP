@@ -167,12 +167,11 @@ namespace LearnSphere_WAPP.Admin
                 cmd.Parameters.AddWithValue("@deletiontime", DateTime.Now);
                 cmd.ExecuteNonQuery();
 
-                LearnSphere_WAPP.Syslog.action((int)Session["userid"], "Deleted course (courseid:" + courseId + ")");
+                LearnSphere_WAPP.Syslog.action((int)Session["userid"], "Deleted Course (CourseID:" + courseId + ")");
                 Response.Write("<script>alert('Course Deleted'); window.history.back();</script>");
 
                 con.Close();
 
-                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Delete Course (CourseID: " + courseId + ")");
                 loadCourse();
             }
         }
