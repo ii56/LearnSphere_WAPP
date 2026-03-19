@@ -23,77 +23,87 @@ namespace LearnSphere_WAPP.Student
         private void LoadGamificationData()
         {
             int userId = Convert.ToInt32(Session["userid"]);
-            string displayName = Session["fname"] != null
-                ? Session["fname"].ToString()
-                : Session["uname"]?.ToString() ?? "Student";
-            lblHeaderName.Text = displayName;
-            lblAvatarInitial.Text = displayName.Substring(0, 1).ToUpper();
 
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
-                using (SqlCommand cmd = new SqlCommand(
-                    "SELECT totalpoints, badge FROM StudentPoints WHERE userid = @uid", con))
+
+                // get first name for header
+                string displayName = "Student";
+                if (Session["fname"] != null && Session["fname"].ToString() != "")
+                {
+                    displayName = Session["fname"].ToString();
+                }
+                else
+                {
+                    using (SqlCommand nameCmd = new SqlCommand("SELECT fname FROM [User] WHERE userid = @uid", con))
+                    {
+                        nameCmd.Parameters.AddWithValue("@uid", userId);
+                        object result = nameCmd.ExecuteScalar();
+                        if (result != null) { displayName = result.ToString(); Session["fname"] = displayName; }
+                    }
+                }
+                lblHeaderName.Text = displayName;
+                lblAvatarInitial.Text = displayName.Substring(0, 1).ToUpper();
+
+                // get points and badge
+                int points = 0;
+                string badge = "Bronze";
+
+                using (SqlCommand cmd = new SqlCommand("SELECT totalpoints, badge FROM StudentPoints WHERE userid = @uid", con))
                 {
                     cmd.Parameters.AddWithValue("@uid", userId);
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        int points = 0;
-                        string badge = "Bronze";
-
                         if (reader.Read())
                         {
                             points = Convert.ToInt32(reader["totalpoints"]);
-                            badge = reader["badge"]?.ToString() ?? "Bronze";
-                        }
-
-                        lblPoints.Text = points.ToString();
-                        lblBadgeName.Text = badge;
-
-                        // Badge emoji + pill color
-                        string emoji = "🥉";
-                        string pillClass = "badge-bronze";
-                        switch (badge)
-                        {
-                            case "Silver": emoji = "🥈"; pillClass = "badge-silver"; break;
-                            case "Gold": emoji = "🥇"; pillClass = "badge-gold"; break;
-                            case "Diamond": emoji = "💎"; pillClass = "badge-diamond"; break;
-                        }
-                        lblBadgeEmoji.Text = emoji;
-
-                        // Find the badge-name-pill span and update class
-                        var pill = (System.Web.UI.WebControls.Label)form1.FindControl("lblBadgeName");
-
-                        // Highlight achieved milestones
-                        if (points >= 100) milestoneSilver.Attributes["class"] = "milestone achieved";
-                        if (points >= 300) milestoneGold.Attributes["class"] = "milestone achieved";
-                        if (points >= 600) milestoneDiamond.Attributes["class"] = "milestone achieved";
-
-                        // Progress to next badge
-                        int nextThreshold = 0;
-                        string nextBadge = "";
-                        int prevThreshold = 0;
-
-                        if (points < 100) { nextThreshold = 100; nextBadge = "Silver"; prevThreshold = 0; }
-                        else if (points < 300) { nextThreshold = 300; nextBadge = "Gold"; prevThreshold = 100; }
-                        else if (points < 600) { nextThreshold = 600; nextBadge = "Diamond"; prevThreshold = 300; }
-
-                        if (nextThreshold > 0)
-                        {
-                            int range = nextThreshold - prevThreshold;
-                            int current = points - prevThreshold;
-                            int progress = (current * 100) / range;
-                            progressFill.Style["width"] = progress + "%";
-                            lblProgressPct.Text = progress + "%";
-                            lblNextBadge.Text = $"Next: <span>{nextBadge} Badge</span> — {points} / {nextThreshold} points";
-                        }
-                        else
-                        {
-                            progressFill.Style["width"] = "100%";
-                            lblProgressPct.Text = "100%";
-                            lblNextBadge.Text = "🎉 You've reached the highest badge — <span>Diamond!</span>";
+                            badge = reader["badge"] != null ? reader["badge"].ToString() : "Bronze";
                         }
                     }
+                }
+
+                lblPoints.Text = points.ToString();
+                lblBadgeName.Text = badge;
+
+                // set badge emoji
+                string emoji = "🥉";
+                switch (badge)
+                {
+                    case "Silver": emoji = "🥈"; break;
+                    case "Gold": emoji = "🥇"; break;
+                    case "Diamond": emoji = "💎"; break;
+                }
+                lblBadgeEmoji.Text = emoji;
+
+                // highlight achieved milestones
+                if (points >= 100) milestoneSilver.Attributes["class"] = "milestone achieved";
+                if (points >= 300) milestoneGold.Attributes["class"] = "milestone achieved";
+                if (points >= 600) milestoneDiamond.Attributes["class"] = "milestone achieved";
+
+                // calculate progress to next badge
+                int nextThreshold = 0;
+                string nextBadge = "";
+                int prevThreshold = 0;
+
+                if (points < 100) { nextThreshold = 100; nextBadge = "Silver"; prevThreshold = 0; }
+                else if (points < 300) { nextThreshold = 300; nextBadge = "Gold"; prevThreshold = 100; }
+                else if (points < 600) { nextThreshold = 600; nextBadge = "Diamond"; prevThreshold = 300; }
+
+                if (nextThreshold > 0)
+                {
+                    int range = nextThreshold - prevThreshold;
+                    int current = points - prevThreshold;
+                    int progress = (current * 100) / range;
+                    progressFill.Style["width"] = progress + "%";
+                    lblProgressPct.Text = progress + "%";
+                    lblNextBadge.Text = "Next: <span>" + nextBadge + " Badge</span> — " + points + " / " + nextThreshold + " points";
+                }
+                else
+                {
+                    progressFill.Style["width"] = "100%";
+                    lblProgressPct.Text = "100%";
+                    lblNextBadge.Text = "You've reached the highest badge — <span>Diamond!</span>";
                 }
             }
         }
@@ -105,8 +115,8 @@ namespace LearnSphere_WAPP.Student
                 con.Open();
                 string query = @"
                     SELECT TOP 10
-                           ROW_NUMBER() OVER (ORDER BY sp.totalpoints DESC) AS Rank,
-                           u.userid, u.uname, sp.totalpoints, sp.badge
+                        ROW_NUMBER() OVER (ORDER BY sp.totalpoints DESC) AS Rank,
+                        u.userid, u.uname, sp.totalpoints, sp.badge
                     FROM StudentPoints sp
                     INNER JOIN [User] u ON sp.userid = u.userid
                     WHERE u.usertype = 'Student'
@@ -132,7 +142,8 @@ namespace LearnSphere_WAPP.Student
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
-            Session.Clear(); Session.Abandon();
+            Session.Clear();
+            Session.Abandon();
             Response.Redirect("~/Login.aspx");
         }
     }

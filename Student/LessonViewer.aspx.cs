@@ -15,11 +15,26 @@ namespace LearnSphere_WAPP.Student
         {
             if (Session["userid"] == null) { Response.Redirect("~/Login.aspx"); return; }
 
-            string displayName = Session["fname"] != null
-                ? Session["fname"].ToString()
-                : Session["uname"]?.ToString() ?? "Student";
-            lblHeaderName.Text = displayName;
-            lblAvatarInitial.Text = displayName.Substring(0, 1).ToUpper();
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                con.Open();
+                string displayName = "Student";
+                if (Session["fname"] != null && Session["fname"].ToString() != "")
+                {
+                    displayName = Session["fname"].ToString();
+                }
+                else
+                {
+                    using (SqlCommand nameCmd = new SqlCommand("SELECT fname FROM [User] WHERE userid = @uid", con))
+                    {
+                        nameCmd.Parameters.AddWithValue("@uid", Convert.ToInt32(Session["userid"]));
+                        object result = nameCmd.ExecuteScalar();
+                        if (result != null) { displayName = result.ToString(); Session["fname"] = displayName; }
+                    }
+                }
+                lblHeaderName.Text = displayName;
+                lblAvatarInitial.Text = displayName.Substring(0, 1).ToUpper();
+            }
 
             if (!IsPostBack)
             {
@@ -32,9 +47,8 @@ namespace LearnSphere_WAPP.Student
         private void LoadCourseStructure()
         {
             int userId = Convert.ToInt32(Session["userid"]);
-
-            // Get courseid from querystring or fall back to first enrolled
             int courseId = 0;
+
             if (Request.QueryString["courseid"] != null)
                 courseId = Convert.ToInt32(Request.QueryString["courseid"]);
 
@@ -42,9 +56,9 @@ namespace LearnSphere_WAPP.Student
             {
                 con.Open();
 
-                // Get course name
+                // get the course name
                 string courseQuery = courseId > 0
-                    ? "SELECT courseid, coursename FROM Course WHERE courseid = @cid AND status = 1"
+                    ? "SELECT courseid, coursename FROM Course WHERE courseid = @cid"
                     : "SELECT TOP 1 c.courseid, c.coursename FROM Enrollment e INNER JOIN Course c ON e.courseid = c.courseid WHERE e.userid = @uid AND e.isactive = 1";
 
                 using (SqlCommand cmd = new SqlCommand(courseQuery, con))
@@ -67,7 +81,7 @@ namespace LearnSphere_WAPP.Student
                     }
                 }
 
-                // Try to load modules/lessons — gracefully handle if tables don't exist yet
+                // load modules and lessons for the sidebar
                 try
                 {
                     string query = @"
@@ -78,7 +92,7 @@ namespace LearnSphere_WAPP.Student
                         LEFT JOIN Lesson l ON m.moduleid = l.moduleid
                         LEFT JOIN LessonProgress lp ON l.lessonid = lp.lessonid AND lp.userid = @uid
                         WHERE m.courseid = @courseid
-                        ORDER BY m.moduleid, l.lessonid";
+                        ORDER BY m.ordernumber, l.ordernumber";
 
                     using (SqlDataAdapter da = new SqlDataAdapter(query, con))
                     {
@@ -98,11 +112,11 @@ namespace LearnSphere_WAPP.Student
                                     ModuleId = g.Key.ModuleId,
                                     ModuleName = g.Key.ModuleName,
                                     Lessons = g.Where(r => !r.IsNull("lessonid"))
-                                                  .Select(row => new {
-                                                      LessonId = row.Field<int>("lessonid"),
-                                                      LessonTitle = row.Field<string>("lessontitle"),
-                                                      IsCompleted = row.Field<int>("IsCompleted") == 1
-                                                  }).ToList()
+                                        .Select(row => new {
+                                            LessonId = row.Field<int>("lessonid"),
+                                            LessonTitle = row.Field<string>("lessontitle"),
+                                            IsCompleted = row.Field<int>("IsCompleted") == 1
+                                        }).ToList()
                                 }).ToList();
 
                             rptModules.DataSource = modules;
@@ -119,7 +133,6 @@ namespace LearnSphere_WAPP.Student
                 }
                 catch
                 {
-                    // Module/Lesson tables don't exist yet
                     pnlModules.Visible = false;
                     pnlNoModules.Visible = true;
                 }
@@ -134,9 +147,8 @@ namespace LearnSphere_WAPP.Student
                 {
                     con.Open();
 
-                    // Load lesson details
-                    using (SqlCommand cmd = new SqlCommand(
-                        "SELECT lessontitle, lessondescription FROM Lesson WHERE lessonid = @lid", con))
+                    // load the lesson title and description
+                    using (SqlCommand cmd = new SqlCommand("SELECT lessontitle, lessondescription FROM Lesson WHERE lessonid = @lid", con))
                     {
                         cmd.Parameters.AddWithValue("@lid", lessonId);
                         using (SqlDataReader reader = cmd.ExecuteReader())
@@ -144,68 +156,66 @@ namespace LearnSphere_WAPP.Student
                             if (reader.Read())
                             {
                                 lblLessonTitle.Text = reader["lessontitle"].ToString();
-                                lblLessonDesc.Text = reader["lessondescription"]?.ToString() ?? "";
+                                lblLessonDesc.Text = reader["lessondescription"] != null ? reader["lessondescription"].ToString() : "";
                             }
                             else return;
                         }
                     }
 
-                    // Load materials for this lesson
-                    using (SqlCommand matCmd = new SqlCommand(
-                        "SELECT materialid, filetype, fileurl, videourl FROM Material WHERE lessonid = @lid", con))
+                    // load materials (videos and files)
+                    try
                     {
-                        matCmd.Parameters.AddWithValue("@lid", lessonId);
-                        using (SqlDataReader matReader = matCmd.ExecuteReader())
+                        using (SqlCommand matCmd = new SqlCommand("SELECT materialid, filetype, fileurl, videourl FROM Material WHERE lessonid = @lid", con))
                         {
-                            DataTable matTable = new DataTable();
-                            matTable.Load(matReader);
+                            matCmd.Parameters.AddWithValue("@lid", lessonId);
+                            using (SqlDataReader matReader = matCmd.ExecuteReader())
+                            {
+                                DataTable matTable = new DataTable();
+                                matTable.Load(matReader);
 
-                            // Check for video
-                            var videoRow = matTable.AsEnumerable()
-                                .FirstOrDefault(r => r["filetype"].ToString().ToLower() == "video"
-                                                  && !string.IsNullOrEmpty(r["videourl"]?.ToString()));
-                            if (videoRow != null)
-                            {
-                                iframeVideo.Attributes["src"] = videoRow["videourl"].ToString();
-                                pnlVideo.Visible = true;
-                                pnlNoVideo.Visible = false;
-                            }
-                            else
-                            {
-                                pnlVideo.Visible = false;
-                                pnlNoVideo.Visible = true;
-                            }
+                                // check if theres a video
+                                var videoRow = matTable.AsEnumerable()
+                                    .FirstOrDefault(r => r["filetype"].ToString().ToLower() == "video"
+                                        && !string.IsNullOrEmpty(r["videourl"]?.ToString()));
+                                if (videoRow != null)
+                                {
+                                    iframeVideo.Attributes["src"] = videoRow["videourl"].ToString();
+                                    pnlVideo.Visible = true;
+                                    pnlNoVideo.Visible = false;
+                                }
+                                else
+                                {
+                                    pnlVideo.Visible = false;
+                                    pnlNoVideo.Visible = true;
+                                }
 
-                            // Check for files (pdf, ppt etc)
-                            var fileRows = matTable.AsEnumerable()
-                                .Where(r => r["filetype"].ToString().ToLower() != "video"
-                                         && !string.IsNullOrEmpty(r["fileurl"]?.ToString()))
-                                .ToList();
+                                // check for downloadable files
+                                var fileRows = matTable.AsEnumerable()
+                                    .Where(r => r["filetype"].ToString().ToLower() != "video"
+                                        && !string.IsNullOrEmpty(r["fileurl"]?.ToString()))
+                                    .ToList();
 
-                            if (fileRows.Count > 0)
-                            {
-                                DataTable fileDt = fileRows.CopyToDataTable();
-                                rptMaterials.DataSource = fileDt;
-                                rptMaterials.DataBind();
-                                pnlFiles.Visible = true;
-                            }
-                            else
-                            {
-                                pnlFiles.Visible = false;
+                                if (fileRows.Count > 0)
+                                {
+                                    rptMaterials.DataSource = fileRows.CopyToDataTable();
+                                    rptMaterials.DataBind();
+                                    pnlFiles.Visible = true;
+                                }
+                                else { pnlFiles.Visible = false; }
                             }
                         }
                     }
+                    catch { pnlVideo.Visible = false; pnlNoVideo.Visible = true; pnlFiles.Visible = false; }
 
-                    // Check if already completed
+                    // check if this lesson is already completed
                     int userId = Convert.ToInt32(Session["userid"]);
-                    using (SqlCommand chk = new SqlCommand(
-                        "SELECT COUNT(*) FROM LessonProgress WHERE userid=@uid AND lessonid=@lid AND iscompleted=1", con))
+                    using (SqlCommand chk = new SqlCommand("SELECT COUNT(*) FROM LessonProgress WHERE userid=@uid AND lessonid=@lid AND iscompleted=1", con))
                     {
                         chk.Parameters.AddWithValue("@uid", userId);
                         chk.Parameters.AddWithValue("@lid", lessonId);
                         bool done = (int)chk.ExecuteScalar() > 0;
                         btnComplete.Enabled = !done;
-                        btnComplete.Text = done ? "✓ Already Completed" : "✓ Mark as Completed (+10 Points)";
+                        btnComplete.Text = done ? "Already Completed" : "Mark as Completed (+10 Points)";
                     }
 
                     pnlLesson.Visible = true;
@@ -231,16 +241,16 @@ namespace LearnSphere_WAPP.Student
                 {
                     con.Open();
 
-                    using (SqlCommand chk = new SqlCommand(
-                        "SELECT COUNT(*) FROM LessonProgress WHERE userid=@uid AND lessonid=@lid", con))
+                    // make sure they havent already completed this
+                    using (SqlCommand chk = new SqlCommand("SELECT COUNT(*) FROM LessonProgress WHERE userid=@uid AND lessonid=@lid", con))
                     {
                         chk.Parameters.AddWithValue("@uid", userId);
                         chk.Parameters.AddWithValue("@lid", lessonId);
                         if ((int)chk.ExecuteScalar() > 0) return;
                     }
 
-                    using (SqlCommand ins = new SqlCommand(
-                        "INSERT INTO LessonProgress (userid,lessonid,iscompleted,completedtime) VALUES(@uid,@lid,1,@t)", con))
+                    // insert progress record
+                    using (SqlCommand ins = new SqlCommand("INSERT INTO LessonProgress (userid,lessonid,iscompleted,completedtime) VALUES(@uid,@lid,1,@t)", con))
                     {
                         ins.Parameters.AddWithValue("@uid", userId);
                         ins.Parameters.AddWithValue("@lid", lessonId);
@@ -248,16 +258,15 @@ namespace LearnSphere_WAPP.Student
                         ins.ExecuteNonQuery();
                     }
 
-                    // Add 10 points
-                    using (SqlCommand pts = new SqlCommand(
-                        "UPDATE StudentPoints SET totalpoints=totalpoints+10, lastupdated=@t WHERE userid=@uid", con))
+                    // add 10 points
+                    using (SqlCommand pts = new SqlCommand("UPDATE StudentPoints SET totalpoints=totalpoints+10, lastupdated=@t WHERE userid=@uid", con))
                     {
                         pts.Parameters.AddWithValue("@uid", userId);
                         pts.Parameters.AddWithValue("@t", DateTime.Now);
                         pts.ExecuteNonQuery();
                     }
 
-                    // Update badge
+                    // update badge based on new points
                     using (SqlCommand bdg = new SqlCommand(@"
                         UPDATE StudentPoints SET badge =
                             CASE WHEN totalpoints >= 600 THEN 'Diamond'
@@ -270,10 +279,10 @@ namespace LearnSphere_WAPP.Student
                         bdg.ExecuteNonQuery();
                     }
 
-                    lblMessage.Text = "🎉 Lesson completed! You earned 10 points!";
+                    lblMessage.Text = "Lesson completed! You earned 10 points!";
                     lblMessage.Visible = true;
                     btnComplete.Enabled = false;
-                    btnComplete.Text = "✓ Already Completed";
+                    btnComplete.Text = "Already Completed";
                     LoadCourseStructure();
                 }
             }
@@ -286,7 +295,8 @@ namespace LearnSphere_WAPP.Student
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
-            Session.Clear(); Session.Abandon();
+            Session.Clear();
+            Session.Abandon();
             Response.Redirect("~/Login.aspx");
         }
     }
