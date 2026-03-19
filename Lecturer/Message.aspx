@@ -258,7 +258,8 @@
     </div>
 
 </div>
-
+    <script src="https://cdn.botpress.cloud/webchat/v3.6/inject.js"></script>
+<script src="https://files.bpcontent.cloud/2026/02/25/04/20260225040020-WUKR78B4.js" defer></script>
 </form>
 
 <script>

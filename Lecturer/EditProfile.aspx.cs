@@ -42,7 +42,6 @@ namespace LearnSphere_WAPP.Lecturer
                 LoadSidebarProfileImage();
                 LoadProfile();
 
-                // 🔥 ADD THIS
                 LoadRoleOptions();
                 LoadVerificationHistory();
             }
@@ -158,7 +157,7 @@ namespace LearnSphere_WAPP.Lecturer
                 return;
             }
 
-            // 🔐 ROLE VALIDATION (VERY IMPORTANT)
+            // ROLE VALIDATION (VERY IMPORTANT)
             string currentRole = GetCurrentRoleFromDB();
             string requestedRole = ddlRequestedRole.SelectedValue;
 
@@ -180,7 +179,7 @@ namespace LearnSphere_WAPP.Lecturer
                 return;
             }
 
-            // 🔐 CHECK EXISTING PENDING REQUEST
+            // CHECK EXISTING PENDING REQUEST
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
