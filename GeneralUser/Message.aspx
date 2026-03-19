@@ -14,7 +14,7 @@
                 <div class="sidebar-title">LearnSphere</div>
                 <a href="GeneralDashboard.aspx" class="nav-item">Dashboard</a>
                 <a href="ViewCourses.aspx" class="nav-item">Browse Courses</a>
-                <a href="MyCourses.aspx" class="nav-item">My Learning</a>
+                <a href="MyCourse.aspx" class="nav-item">My Learning</a>
                 <a href="Forums.aspx" class="nav-item">Course Forums</a>
                 <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
             </div>

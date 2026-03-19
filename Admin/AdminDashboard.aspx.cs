@@ -17,25 +17,58 @@ namespace LearnSphere_WAPP.Admin
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["uname"] == null)
+            if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
             {
                 Response.Redirect("../Login.aspx");
             }
 
             if (!Page.IsPostBack)
             {
+                LoadSidebarProfileImage();
+                lblWelcome.Text = "Welcome " + Session["uname"];
                 con.Open();
 
-                lblTotalUsers.Text = new SqlCommand("SELECT COUNT(*) FROM [User]", con).ExecuteScalar().ToString();
-                lblTotalStudents.Text = new SqlCommand("SELECT COUNT(*) FROM [User]", con).ExecuteScalar().ToString();
-                lblTotalLecturers.Text = new SqlCommand("SELECT COUNT(*) FROM [User]", con).ExecuteScalar().ToString();
+                lblTotalUsers.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where not status = 'Deleted'", con).ExecuteScalar().ToString();
+                lblTotalStudents.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where usertype = 'Student' and not status = 'Deleted'", con).ExecuteScalar().ToString();
+                lblTotalLecturers.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where usertype = 'Lecturer' and not status = 'Deleted'", con).ExecuteScalar().ToString();
                 lblTotalCourses.Text = new SqlCommand("SELECT COUNT(*) FROM Course", con).ExecuteScalar().ToString();
                 lblTotalForums.Text = new SqlCommand("SELECT COUNT(*) FROM ForumPost", con).ExecuteScalar().ToString();
+                lecturersVal.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where status = 'Pending' and usertype = 'Lecturer'", con).ExecuteScalar().ToString();
+                studentsVal.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where status = 'Pending' and usertype = 'Student'", con).ExecuteScalar().ToString();
+                coursesVal.Text = new SqlCommand("SELECT COUNT(*) FROM course where status = 'Pending'", con).ExecuteScalar().ToString();
 
                 con.Close();
             }
+        }
+        public void LoadSidebarProfileImage()
+        {
+            string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
 
-            Syslog.action(123, "Dashboard");
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@id", Session["userid"]);
+
+            con.Open();
+
+            object result = cmd.ExecuteScalar();
+
+            if (result != null && result != DBNull.Value)
+            {
+                string imagePath = result.ToString();
+                sidebarImg.Src = ResolveUrl(imagePath);
+            }
+            else
+            {
+                sidebarImg.Src = ResolveUrl("~/images/default-user.png");
+            }
+            con.Close();
+        }
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
+            Session.Abandon();
+            Request.Cookies.Clear();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
+            Response.Redirect("../Login.aspx");
         }
     }
 }

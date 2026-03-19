@@ -87,13 +87,13 @@ namespace LearnSphere_WAPP.GeneralUser
         protected global::System.Web.UI.WebControls.Label lblPrice;
 
         /// <summary>
-        /// btnCourseAction control.
+        /// btnEnroll control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCourseAction;
+        protected global::System.Web.UI.WebControls.Button btnEnroll;
 
         /// <summary>
         /// lblMessage control.
@@ -112,5 +112,23 @@ namespace LearnSphere_WAPP.GeneralUser
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Literal litDescription;
+
+        /// <summary>
+        /// hfCourseData control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfCourseData;
+
+        /// <summary>
+        /// btnConfirmPayment control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnConfirmPayment;
     }
 }

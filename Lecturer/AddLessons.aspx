@@ -5,124 +5,324 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Add Lessons</title>
-    <link href="CreateCourse.css" rel="stylesheet" />
+    <link href="lecturer.css" rel="stylesheet" />
 </head>
+
 <body>
-    <form id="form1" runat="server">
-        <div class="layout">
-            <div class="sidebar">
-                <div>
-                    <div class="sidebar-title">LearnSphere</div>
-                    <a href="LecturerDashboard.aspx" class="nav-item">Dashboard</a>
-                    <a href="CreateCourse.aspx" class="nav-item active">Create Course</a>
-                    <a href="ViewCourses.aspx" class="nav-item">View Courses</a>
-                    <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
-                    <a href="Forums.aspx" class="nav-item">Forums</a>
-                </div>
 
-                <div class="sidebar-profile">
-                    <div class="profile-box <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") ? "verified" : "not-verified" %>">
-                        <div class="profile-img-wrapper">
-                            <img id="imgSidebarProfile" runat="server" class="profile-img" />
+<form id="form1" runat="server">
 
-                            <% if (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") { %>
-                                <div class="verification-badge">✔</div>
-                            <% } %>
-                        </div>
+    <div class="layout">
 
-                        <div class="profile-info">
-                            <div class="profile-name"><%= Session["uname"] %></div>
-                            <div class="profile-status">
-                                <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") 
-                                    ? "Verified Lecturer" 
-                                    : "General User" %>
-                            </div>
-                        </div>
-                    </div>
+        <!-- SIDEBAR -->
+        <div class="sidebar">
 
-                    <a href="Message.aspx" class="nav-item message-link">
-                        Messaging
-                        <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
-                            <span class="message-badge"><%= Session["unreadCount"] %></span>
-                        <% } %>
-                    </a>
+            <div>
+                <div class="sidebar-title">LearnSphere</div>
 
-                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
-                </div>
+                <a href="LecturerDashboard.aspx" class="nav-item">Dashboard</a>
+                <a href="CreateCourse.aspx" class="nav-item active">Create Course</a>
+                <a href="ViewCourses.aspx" class="nav-item">View Courses</a>
+                <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
+                <a href="Forums.aspx" class="nav-item">Forums</a>
             </div>
 
-            <div class="main-content">
-                <div class="course-header">
-                    <h2>
-                        Add Lessons - 
-                        <asp:Label ID="lblModuleName" runat="server"></asp:Label>
-                    </h2>
-                    <span class="draft-label">Step 3 of 4</span>
+
+            <div class="sidebar-profile">
+
+                <div class="profile-box <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") ? "verified" : "not-verified" %>">
+
+                    <div class="profile-img-wrapper">
+
+                        <img id="imgSidebarProfile" runat="server" class="profile-img" />
+
+                        <% if (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") { %>
+                            <div class="verification-badge">✔</div>
+                        <% } %>
+
+                    </div>
+
+
+                    <div class="profile-info">
+
+                        <div class="profile-name">
+                            <%= Session["uname"] %>
+                        </div>
+
+                        <div class="profile-status">
+                            <%= (Session["usertype"] != null && Session["usertype"].ToString() == "Lecturer") 
+                                ? "Verified Lecturer" 
+                                : "General User" %>
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <div class="step-indicator">
-                    <div class="step <%= ViewState["Step"]?.ToString() == "1" ? "active" : "" %>">
-                        <div class="circle">1</div>
-                        <span>Course Details</span>
-                    </div>
 
-                    <div class="step <%= ViewState["Step"]?.ToString() == "2" ? "active" : "" %>">
-                        <div class="circle">2</div>
-                        <span>Modules</span>
-                    </div>
+                <a href="Message.aspx" class="nav-item message-link">
 
-                    <div class="step <%= ViewState["Step"]?.ToString() == "3" ? "active" : "" %>">
-                        <div class="circle">3</div>
-                        <span>Lessons</span>
-                    </div>
+                    Messaging
 
-                    <div class="step <%= ViewState["Step"]?.ToString() == "4" ? "active" : "" %>">
-                        <div class="circle">4</div>
-                        <span>Publish</span>
-                    </div>
+                    <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
+                        <span class="message-badge">
+                            <%= Session["unreadCount"] %>
+                        </span>
+                    <% } %>
+
+                </a>
+
+
+                <asp:Button
+                    ID="btnLogout"
+                    runat="server"
+                    Text="Logout"
+                    CssClass="logout-btn"
+                    OnClick="btnLogout_Click" />
+
+            </div>
+
+        </div>
+
+
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+
+            <div class="course-header">
+
+                <h2>
+                    Add Lessons -
+                    <asp:Label ID="lblModuleName" runat="server"></asp:Label>
+                </h2>
+
+                <span class="draft-label">
+                    Step 3 of 4
+                </span>
+
+            </div>
+
+
+            <!-- STEP INDICATOR -->
+            <div class="step-indicator">
+
+                <div class="step <%= ViewState["Step"] != null && ViewState["Step"].ToString() == "1" ? "active" : "" %>">
+                    <div class="circle">1</div>
+                    <span>Course Details</span>
                 </div>
 
-                <div class="form-card-modern">
-                    <label>Lesson Title *</label>
-                    <asp:TextBox ID="txtLessonTitle" runat="server" CssClass="modern-input"></asp:TextBox>
-
-                    <label>Lesson Description</label>
-                    <asp:TextBox ID="txtLessonDesc" runat="server" TextMode="MultiLine" Rows="3" CssClass="modern-input"></asp:TextBox>
-
-                    <label>Video URL</label>
-                    <asp:TextBox ID="txtVideoUrl" runat="server" CssClass="modern-input"></asp:TextBox>
-
-                    <label>Upload File (PDF, DOC, etc.)</label>
-                    <asp:FileUpload ID="fuLessonFile" runat="server" CssClass="modern-input" />
-
-                    <label>Duration (minutes)</label>
-                    <asp:TextBox ID="txtDuration" runat="server" CssClass="modern-input"></asp:TextBox>
-
-                    <asp:Button ID="btnAddLesson" runat="server" Text="Add Lesson" CssClass="btn-modern" OnClick="btnAddLesson_Click" />
-                    <asp:Label ID="lblMessage" runat="server" />
+                <div class="step <%= ViewState["Step"] != null && ViewState["Step"].ToString() == "2" ? "active" : "" %>">
+                    <div class="circle">2</div>
+                    <span>Modules</span>
                 </div>
+
+                <div class="step <%= ViewState["Step"] != null && ViewState["Step"].ToString() == "3" ? "active" : "" %>">
+                    <div class="circle">3</div>
+                    <span>Lessons</span>
+                </div>
+
+                <div class="step <%= ViewState["Step"] != null && ViewState["Step"].ToString() == "4" ? "active" : "" %>">
+                    <div class="circle">4</div>
+                    <span>Publish</span>
+                </div>
+
+            </div>
+
+
+
+            <div class="form-card-modern">
+
+                <!-- VALIDATION SUMMARY -->
+                <asp:ValidationSummary
+                    ID="ValidationSummary1"
+                    runat="server"
+                    CssClass="validation-summary"
+                    HeaderText="Please fix the following errors:"
+                    ValidationGroup="lessonForm" />
+
+
+                <!-- LESSON TITLE -->
+                <label>Lesson Title *</label>
+
+                <asp:TextBox
+                    ID="txtLessonTitle"
+                    runat="server"
+                    CssClass="modern-input"
+                    MaxLength="100">
+                </asp:TextBox>
+
+                <asp:RequiredFieldValidator
+                    ID="reqLessonTitle"
+                    runat="server"
+                    ControlToValidate="txtLessonTitle"
+                    ErrorMessage="Lesson title is required."
+                    Display="Dynamic"
+                    CssClass="validation-error"
+                    ValidationGroup="lessonForm" />
+
+
+                <!-- LESSON DESCRIPTION -->
+                <label>Lesson Description</label>
+
+                <asp:TextBox
+                    ID="txtLessonDesc"
+                    runat="server"
+                    TextMode="MultiLine"
+                    Rows="3"
+                    CssClass="modern-input"
+                    MaxLength="1000">
+                </asp:TextBox>
+
+
+                <!-- VIDEO URL -->
+                <label>Video URL</label>
+
+                <asp:TextBox
+                    ID="txtVideoUrl"
+                    runat="server"
+                    CssClass="modern-input"
+                    MaxLength="500">
+                </asp:TextBox>
+
+                <asp:RegularExpressionValidator
+                    ID="regexVideoUrl"
+                    runat="server"
+                    ControlToValidate="txtVideoUrl"
+                    ValidationExpression="^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-\.~:\/?#[\]@!$&amp;'()*+,;=]*)?$"
+                    ErrorMessage="Invalid video URL format."
+                    Display="Dynamic"
+                    CssClass="validation-error"
+                    ValidationGroup="lessonForm" />
+
+
+                <!-- FILE UPLOAD -->
+                <label>Upload File (PDF, DOC, etc.)</label>
+
+                <asp:FileUpload
+                    ID="fuLessonFile"
+                    runat="server"
+                    CssClass="modern-input" />
+
+                <asp:RegularExpressionValidator
+                    ID="regexFile"
+                    runat="server"
+                    ControlToValidate="fuLessonFile"
+                    ValidationExpression="^.*\.(pdf|doc|docx|ppt|pptx)$"
+                    ErrorMessage="Only PDF, DOC, DOCX, PPT, PPTX files allowed."
+                    Display="Dynamic"
+                    CssClass="validation-error"
+                    ValidationGroup="lessonForm" />
+
+
+                <!-- DURATION -->
+                <label>Duration (minutes) *</label>
+
+                <asp:TextBox
+                    ID="txtDuration"
+                    runat="server"
+                    CssClass="modern-input"
+                    MaxLength="4">
+                </asp:TextBox>
+
+                <asp:RequiredFieldValidator
+                    ID="reqDuration"
+                    runat="server"
+                    ControlToValidate="txtDuration"
+                    ErrorMessage="Duration is required."
+                    Display="Dynamic"
+                    CssClass="validation-error"
+                    ValidationGroup="lessonForm" />
+
+                <asp:RegularExpressionValidator
+                    ID="regexDuration"
+                    runat="server"
+                    ControlToValidate="txtDuration"
+                    ValidationExpression="^\d+$"
+                    ErrorMessage="Duration must be a number."
+                    Display="Dynamic"
+                    CssClass="validation-error"
+                    ValidationGroup="lessonForm" />
+
+                <asp:RangeValidator
+                    ID="rangeDuration"
+                    runat="server"
+                    ControlToValidate="txtDuration"
+                    MinimumValue="1"
+                    MaximumValue="600"
+                    Type="Integer"
+                    ErrorMessage="Duration must be between 1 and 600 minutes."
+                    Display="Dynamic"
+                    CssClass="validation-error"
+                    ValidationGroup="lessonForm" />
+
+
+                <!-- ADD LESSON BUTTON -->
+                <asp:Button
+                    ID="btnAddLesson"
+                    runat="server"
+                    Text="Add Lesson"
+                    CssClass="btn-modern"
+                    ValidationGroup="lessonForm"
+                    OnClick="btnAddLesson_Click" />
+
+                <asp:Label
+                    ID="lblMessage"
+                    runat="server" />
+
+            </div>
+
+
+            <br />
+
+
+            <!-- LESSON LIST -->
+            <div class="courses-section">
+
+                <h3>Lessons Added</h3>
+
+                <asp:GridView
+                    ID="gvLessons"
+                    runat="server"
+                    AutoGenerateColumns="False"
+                    CssClass="modern-table">
+
+                    <Columns>
+                        <asp:BoundField DataField="lessontitle" HeaderText="Lesson Title" />
+                        <asp:BoundField DataField="duration" HeaderText="Duration (mins)" />
+                    </Columns>
+
+                </asp:GridView>
+
 
                 <br />
 
-                <div class="courses-section">
-                    <h3>Lessons Added</h3>
-                    <asp:GridView ID="gvLessons" runat="server" AutoGenerateColumns="False" CssClass="modern-table">
-                        <Columns>
-                            <asp:BoundField DataField="lessontitle" HeaderText="Lesson Title" />
-                            <asp:BoundField DataField="duration" HeaderText="Duration (mins)" />
-                        </Columns>
-                    </asp:GridView>
 
-                    <br />
+                <asp:Button
+                    ID="btnGoToReview"
+                    runat="server"
+                    Text="Go to Review →"
+                    CssClass="btn-modern"
+                    OnClick="btnGoToReview_Click" />
 
-                    <asp:Button ID="btnGoToReview" runat="server" Text="Go to Review →" CssClass="btn-modern" OnClick="btnGoToReview_Click" />
-                    
-                    <br />
 
-                    <asp:Button ID="btnBackToModules" runat="server" Text="← Back to Modules" CssClass="btn-modern-secondary" OnClick="btnBackToModules_Click" Width="216px" />
-                </div>
+                <br />
+
+
+                <asp:Button
+                    ID="btnBackToModules"
+                    runat="server"
+                    Text="← Back to Modules"
+                    CssClass="btn-modern-secondary"
+                    Width="216px"
+                    OnClick="btnBackToModules_Click" />
+
             </div>
+
         </div>
-    </form>
+
+    </div>
+
+</form>
+
 </body>
 </html>

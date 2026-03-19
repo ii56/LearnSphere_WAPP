@@ -1,0 +1,215 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AdminReply.aspx.cs" Inherits="LearnSphere_WAPP.Admin.AdminReply" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Comment</title>
+    <link href="~/Admin/AdminCSS.css" rel="stylesheet" runat="server" />
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="layout">
+            <div class="sidebar">
+                <div>
+                    <div class="sidebar-title">LearnSphere</div>
+                    <a href="AdminDashboard.aspx" class="nav-item">Dashboard</a>
+                    <a href="UserManagement.aspx" class="nav-item">User Management</a>
+                    <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
+                    <a href="Database.aspx" class="nav-item">Database</a>
+                    <a href="AdminForums.aspx" class="nav-item active">Forums</a>
+                    <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
+                    <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
+                </div>
+
+                <div class="sidebar-profile">
+                    <div class="profile-box admin">
+                        <div class="profile-img-wrapper">
+                            <img id="sidebarImg" runat="server" class="profile-img" />
+                            <div class="verification-badge">✔</div>
+                        </div>
+
+                        <div class="profile-info">
+                            <div class="profile-name"><%= Session["uname"] %></div>
+                            <div class="profile-status">
+                                administrator
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="AdminMessage.aspx" class="nav-item message-link">
+                        Messaging
+                        <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
+                            <span class="message-badge"><%= Session["unreadCount"] %></span>
+                        <% } %>
+                    </a>
+
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
+                </div>
+            </div>
+
+                <div class="main-content">
+
+                    <div class="form-container">
+
+                        <h2>Answer Question</h2>
+
+
+                        <div class="question-preview-box">
+
+                            <asp:Label
+                                ID="lblQuestionTitle"
+                                runat="server"
+                                CssClass="question-title-preview" />
+
+                            <asp:Label
+                                ID="lblQuestionContent"
+                                runat="server"
+                                CssClass="question-content-preview" />
+
+                        </div>
+
+
+                        <hr style="margin:20px 0;" />
+
+
+                        <!-- VALIDATION SUMMARY -->
+                        <asp:ValidationSummary
+                            ID="ValidationSummary1"
+                            runat="server"
+                            CssClass="error-message"
+                            HeaderText="Please fix the following errors:"
+                            ValidationGroup="answerForm" />
+
+
+                        <!-- ANSWER -->
+                        <div class="form-group">
+
+                            <label>Your Answer *</label>
+
+                            <asp:TextBox
+                                ID="txtAnswer"
+                                runat="server"
+                                TextMode="MultiLine"
+                                Rows="8"
+                                CssClass="form-input"
+                                MaxLength="2000">
+                            </asp:TextBox>
+
+                            <asp:RequiredFieldValidator
+                                ID="reqAnswer"
+                                runat="server"
+                                ControlToValidate="txtAnswer"
+                                ErrorMessage="Answer cannot be empty."
+                                Display="Dynamic"
+                                CssClass="error-message"
+                                ValidationGroup="answerForm" />
+
+                        </div>
+
+
+                        <!-- DOCUMENT UPLOAD -->
+                        <div class="form-group">
+
+                            <label>Upload Document (PDF, DOCX, ZIP)</label>
+
+                            <asp:FileUpload
+                                ID="fileUploadFile"
+                                runat="server"
+                                accept=".pdf,.docx,.zip" />
+
+                            <asp:RegularExpressionValidator
+                                ID="regexFile"
+                                runat="server"
+                                ControlToValidate="fileUploadFile"
+                                ValidationExpression="^.*\.(pdf|docx|zip)$"
+                                ErrorMessage="Only PDF, DOCX or ZIP files allowed."
+                                Display="Dynamic"
+                                CssClass="error-message"
+                                ValidationGroup="answerForm" />
+
+                        </div>
+
+
+                        <!-- IMAGE UPLOAD -->
+                        <div class="form-group">
+
+                            <label>Upload Image (JPG, PNG)</label>
+
+                            <asp:FileUpload
+                                ID="fileUploadImage"
+                                runat="server"
+                                accept=".jpg,.jpeg,.png" />
+
+                            <asp:RegularExpressionValidator
+                                ID="regexImage"
+                                runat="server"
+                                ControlToValidate="fileUploadImage"
+                                ValidationExpression="^.*\.(jpg|jpeg|png)$"
+                                ErrorMessage="Only JPG or PNG images allowed."
+                                Display="Dynamic"
+                                CssClass="error-message"
+                                ValidationGroup="answerForm" />
+
+                        </div>
+
+
+                        <!-- VIDEO URL -->
+                        <div class="form-group">
+
+                            <label>Video URL</label>
+
+                            <asp:TextBox
+                                ID="txtVideoUrl"
+                                runat="server"
+                                CssClass="form-input"
+                                MaxLength="500">
+                            </asp:TextBox>
+
+                            <asp:RegularExpressionValidator
+                                ID="regexVideoUrl"
+                                runat="server"
+                                ControlToValidate="txtVideoUrl"
+                                ValidationExpression="^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-\.~:\/?#[\]@!$&amp;'()*+,;=]*)?$"
+                                ErrorMessage="Invalid video URL."
+                                Display="Dynamic"
+                                CssClass="error-message"
+                                ValidationGroup="answerForm" />
+
+                        </div>
+
+
+                        <!-- BUTTONS -->
+                        <div class="form-actions">
+
+                            <asp:Button
+                                ID="btnPostAnswer"
+                                runat="server"
+                                Text="Post Answer"
+                                CssClass="btn-primary"
+                                ValidationGroup="answerForm"
+                                OnClick="btnPostAnswer_Click" />
+
+                            <asp:Button
+                                ID="btnCancel"
+                                runat="server"
+                                Text="Cancel"
+                                CssClass="btn-secondary"
+                                OnClick="btnCancel_Click" />
+
+                        </div>
+
+
+                        <asp:Label
+                            ID="lblMessage"
+                            runat="server"
+                            CssClass="error-message" />
+
+                    </div>
+
+                </div>
+
+            </div>
+    </form>
+</body>
+</html>

@@ -129,50 +129,16 @@ namespace LearnSphere_WAPP.GeneralUser
             }
         }
 
+        // --- SIMPLIFIED ROW COMMAND ---
+        // Clicking ANY button on the grid row will now safely redirect to the Details Page
         protected void gvCourses_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            if (!int.TryParse(e.CommandArgument.ToString(), out int courseId))
-                return;
-
             if (e.CommandName == "ViewDetails")
             {
-                Response.Redirect($"CourseDetails.aspx?courseid={courseId}");
-            }
-            else if (e.CommandName == "EnrollCourse")
-            {
-                EnrollUserViaInvoice(courseId);
-            }
-        }
-
-        private void EnrollUserViaInvoice(int courseId)
-        {
-            int userId = Convert.ToInt32(Session["userid"]);
-
-            try
-            {
-                using (SqlConnection con = new SqlConnection(connString))
+                if (int.TryParse(e.CommandArgument.ToString(), out int courseId))
                 {
-                    con.Open();
-                    string query = @"INSERT INTO Invoice (userid, courseid, invoicetime) 
-                                     VALUES (@uid, @cid, GETDATE())";
-
-                    using (SqlCommand cmd = new SqlCommand(query, con))
-                    {
-                        cmd.Parameters.AddWithValue("@uid", userId);
-                        cmd.Parameters.AddWithValue("@cid", courseId);
-                        cmd.ExecuteNonQuery();
-                    }
+                    Response.Redirect($"CourseDetails.aspx?courseid={courseId}");
                 }
-
-                lblMessage.Text = "Successfully enrolled in the course!";
-                lblMessage.ForeColor = System.Drawing.Color.Green;
-                LoadAllPublishedCourses();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Error during enrollment: " + ex.Message);
-                lblMessage.Text = "Enrollment failed. You might already be enrolled.";
-                lblMessage.ForeColor = System.Drawing.Color.Red;
             }
         }
 
@@ -194,11 +160,6 @@ namespace LearnSphere_WAPP.GeneralUser
             Session.Clear();
             Session.Abandon();
             Response.Redirect("~/Login.aspx");
-        }
-
-        protected void gvCourses_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

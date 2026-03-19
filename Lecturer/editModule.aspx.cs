@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Data;
 
 namespace LearnSphere_WAPP.Lecturer
 {
@@ -15,27 +16,51 @@ namespace LearnSphere_WAPP.Lecturer
 
         int moduleId;
         int courseId;
+        int userId;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["usertype"] == null || Session["usertype"].ToString() != "Lecturer")
+            // AUTHENTICATION
+            if (Session["userid"] == null || Session["usertype"] == null ||
+                Session["usertype"].ToString() != "Lecturer")
             {
                 Response.Redirect("~/Login.aspx");
                 return;
             }
 
+            userId = Convert.ToInt32(Session["userid"]);
+
+            // VALIDATE QUERY STRING
+            if (!int.TryParse(Request.QueryString["courseid"], out courseId) || courseId <= 0)
+            {
+                Response.Redirect("ViewCourses.aspx");
+                return;
+            }
+
             int.TryParse(Request.QueryString["moduleid"], out moduleId);
-            int.TryParse(Request.QueryString["courseid"], out courseId);
+
+            // AUTHORIZATION (CRITICAL)
+            if (!IsCourseOwner(courseId, userId))
+            {
+                Response.Redirect("ViewCourses.aspx");
+                return;
+            }
+
+            if (moduleId > 0 && !IsModuleValid(moduleId))
+            {
+                Response.Redirect("ViewCourses.aspx");
+                return;
+            }
 
             if (!IsPostBack)
             {
+                LoadSidebarProfileImage();
                 LoadCourseTitle();
 
                 if (moduleId > 0)
                 {
                     lblModeTitle.Text = "Edit Module";
                     btnSave.Text = "Update and Continue";
-                    LoadSidebarProfileImage();
                     LoadModule();
                 }
                 else
@@ -46,35 +71,51 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        private void LoadSidebarProfileImage()
+        private bool IsCourseOwner(int courseId, int userId)
         {
-            if (Session["userid"] == null)
-                return;
-
-            int userId = Convert.ToInt32(Session["userid"]);
-
-            using (SqlConnection con = new SqlConnection(
-                ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString))
+            using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
+                string query = "SELECT COUNT(*) FROM Course WHERE courseid=@cid AND ownerid=@uid";
 
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", userId);
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = courseId;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
 
                 con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
 
+        private bool IsModuleValid(int moduleId)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string query = "SELECT COUNT(*) FROM Module WHERE moduleid=@mid AND courseid=@cid";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.Add("@mid", SqlDbType.Int).Value = moduleId;
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = courseId;
+
+                con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
+
+        private void LoadSidebarProfileImage()
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string query = "SELECT ProfileImage FROM [User] WHERE userid=@id";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
+
+                con.Open();
                 object result = cmd.ExecuteScalar();
 
-                if (result != null && result != DBNull.Value)
-                {
-                    string imagePath = result.ToString();
-                    Session["profileImage"] = imagePath;
-                    imgSidebarProfile.Src = ResolveUrl(imagePath);
-                }
-                else
-                {
-                    imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
-                }
+                imgSidebarProfile.Src = (result != null && result != DBNull.Value)
+                    ? ResolveUrl(result.ToString())
+                    : ResolveUrl("~/images/default-user.png");
             }
         }
 
@@ -85,14 +126,14 @@ namespace LearnSphere_WAPP.Lecturer
                 string query = "SELECT coursename FROM Course WHERE courseid=@id";
 
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", courseId);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = courseId;
 
                 con.Open();
                 object result = cmd.ExecuteScalar();
 
                 if (result != null)
                 {
-                    lblCourseTitle.Text = result.ToString();
+                    lblCourseTitle.Text = Server.HtmlEncode(result.ToString());
                 }
             }
         }
@@ -101,22 +142,20 @@ namespace LearnSphere_WAPP.Lecturer
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = @"
-                    SELECT modulename, moduledescription, ordernumber
-                    FROM Module
-                    WHERE moduleid = @id
-                    AND deletiontime IS NULL";
+                string query = @"SELECT modulename, moduledescription, ordernumber
+                                 FROM Module
+                                 WHERE moduleid=@id AND deletiontime IS NULL";
 
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", moduleId);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = moduleId;
 
                 con.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.Read())
                 {
-                    txtModuleName.Text = reader["modulename"].ToString();
-                    txtModuleDesc.Text = reader["moduledescription"].ToString();
+                    txtModuleName.Text = Server.HtmlEncode(reader["modulename"].ToString());
+                    txtModuleDesc.Text = Server.HtmlEncode(reader["moduledescription"].ToString());
                     txtOrderNumber.Text = reader["ordernumber"].ToString();
                 }
             }
@@ -124,61 +163,76 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            using (SqlConnection con = new SqlConnection(connStr))
+            try
             {
-                con.Open();
+                string name = txtModuleName.Text.Trim();
+                string desc = txtModuleDesc.Text.Trim();
 
-                if (moduleId > 0)
+                if (string.IsNullOrWhiteSpace(name))
                 {
-                    string query = @"
-                        UPDATE Module
-                        SET modulename = @name,
-                            moduledescription = @desc,
-                            ordernumber = @order
-                        WHERE moduleid = @id";
-
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@name", txtModuleName.Text);
-                    cmd.Parameters.AddWithValue("@desc", txtModuleDesc.Text);
-                    cmd.Parameters.AddWithValue("@order",
-                        string.IsNullOrEmpty(txtOrderNumber.Text)
-                        ? 1
-                        : Convert.ToInt32(txtOrderNumber.Text));
-                    cmd.Parameters.AddWithValue("@id", moduleId);
-                    cmd.ExecuteNonQuery();
+                    lblMessage.Text = "Module name is required.";
+                    return;
                 }
-                else
+
+                int order = 1;
+                if (!string.IsNullOrWhiteSpace(txtOrderNumber.Text))
                 {
-                    string query = @"
-                                INSERT INTO Module
-                                (courseid, modulename, moduledescription, ordernumber, creationtime)
-                                VALUES
-                                (
-                                    @courseid,
-                                    @name,
-                                    @desc,
-                                    (
-                                        SELECT ISNULL(MAX(ordernumber),0) + 1
-                                        FROM Module
-                                        WHERE courseid = @courseid
-                                        AND deletiontime IS NULL
-                                    ),
-                                    GETDATE()
-                                )";
-
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@courseid", courseId);
-                    cmd.Parameters.AddWithValue("@name", txtModuleName.Text);
-                    cmd.Parameters.AddWithValue("@desc", txtModuleDesc.Text);
-                    cmd.Parameters.AddWithValue("@order",
-                        string.IsNullOrEmpty(txtOrderNumber.Text)
-                        ? 1
-                        : Convert.ToInt32(txtOrderNumber.Text));
-                    cmd.ExecuteNonQuery();
+                    if (!int.TryParse(txtOrderNumber.Text, out order) || order < 1 || order > 100)
+                    {
+                        lblMessage.Text = "Invalid order number.";
+                        return;
+                    }
                 }
+
+                name = Server.HtmlEncode(name);
+                desc = Server.HtmlEncode(desc);
+
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
+
+                    if (moduleId > 0)
+                    {
+                        string updateQuery = @"UPDATE Module
+                                               SET modulename=@name,
+                                                   moduledescription=@desc,
+                                                   ordernumber=@order
+                                               WHERE moduleid=@id";
+
+                        SqlCommand cmd = new SqlCommand(updateQuery, con);
+
+                        cmd.Parameters.Add("@name", SqlDbType.NVarChar, 100).Value = name;
+                        cmd.Parameters.Add("@desc", SqlDbType.NVarChar).Value = desc;
+                        cmd.Parameters.Add("@order", SqlDbType.Int).Value = order;
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = moduleId;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        string insertQuery = @"INSERT INTO Module
+                            (courseid, modulename, moduledescription, ordernumber, creationtime)
+                            VALUES
+                            (@courseid, @name, @desc,
+                            (SELECT ISNULL(MAX(ordernumber),0)+1 FROM Module WHERE courseid=@courseid AND deletiontime IS NULL),
+                            GETDATE())";
+
+                        SqlCommand cmd = new SqlCommand(insertQuery, con);
+
+                        cmd.Parameters.Add("@courseid", SqlDbType.Int).Value = courseId;
+                        cmd.Parameters.Add("@name", SqlDbType.NVarChar, 100).Value = name;
+                        cmd.Parameters.Add("@desc", SqlDbType.NVarChar).Value = desc;
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                Response.Redirect("editCourse.aspx?courseid=" + courseId);
             }
-
-            Response.Redirect("editCourse.aspx?courseid=" + courseId);
+            catch
+            {
+                lblMessage.Text = "An error occurred. Please try again.";
+            }
         }
 
         protected void btnCancel_Click(object sender, EventArgs e)

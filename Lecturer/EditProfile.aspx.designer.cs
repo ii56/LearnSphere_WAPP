@@ -42,6 +42,15 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
+        /// ValidationSummary1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.ValidationSummary ValidationSummary1;
+
+        /// <summary>
         /// txtUsername control.
         /// </summary>
         /// <remarks>
@@ -114,6 +123,24 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.TextBox txtPassword;
 
         /// <summary>
+        /// txtCurrentRole control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtCurrentRole;
+
+        /// <summary>
+        /// ddlRequestedRole control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlRequestedRole;
+
+        /// <summary>
         /// fuVerificationDoc control.
         /// </summary>
         /// <remarks>
@@ -123,13 +150,13 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.FileUpload fuVerificationDoc;
 
         /// <summary>
-        /// btnUploadVerification control.
+        /// btnSendVerification control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnUploadVerification;
+        protected global::System.Web.UI.WebControls.Button btnSendVerification;
 
         /// <summary>
         /// lblVerificationMsg control.
@@ -141,13 +168,13 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Label lblVerificationMsg;
 
         /// <summary>
-        /// rptVerificationDocs control.
+        /// rptVerificationHistory control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptVerificationDocs;
+        protected global::System.Web.UI.WebControls.Repeater rptVerificationHistory;
 
         /// <summary>
         /// fuProfileImage control.

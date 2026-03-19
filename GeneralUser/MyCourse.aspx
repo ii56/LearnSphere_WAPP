@@ -1,5 +1,4 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="MyCourses.aspx.cs" Inherits="LearnSphere_WAPP.GeneralUser.MyCourses" %>
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -9,12 +8,13 @@
 <body>
     <form id="form1" runat="server">
         <div class="layout">
+            
             <div class="sidebar">
                 <div>
                     <div class="sidebar-title">LearnSphere</div>
                     <a href="GeneralDashboard.aspx" class="nav-item">Dashboard</a>
                     <a href="ViewCourses.aspx" class="nav-item">Browse Courses</a>
-                    <a href="MyCourses.aspx" class="nav-item active">My Learning</a>
+                    <a href="MyCourse.aspx" class="nav-item active">My Learning</a>
                     <a href="Forums.aspx" class="nav-item">Course Forums</a>
                     <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
                 </div>
@@ -22,16 +22,20 @@
                 <div class="sidebar-profile">
                     <div class="profile-box not-verified">
                         <div class="profile-img-wrapper">
-                            <img id="imgSidebarProfile" runat="server" class="profile-img" src="~/images/default-user.png" />
+                            <img id="imgSidebarProfile" runat="server" class="profile-img" src="../Assets/default-avatar.png" alt="Profile Image" />
                         </div>
+
                         <div class="profile-info">
-                            <div class="profile-name"><%= Session["uname"] %></div>
+                            <div class="profile-name"><%= Session["uname"] != null ? Session["uname"].ToString() : "Guest" %></div>
                             <div class="profile-status">General User</div>
                         </div>
                     </div>
+
                     <a href="Message.aspx" class="nav-item message-link">
-                        Messages <asp:Literal ID="litUnreadBadge" runat="server" />
+                        Messages
+                        <asp:Literal ID="litUnreadBadge" runat="server"></asp:Literal>
                     </a>
+
                     <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
                 </div>
             </div>

@@ -1,102 +1,240 @@
-﻿body {
+﻿/* ================= GLOBAL ================= */
+
+body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1f3c88, #39a2db);
+    /* 🔥 LIGHT BLUE GRADIENT */
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe, #93c5fd);
     margin: 0;
     padding: 0;
+    height: 100vh;
+    overflow: hidden;
 }
+
+/* ================= BLOB BACKGROUND ================= */
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+    animation: moveBlob 20s infinite alternate ease-in-out;
+    z-index: 0;
+}
+
+.blob1 {
+    width: 300px;
+    height: 300px;
+    background: #60a5fa;
+    top: 10%;
+    left: 10%;
+}
+
+.blob2 {
+    width: 350px;
+    height: 350px;
+    background: #38bdf8;
+    top: 60%;
+    left: 70%;
+    animation-delay: 3s;
+}
+
+.blob3 {
+    width: 250px;
+    height: 250px;
+    background: #93c5fd;
+    top: 30%;
+    left: 50%;
+    animation-delay: 6s;
+}
+
+@keyframes moveBlob {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    50% {
+        transform: translate(50px, -60px) scale(1.1);
+    }
+
+    100% {
+        transform: translate(-40px, 40px) scale(0.95);
+    }
+}
+
+/* ================= REGISTRATION CARD ================= */
 
 .registration-container {
-    width: 400px;
-    margin: 80px auto;
-    padding: 35px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-    animation: fadeIn 0.5s ease-in-out;
+    width: 420px;
+    padding: 40px 35px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* 🔥 SOLID WHITE (MATCH LOGO) */
+    background: #ffffff;
+    border-radius: 18px;
+    /* 🔥 CLEAN SHADOW */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06);
+    animation: fadeIn 0.4s ease-in-out;
+    z-index: 1;
 }
 
-.registration-container h2 {
+    /* TITLE */
+    .registration-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 26px;
+        font-weight: 700;
+        color: #1e3a8a;
+    }
+
+/* STEP INDICATOR */
+.step-indicator {
     text-align: center;
     margin-bottom: 25px;
-    color: #1f3c88;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
 }
+
+/* ================= FORM ================= */
 
 .form-group {
     margin-bottom: 18px;
 }
 
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #333;
-}
+    /* INPUTS */
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb; /* 🔥 light gray instead of transparent */
 
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #dcdcdc;
-    border-radius: 6px;
-    transition: 0.3s ease;
-    font-size: 14px;
-}
+        font-size: 14px;
+        transition: all 0.25s ease;
+    }
 
-.form-group input:focus,
-.form-group select:focus {
-    border-color: #1f3c88;
-    box-shadow: 0 0 5px rgba(31, 60, 136, 0.3);
-    outline: none;
-}
+        /* INPUT FOCUS */
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+            outline: none;
+        }
+
+/* ================= BUTTONS ================= */
 
 .btn-register {
     width: 100%;
     padding: 12px;
-    background-color: #1f3c88;
-    color: #ffffff;
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    color: white;
     font-weight: 600;
-    transition: 0.3s ease;
+    cursor: pointer;
+    transition: 0.25s;
 }
 
-.btn-register:hover {
-    background-color: #163172;
-    transform: translateY(-2px);
+    .btn-register:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(37,99,235,0.3);
+    }
+
+/* BUTTON GROUP (BACK + NEXT) */
+.button-group {
+    display: flex;
+    gap: 10px;
 }
+
+    .button-group .btn-register {
+        flex: 1;
+    }
+
+/* ================= MESSAGES ================= */
 
 .error-message {
-    color: #d93025;
-    font-size: 13px;
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 5px;
 }
 
 .success-message {
-    color: #2e7d32;
-    font-weight: 600;
+    color: #22c55e;
     text-align: center;
 }
+
+/* ================= ANIMATION ================= */
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translate(-50%, -60%);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(-50%, -50%);
     }
 }
 
 .logo-container {
     text-align: center;
-    margin: 15px 0 20px 0;
+    margin-bottom: 20px;
 }
 
 .login-logo {
-    width: 250px;
+    width: 160px;
     height: auto;
     display: block;
-    margin: 0 auto 15px auto;
+    margin: 0 auto;
+    /* 🔥 subtle polish */
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.15));
 }
+
+/* Register redirect section */
+.register-redirect {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Link style */
+.btn-link-register {
+    margin-left: 5px;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+    .btn-link-register:hover {
+        text-decoration: underline;
+        color: #1d4ed8;
+    }
+
+/* Login redirect section */
+.login-redirect {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Link styling */
+.btn-link-login {
+    margin-left: 5px;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+    .btn-link-login:hover {
+        text-decoration: underline;
+        color: #1d4ed8;
+    }

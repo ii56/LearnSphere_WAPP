@@ -1,6 +1,4 @@
-﻿/* =========================================
-   1. BASE LAYOUT
-   ========================================= */
+﻿
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,9 +12,7 @@ body {
     height: 100vh;
 }
 
-/* =========================================
-   2. SIDEBAR 
-   ========================================= */
+
 .sidebar {
     width: 250px;
     background: #1e293b;
@@ -58,6 +54,10 @@ body {
         box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
     }
 
+.sidebar-profile {
+    margin-top: 20px;
+}
+
 .profile-box {
     display: flex;
     align-items: center;
@@ -71,7 +71,7 @@ body {
 }
 
     .profile-box.not-verified {
-        border-color: #94a3b8;
+        border-color: #94a3b8; /* Changed from red to slate for general users to look less like an error */
     }
 
         .profile-box.not-verified:hover {
@@ -103,7 +103,9 @@ body {
     font-size: 12px;
     opacity: 0.9;
     color: #94a3b8;
+    font-weight: 500;
 }
+
 
 .message-link {
     position: relative;
@@ -121,6 +123,7 @@ body {
     border-radius: 12px;
 }
 
+
 .logout-btn {
     width: 100%;
     background: rgba(220, 38, 38, 0.1);
@@ -132,12 +135,17 @@ body {
     text-align: center;
     font-weight: 600;
     transition: 0.2s;
+    font-family: inherit;
+    font-size: 14px;
+    margin-top: 10px;
 }
 
     .logout-btn:hover {
         background: #dc2626;
         color: white;
     }
+
+
 
 /* =========================================
    3. MAIN CONTENT (ViewCourses Specific)

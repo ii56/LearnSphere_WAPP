@@ -6,80 +6,142 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Data;
+using System.IO;
 
 namespace LearnSphere_WAPP.Lecturer
 {
     public partial class editLesson : System.Web.UI.Page
     {
-        string connStr = ConfigurationManager
-            .ConnectionStrings["LearnSphereDB"].ConnectionString;
+        string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
 
         int lessonId;
         int moduleId;
         int courseId;
+        int userId;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["usertype"] == null ||
+            // AUTHENTICATION
+            if (Session["userid"] == null || Session["usertype"] == null ||
                 Session["usertype"].ToString() != "Lecturer")
             {
                 Response.Redirect("~/Login.aspx");
+                return;
             }
-            if (!int.TryParse(Request.QueryString["courseid"], out courseId))
+
+            userId = Convert.ToInt32(Session["userid"]);
+
+            // VALIDATE QUERY STRINGS
+            if (!int.TryParse(Request.QueryString["courseid"], out courseId) || courseId <= 0)
+            {
                 Response.Redirect("ViewCourses.aspx");
+                return;
+            }
 
             int.TryParse(Request.QueryString["lessonid"], out lessonId);
-
             int.TryParse(Request.QueryString["moduleid"], out moduleId);
+
+            // AUTHORIZATION CHECK (CRITICAL)
+            if (!IsCourseOwner(courseId, userId))
+            {
+                Response.Redirect("ViewCourses.aspx");
+                return;
+            }
+
+            if (lessonId > 0 && !IsLessonValid(lessonId))
+            {
+                Response.Redirect("ViewCourses.aspx");
+                return;
+            }
+
+            if (moduleId > 0 && !IsModuleValid(moduleId))
+            {
+                Response.Redirect("ViewCourses.aspx");
+                return;
+            }
 
             if (!IsPostBack)
             {
+                LoadSidebarProfileImage();
+
                 if (lessonId > 0)
                 {
                     lblModuleName.Text = "Edit Lesson";
                     btnUpdateModule.Text = "Update and Continue";
-                    LoadSidebarProfileImage();
                     LoadLesson();
                 }
                 else
                 {
                     lblModuleName.Text = "Add Lesson";
                     btnUpdateModule.Text = "Confirm Addition";
-                    LoadSidebarProfileImage();
                     LoadModuleName();
                 }
             }
         }
 
-        private void LoadSidebarProfileImage()
+        private bool IsCourseOwner(int courseId, int userId)
         {
-            if (Session["userid"] == null)
-                return;
-
-            int userId = Convert.ToInt32(Session["userid"]);
-
-            using (SqlConnection con = new SqlConnection(
-                ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString))
+            using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
-
+                string query = "SELECT COUNT(*) FROM Course WHERE courseid=@cid AND ownerid=@uid";
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", userId);
+
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = courseId;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
 
                 con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
 
+        private bool IsModuleValid(int moduleId)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string query = "SELECT COUNT(*) FROM Module WHERE moduleid=@mid AND courseid=@cid";
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                cmd.Parameters.Add("@mid", SqlDbType.Int).Value = moduleId;
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = courseId;
+
+                con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
+
+        private bool IsLessonValid(int lessonId)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string query = @"SELECT COUNT(*) FROM Lesson l
+                                 JOIN Module m ON l.moduleid = m.moduleid
+                                 WHERE l.lessonid=@lid AND m.courseid=@cid";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.Add("@lid", SqlDbType.Int).Value = lessonId;
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = courseId;
+
+                con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
+
+        private void LoadSidebarProfileImage()
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                string query = "SELECT ProfileImage FROM [User] WHERE userid=@id";
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
+
+                con.Open();
                 object result = cmd.ExecuteScalar();
 
-                if (result != null && result != DBNull.Value)
-                {
-                    string imagePath = result.ToString();
-                    Session["profileImage"] = imagePath;
-                    imgSidebarProfile.Src = ResolveUrl(imagePath);
-                }
-                else
-                {
-                    imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
-                }
+                imgSidebarProfile.Src = (result != null && result != DBNull.Value)
+                    ? ResolveUrl(result.ToString())
+                    : ResolveUrl("~/images/default-user.png");
             }
         }
 
@@ -87,19 +149,16 @@ namespace LearnSphere_WAPP.Lecturer
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = @"
-                    SELECT modulename
-                    FROM Module
-                    WHERE moduleid = @id";
-
+                string query = "SELECT modulename FROM Module WHERE moduleid=@id";
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", moduleId);
+
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = moduleId;
 
                 con.Open();
                 object result = cmd.ExecuteScalar();
 
                 if (result != null)
-                    lblModuleName.Text += " - " + result.ToString();
+                    lblModuleName.Text += " - " + Server.HtmlEncode(result.ToString());
             }
         }
 
@@ -107,29 +166,23 @@ namespace LearnSphere_WAPP.Lecturer
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = @"
-                            SELECT l.lessontitle,
-                                   l.description,
-                                   l.duration,
-                                   m.modulename,
-                                   l.moduleid
-                            FROM Lesson l
-                            INNER JOIN Module m ON l.moduleid = m.moduleid
-                            WHERE l.lessonid = @id
-                            AND l.deletiontime IS NULL";
+                string query = @"SELECT l.lessontitle, l.description, l.duration, m.modulename, l.moduleid
+                                 FROM Lesson l
+                                 INNER JOIN Module m ON l.moduleid = m.moduleid
+                                 WHERE l.lessonid=@id AND l.deletiontime IS NULL";
 
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@id", lessonId);
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = lessonId;
 
                 con.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.Read())
                 {
-                    txtLessonTitle.Text = reader["lessontitle"].ToString();
-                    txtLessonDesc.Text = reader["description"].ToString();
+                    txtLessonTitle.Text = Server.HtmlEncode(reader["lessontitle"].ToString());
+                    txtLessonDesc.Text = Server.HtmlEncode(reader["description"].ToString());
                     txtDuration.Text = reader["duration"].ToString();
-                    lblModuleName.Text += " - " + reader["modulename"].ToString();
+                    lblModuleName.Text += " - " + Server.HtmlEncode(reader["modulename"].ToString());
                     moduleId = Convert.ToInt32(reader["moduleid"]);
                 }
             }
@@ -137,190 +190,101 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void btnUpdateModule_Click(object sender, EventArgs e)
         {
-            using (SqlConnection con = new SqlConnection(connStr))
+            try
             {
-                con.Open();
+                string title = txtLessonTitle.Text.Trim();
+                string desc = txtLessonDesc.Text.Trim();
+                string videoUrl = txtVideoUrl.Text.Trim();
 
-                int currentLessonId = lessonId;
-
-                if (lessonId > 0)
+                if (string.IsNullOrWhiteSpace(title))
                 {
-                    string query = @"
-                UPDATE Lesson
-                SET lessontitle = @title,
-                    description = @desc,
-                    duration = @duration
-                WHERE lessonid = @id";
-
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@title", txtLessonTitle.Text);
-                    cmd.Parameters.AddWithValue("@desc", txtLessonDesc.Text);
-                    cmd.Parameters.AddWithValue("@duration",
-                        string.IsNullOrEmpty(txtDuration.Text)
-                        ? (object)DBNull.Value
-                        : Convert.ToInt32(txtDuration.Text));
-                    cmd.Parameters.AddWithValue("@id", lessonId);
-                    cmd.ExecuteNonQuery();
-                }
-                else
-                {
-                    string query = @"
-                INSERT INTO Lesson
-                (moduleid, lessontitle, description, duration, ordernumber, creationtime)
-                OUTPUT INSERTED.lessonid
-                VALUES
-                (
-                    @moduleid,
-                    @title,
-                    @desc,
-                    @duration,
-                    (
-                        SELECT ISNULL(MAX(ordernumber),0) + 1
-                        FROM Lesson
-                        WHERE moduleid = @moduleid
-                        AND deletiontime IS NULL
-                    ),
-                    GETDATE()
-                )";
-
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@moduleid", moduleId);
-                    cmd.Parameters.AddWithValue("@title", txtLessonTitle.Text);
-                    cmd.Parameters.AddWithValue("@desc", txtLessonDesc.Text);
-                    cmd.Parameters.AddWithValue("@duration",
-                        string.IsNullOrEmpty(txtDuration.Text)
-                        ? (object)DBNull.Value
-                        : Convert.ToInt32(txtDuration.Text));
-
-                    currentLessonId = (int)cmd.ExecuteScalar();
+                    lblMessage.Text = "Lesson title is required.";
+                    return;
                 }
 
-                if (!string.IsNullOrWhiteSpace(txtVideoUrl.Text))
+                int duration;
+                if (!int.TryParse(txtDuration.Text, out duration) || duration < 1 || duration > 600)
                 {
-                    string checkVideoQuery = @"
-        SELECT materialid
-        FROM Material
-        WHERE lessonid=@lessonid
-        AND videourl IS NOT NULL";
+                    lblMessage.Text = "Invalid duration.";
+                    return;
+                }
 
-                    SqlCommand checkVideoCmd = new SqlCommand(checkVideoQuery, con);
-                    checkVideoCmd.Parameters.AddWithValue("@lessonid", currentLessonId);
+                title = Server.HtmlEncode(title);
+                desc = Server.HtmlEncode(desc);
+                videoUrl = Server.HtmlEncode(videoUrl);
 
-                    object existingVideo = checkVideoCmd.ExecuteScalar();
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
 
-                    if (existingVideo != null)
+                    int currentLessonId = lessonId;
+
+                    if (lessonId > 0)
                     {
-                        // UPDATE existing video
-                        string updateVideoQuery = @"
-            UPDATE Material
-            SET videourl=@videourl,
-                uploadtime=GETDATE()
-            WHERE materialid=@id";
+                        string updateQuery = @"UPDATE Lesson
+                                               SET lessontitle=@title, description=@desc, duration=@duration
+                                               WHERE lessonid=@id";
 
-                        SqlCommand updateVideoCmd = new SqlCommand(updateVideoQuery, con);
-                        updateVideoCmd.Parameters.AddWithValue("@videourl", txtVideoUrl.Text.Trim());
-                        updateVideoCmd.Parameters.AddWithValue("@id", existingVideo);
-                        updateVideoCmd.ExecuteNonQuery();
+                        SqlCommand cmd = new SqlCommand(updateQuery, con);
+                        cmd.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = title;
+                        cmd.Parameters.Add("@desc", SqlDbType.NVarChar).Value = desc;
+                        cmd.Parameters.Add("@duration", SqlDbType.Int).Value = duration;
+                        cmd.Parameters.Add("@id", SqlDbType.Int).Value = lessonId;
+
+                        cmd.ExecuteNonQuery();
                     }
                     else
                     {
-                        string insertVideoQuery = @"
-            INSERT INTO Material
-            (clickcount, filetype, lessonid, fileurl, videourl)
-            VALUES
-            (0, 'URL', @lessonid, NULL, @videourl)";
+                        string insertQuery = @"INSERT INTO Lesson
+                            (moduleid, lessontitle, description, duration, ordernumber, creationtime)
+                            OUTPUT INSERTED.lessonid
+                            VALUES
+                            (@moduleid, @title, @desc, @duration,
+                            (SELECT ISNULL(MAX(ordernumber),0)+1 FROM Lesson WHERE moduleid=@moduleid AND deletiontime IS NULL),
+                            GETDATE())";
 
-                        SqlCommand insertVideoCmd = new SqlCommand(insertVideoQuery, con);
-                        insertVideoCmd.Parameters.AddWithValue("@lessonid", currentLessonId);
-                        insertVideoCmd.Parameters.AddWithValue("@videourl", txtVideoUrl.Text.Trim());
-                        insertVideoCmd.ExecuteNonQuery();
+                        SqlCommand cmd = new SqlCommand(insertQuery, con);
+                        cmd.Parameters.Add("@moduleid", SqlDbType.Int).Value = moduleId;
+                        cmd.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = title;
+                        cmd.Parameters.Add("@desc", SqlDbType.NVarChar).Value = desc;
+                        cmd.Parameters.Add("@duration", SqlDbType.Int).Value = duration;
+
+                        currentLessonId = (int)cmd.ExecuteScalar();
+                    }
+
+                    // FILE UPLOAD SECURITY
+                    if (fuLessonFile.HasFile)
+                    {
+                        if (fuLessonFile.PostedFile.ContentLength > 5 * 1024 * 1024)
+                        {
+                            lblMessage.Text = "File too large (max 5MB).";
+                            return;
+                        }
+
+                        string ext = Path.GetExtension(fuLessonFile.FileName).ToLower();
+                        string[] allowed = { ".pdf", ".doc", ".docx", ".ppt", ".pptx" };
+
+                        if (Array.IndexOf(allowed, ext) < 0)
+                        {
+                            lblMessage.Text = "Invalid file type.";
+                            return;
+                        }
+
+                        string fileName = Guid.NewGuid().ToString() + ext;
+                        string folder = Server.MapPath("~/Uploads/LessonMaterials/");
+                        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+                        string fullPath = Path.Combine(folder, fileName);
+                        fuLessonFile.SaveAs(fullPath);
                     }
                 }
 
-                if (fuLessonFile.HasFile)
-                {
-                    string fileName = System.IO.Path.GetFileName(fuLessonFile.FileName);
-                    string extension = System.IO.Path.GetExtension(fileName).ToLower();
-
-                    string[] allowedExtensions = { ".pdf", ".doc", ".docx", ".ppt", ".pptx" };
-
-                    if (!allowedExtensions.Contains(extension))
-                    {
-                        lblMessage.Text = "Invalid file type.";
-                        return;
-                    }
-
-                    string newFileName = Guid.NewGuid().ToString() + extension;
-                    string folderPath = Server.MapPath("~/Uploads/LessonMaterials/");
-
-                    if (!System.IO.Directory.Exists(folderPath))
-                    {
-                        System.IO.Directory.CreateDirectory(folderPath);
-                    }
-
-                    string savePath = System.IO.Path.Combine(folderPath, newFileName);
-
-                    fuLessonFile.SaveAs(savePath);
-
-                    string fileUrl = "~/Uploads/LessonMaterials/" + newFileName;
-
-                    string checkFileQuery = @"
-        SELECT materialid, fileurl
-        FROM Material
-        WHERE lessonid=@lessonid
-        AND fileurl IS NOT NULL";
-
-                    SqlCommand checkFileCmd = new SqlCommand(checkFileQuery, con);
-                    checkFileCmd.Parameters.AddWithValue("@lessonid", currentLessonId);
-
-                    SqlDataReader reader = checkFileCmd.ExecuteReader();
-
-                    if (reader.Read())
-                    {
-                        int materialId = Convert.ToInt32(reader["materialid"]);
-                        string oldFileUrl = reader["fileurl"].ToString();
-
-                        reader.Close();
-
- 
-                        string oldPath = Server.MapPath(oldFileUrl);
-                        if (System.IO.File.Exists(oldPath))
-                            System.IO.File.Delete(oldPath);
-
-    
-                        string updateFileQuery = @"
-            UPDATE Material
-            SET fileurl=@fileurl,
-                filetype=@filetype,
-                uploadtime=GETDATE()
-            WHERE materialid=@id";
-
-                        SqlCommand updateFileCmd = new SqlCommand(updateFileQuery, con);
-                        updateFileCmd.Parameters.AddWithValue("@fileurl", fileUrl);
-                        updateFileCmd.Parameters.AddWithValue("@filetype", extension);
-                        updateFileCmd.Parameters.AddWithValue("@id", materialId);
-                        updateFileCmd.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        reader.Close();
-
-                        string insertFileQuery = @"
-            INSERT INTO Material
-            (clickcount, filetype, lessonid, fileurl, videourl)
-            VALUES
-            (0, @filetype, @lessonid, @fileurl, NULL)";
-
-                        SqlCommand insertFileCmd = new SqlCommand(insertFileQuery, con);
-                        insertFileCmd.Parameters.AddWithValue("@lessonid", currentLessonId);
-                        insertFileCmd.Parameters.AddWithValue("@fileurl", fileUrl);
-                        insertFileCmd.Parameters.AddWithValue("@filetype", extension);
-                        insertFileCmd.ExecuteNonQuery();
-                    }
-                }
+                Response.Redirect("editCourse.aspx?courseid=" + courseId);
             }
-
-            Response.Redirect("editCourse.aspx?courseid=" + courseId);
+            catch
+            {
+                lblMessage.Text = "An error occurred. Please try again.";
+            }
         }
 
         protected void btnCancel_Click(object sender, EventArgs e)

@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Manage Courses</title>
-    <link href="courses.css" rel="stylesheet" />
+    <link href="lecturer.css" rel="stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">
@@ -111,16 +111,16 @@
                                 </ItemTemplate>
                             </asp:TemplateField>
 
-                            <asp:TemplateField HeaderText="Actions">
-                                <ItemTemplate>
-
-                                    <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-edit" CommandName="EditCourse" CommandArgument="<%# Container.DataItemIndex %>" />
-                                    <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-delete" CommandName="DeleteCourse" CommandArgument="<%# Container.DataItemIndex %>" OnClientClick="return confirm('Delete this course?');" />
-                                    <asp:Button ID="btnViewStudents" runat="server" Text="Students" CssClass="btn-students"  CommandName="ViewStudents" CommandArgument="<%# Container.DataItemIndex %>" />              
-                                    <asp:Button ID="btnPreview" runat="server" Text="Preview" CssClass="btn-preview" CommandName="PreviewCourse" CommandArgument="<%# Container.DataItemIndex %>" Visible='<%# Eval("statusText").ToString() == "Published" %>' />
-
-                                </ItemTemplate>
-                            </asp:TemplateField>
+<asp:TemplateField HeaderText="Actions">
+    <ItemTemplate>
+        <div class="table-actions">
+            <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-edit" CommandName="EditCourse" CommandArgument="<%# Container.DataItemIndex %>" />
+            <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-delete" CommandName="DeleteCourse" CommandArgument="<%# Container.DataItemIndex %>" OnClientClick="return confirm('Delete this course?');" />
+            <asp:Button ID="btnViewStudents" runat="server" Text="Students" CssClass="btn-students" CommandName="ViewStudents" CommandArgument="<%# Container.DataItemIndex %>" />
+            <asp:Button ID="btnPreview" runat="server" Text="Preview" CssClass="btn-preview" CommandName="PreviewCourse" CommandArgument="<%# Container.DataItemIndex %>" Visible='<%# Eval("statusText").ToString() == "Published" %>' />
+        </div>
+    </ItemTemplate>
+</asp:TemplateField>
                         </Columns>
                     </asp:GridView>
                     <asp:Label ID="lblMessage" runat="server" />

@@ -73,6 +73,10 @@ namespace LearnSphere_WAPP
         {
             switch (role)
             {
+                case "SuperAdmin":
+                    Response.Redirect("~/Admin/AdminDashboard.aspx");
+                    break;
+
                 case "Admin":
                     Response.Redirect("~/Admin/AdminDashboard.aspx");
                     break;
@@ -82,7 +86,7 @@ namespace LearnSphere_WAPP
                     break;
 
                 case "Student":
-                    Response.Redirect("StudentDashboard.aspx");
+                    Response.Redirect("~/Student/StudentDashboard.aspx");
                     break;
 
                 case "General":

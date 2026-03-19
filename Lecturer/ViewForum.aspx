@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>View Forum</title>
-<link href="Forums.css?v=5" rel="stylesheet" />
+<link href="lecturer.css" rel="stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">
@@ -101,8 +101,25 @@
                     <div class="card-footer">
 
                         <div class="stats">
-                            <span>▲ <%# Eval("upvotes") %></span>
-                            <span>▼ <%# Eval("downvotes") %></span>
+<div class="vote-section">
+
+    <asp:LinkButton runat="server"
+        CommandName="Like"
+        CommandArgument='<%# Eval("postid") %>'
+        CssClass="vote-btn like-btn"
+        CausesValidation="false">
+        👍 <%# Eval("upvotes") %>
+    </asp:LinkButton>
+
+    <asp:LinkButton runat="server"
+        CommandName="Dislike"
+        CommandArgument='<%# Eval("postid") %>'
+        CssClass="vote-btn dislike-btn"
+        CausesValidation="false">
+        👎 <%# Eval("downvotes") %>
+    </asp:LinkButton>
+
+</div>
                         </div>
 
                         <div class="card-actions">

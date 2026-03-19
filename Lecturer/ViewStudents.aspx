@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Enrolled Students</title>
-    <link href="ViewStudents.css" rel="stylesheet" />
+    <link href="lecturer.css" rel="stylesheet" />
 </head>
 <body>
     <form id="form1" runat="server">

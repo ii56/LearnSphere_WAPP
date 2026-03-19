@@ -1,5 +1,4 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="ViewCourses.aspx.cs" Inherits="LearnSphere_WAPP.GeneralUser.ViewCourses" %>
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
@@ -15,7 +14,7 @@
                     <div class="sidebar-title">LearnSphere</div>
                     <a href="GeneralDashboard.aspx" class="nav-item">Dashboard</a>
                     <a href="ViewCourses.aspx" class="nav-item active">Browse Courses</a>
-                    <a href="MyCourses.aspx" class="nav-item">My Learning</a>
+                    <a href="MyCourse.aspx" class="nav-item">My Learning</a>
                     <a href="Forums.aspx" class="nav-item">Course Forums</a>
                     <a href="EditProfile.aspx" class="nav-item">Edit Profile</a>
                 </div>
@@ -23,8 +22,9 @@
                 <div class="sidebar-profile">
                     <div class="profile-box not-verified">
                         <div class="profile-img-wrapper">
-                            <img id="imgSidebarProfile" runat="server" class="profile-img" src="~/images/default-user.png" />
+                            <img id="imgSidebarProfile" runat="server" class="profile-img" src="../Assets/default-avatar.png" alt="Profile Image" />
                         </div>
+
                         <div class="profile-info">
                             <div class="profile-name"><%= Session["uname"] != null ? Session["uname"].ToString() : "Guest" %></div>
                             <div class="profile-status">General User</div>
@@ -68,7 +68,7 @@
                 <div class="courses-card">
                     <asp:GridView ID="gvCourses" runat="server" AutoGenerateColumns="False" 
                         CssClass="courses-table" DataKeyNames="courseid" OnRowCommand="gvCourses_RowCommand"
-                        EmptyDataText="No courses found matching your criteria." GridLines="None" OnSelectedIndexChanged="gvCourses_SelectedIndexChanged">
+                        EmptyDataText="No courses found matching your criteria." GridLines="None">
                         <Columns>
                             
                             <asp:BoundField DataField="coursename" HeaderText="Course Title" />
@@ -78,7 +78,7 @@
                             <asp:TemplateField HeaderText="Price">
                                 <ItemTemplate>
                                     <span class="course-price-tag">
-                                        <%# Convert.ToDecimal(Eval("price")) == 0 ? "Free" : "$" + Eval("price") %>
+                                        <%# Convert.ToDecimal(Eval("price")) == 0 ? "Free" : "RM " + Eval("price", "{0:F2}") %>
                                     </span>
                                 </ItemTemplate>
                             </asp:TemplateField>
@@ -91,9 +91,10 @@
                                         CommandName="ViewDetails" 
                                         CommandArgument='<%# Eval("courseid") %>' />
                                     
-                                    <asp:Button ID="btnEnroll" runat="server" Text="Enroll Now" 
+                                    <asp:Button ID="btnEnroll" runat="server" 
+                                        Text='<%# Convert.ToDecimal(Eval("price")) == 0 ? "Enroll Free" : "Buy Now" %>'
                                         CssClass="btn-enroll-main" 
-                                        CommandName="EnrollCourse" 
+                                        CommandName="ViewDetails" 
                                         CommandArgument='<%# Eval("courseid") %>'
                                         Visible='<%# !Convert.ToBoolean(Eval("IsEnrolled")) %>' />
 

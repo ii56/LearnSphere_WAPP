@@ -60,7 +60,7 @@
                                         <p class="course-desc"><%# Eval("description").ToString().Length > 60 ? Eval("description").ToString().Substring(0, 60) + "..." : Eval("description") %></p>
                                     </div>
                                     <div class="course-card-footer">
-                                        <a href='ViewCourse.aspx?courseid=<%# Eval("courseid") %>' class="action-btn primary-btn">Resume Course</a>
+                                        <a href='CourseContent.aspx?courseid=<%# Eval("courseid") %>' class="action-btn primary-btn">Resume Course</a>
                                     </div>
                                 </div>
                             </ItemTemplate>
