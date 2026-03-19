@@ -258,6 +258,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Answered Post (PostID: " + parentPostId + ")");
                 }
 
                 Response.Redirect("ForumDetail.aspx?postid=" + parentPostId);
@@ -281,6 +282,7 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }

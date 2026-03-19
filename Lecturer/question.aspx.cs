@@ -285,6 +285,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                     updateCmd.ExecuteNonQuery();
                 }
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Question Added (ForumID: " + forumId + ")");
             }
 
             Response.Redirect("ViewForum.aspx?courseid=" + courseId);
@@ -300,6 +301,7 @@ namespace LearnSphere_WAPP.Lecturer
             Session.Clear();
             Session.Abandon();
 
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Cookies.Add(new HttpCookie("ASP.NET_SessionId", ""));
             Response.Redirect("~/Login.aspx");
         }

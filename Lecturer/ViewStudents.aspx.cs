@@ -167,6 +167,7 @@ WHERE e.courseid  = @courseId
                 }
             }
 
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Studen removed from course (CourseID: " + courseId + ", UserID: " + userId + ")");
             lblMessage.Text = "Student removed from course.";
         }
 
@@ -354,6 +355,7 @@ WHERE e.userid = @uid AND e.courseid = @cid";
                 string fileName = $"{courseName}_EnrolledStudents_{DateTime.Now:ddMMMyyyy}.xls";
 
                 ExportToExcel(dt, fileName);
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Export student information csv file");
             }
         }
 
@@ -396,6 +398,7 @@ WHERE e.userid = @uid AND e.courseid = @cid";
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }

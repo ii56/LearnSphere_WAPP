@@ -207,6 +207,7 @@ namespace LearnSphere_WAPP.Lecturer
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = moduleId;
 
                         cmd.ExecuteNonQuery();
+                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Updated Module (ModuleID: " + moduleId + ")");
                     }
                     else
                     {
@@ -244,6 +245,7 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout System");
             Response.Redirect("~/Login.aspx");
         }
     }
