@@ -295,9 +295,9 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Session.Clear();
             Session.Abandon();
-            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }
