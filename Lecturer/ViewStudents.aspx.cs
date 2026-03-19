@@ -76,29 +76,23 @@ namespace LearnSphere_WAPP.Lecturer
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 string query = @"
-            SELECT DISTINCT
-                u.userid,
-                u.uname,
-                u.fname,
-                u.lname,
-                u.email,
-                u.age,
-                u.gender,
-                e.enrolldate AS EnrolledOn
-            FROM Enrollment e
-            INNER JOIN Course c  ON e.courseid = c.courseid
-            INNER JOIN [User] u  ON e.userid   = u.userid
-            LEFT  JOIN Invoice i ON e.userid   = i.userid AND e.courseid = i.courseid
-            LEFT  JOIN Receipt r ON i.invid    = r.invid
-            WHERE e.courseid  = @courseId
-              AND e.isactive  = 1
-              AND u.usertype  = 'Student'
-              AND u.deletiontime IS NULL
-              AND u.status    = 'Active'
-              AND (
-                    c.price = 0
-                    OR (c.price > 0 AND r.invid IS NOT NULL)
-                  )";
+SELECT DISTINCT
+    u.userid,
+    u.uname,
+    u.fname,
+    u.lname,
+    u.email,
+    u.age,
+    u.gender,
+    e.enrolldate AS EnrolledOn
+FROM Enrollment e
+INNER JOIN Course c  ON e.courseid = c.courseid
+INNER JOIN [User] u  ON e.userid   = u.userid
+WHERE e.courseid  = @courseId
+  AND e.isactive  = 1
+  AND u.usertype  = 'Student'
+  AND u.deletiontime IS NULL
+  AND u.status    = 'Active'";
 
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@courseId", courseId);
