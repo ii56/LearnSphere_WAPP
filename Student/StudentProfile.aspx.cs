@@ -142,6 +142,7 @@ namespace LearnSphere_WAPP.Student
                     cmd.Parameters.AddWithValue("@gender", ddlGender.SelectedValue);
                     cmd.Parameters.AddWithValue("@uid", userId);
                     cmd.ExecuteNonQuery();
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Updated Profile");
                 }
             }
 
@@ -262,6 +263,7 @@ namespace LearnSphere_WAPP.Student
                     cmd.Parameters.AddWithValue("@pwd", newHash);
                     cmd.Parameters.AddWithValue("@uid", userId);
                     cmd.ExecuteNonQuery();
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Password Updated");
                 }
             }
 
@@ -284,6 +286,7 @@ namespace LearnSphere_WAPP.Student
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }

@@ -191,6 +191,7 @@ namespace LearnSphere_WAPP.Student
                         cmd.Parameters.AddWithValue("@content", answer);
                         cmd.Parameters.AddWithValue("@now", DateTime.Now);
                         cmd.ExecuteNonQuery();
+                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Post Answer (ForumID: " + fid + ")");
                     }
                 }
 
@@ -282,6 +283,7 @@ namespace LearnSphere_WAPP.Student
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
     }
