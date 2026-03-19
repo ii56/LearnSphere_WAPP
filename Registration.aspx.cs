@@ -163,7 +163,7 @@ namespace LearnSphere_WAPP
                     // 🔥 DEFAULT ROLE
                     cmd.Parameters.Add("@usertype", SqlDbType.NVarChar, 20).Value = "Public";
 
-                    cmd.Parameters.Add("@status", SqlDbType.Int).Value = 1;
+                    cmd.Parameters.Add("@status", SqlDbType.NVarChar, 20).Value = "Active";
 
                     cmd.ExecuteNonQuery();
 
