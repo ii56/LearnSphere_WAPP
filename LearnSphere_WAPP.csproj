@@ -169,7 +169,9 @@
     <Content Include="GeneralUser\question.aspx" />
     <Content Include="GeneralUser\question.css" />
     <Content Include="GeneralUser\ViewCourse.css" />
+    <Content Include="GeneralUser\CourseDetails.aspx" />
     <Content Include="GeneralUser\ViewCourses.aspx" />
+    <Content Include="GeneralUser\CourseDetails.css" />
     <Content Include="GeneralUser\ViewForum.aspx" />
     <Content Include="Global.asax" />
     <Content Include="LEARNSPHERE.png" />
@@ -396,6 +398,13 @@
     </Compile>
     <Compile Include="GeneralUser\question.aspx.designer.cs">
       <DependentUpon>question.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\CourseDetails.aspx.cs">
+      <DependentUpon>CourseDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\CourseDetails.aspx.designer.cs">
+      <DependentUpon>CourseDetails.aspx</DependentUpon>
     </Compile>
     <Compile Include="GeneralUser\ViewCourses.aspx.cs">
       <DependentUpon>ViewCourses.aspx</DependentUpon>

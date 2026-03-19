@@ -68,7 +68,7 @@
                 <div class="courses-card">
                     <asp:GridView ID="gvCourses" runat="server" AutoGenerateColumns="False" 
                         CssClass="courses-table" DataKeyNames="courseid" OnRowCommand="gvCourses_RowCommand"
-                        EmptyDataText="No courses found matching your criteria." GridLines="None">
+                        EmptyDataText="No courses found matching your criteria." GridLines="None" OnSelectedIndexChanged="gvCourses_SelectedIndexChanged">
                         <Columns>
                             
                             <asp:BoundField DataField="coursename" HeaderText="Course Title" />

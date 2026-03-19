@@ -195,5 +195,10 @@ namespace LearnSphere_WAPP.GeneralUser
             Session.Abandon();
             Response.Redirect("~/Login.aspx");
         }
+
+        protected void gvCourses_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -1,0 +1,340 @@
+﻿/* =========================================
+   1. BASE LAYOUT & SIDEBAR
+   ========================================= */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc;
+    color: #1f2937;
+    overflow: hidden;
+}
+
+.layout {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background: #1e293b;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+.sidebar-title {
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    letter-spacing: 0.5px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: #cbd5e1;
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+    display: block;
+    font-weight: 500;
+}
+
+    .nav-item:hover {
+        background: #334155;
+        color: white;
+    }
+
+    .nav-item.active {
+        background: #2563eb;
+        color: white;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    }
+
+.profile-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid transparent;
+    transition: 0.3s;
+}
+
+    .profile-box.not-verified {
+        border-color: #94a3b8;
+    }
+
+.profile-img-wrapper {
+    position: relative;
+}
+
+.profile-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e5e7eb;
+}
+
+.profile-info {
+    color: white;
+}
+
+.profile-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.profile-status {
+    font-size: 12px;
+    opacity: 0.9;
+    color: #94a3b8;
+}
+
+.message-link {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.message-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.logout-btn {
+    width: 100%;
+    background: rgba(220, 38, 38, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+    .logout-btn:hover {
+        background: #dc2626;
+        color: white;
+    }
+
+/* =========================================
+   2. MAIN CONTENT AREA
+   ========================================= */
+.main-content {
+    flex: 1;
+    padding: 50px;
+    overflow-y: auto;
+    background-color: #f8fafc;
+}
+
+.back-container {
+    margin-bottom: 25px;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    background: white;
+    color: #4b5563;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid #e2e8f0;
+    transition: 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+    .btn-back:hover {
+        background: #f1f5f9;
+        color: #111827;
+        border-color: #cbd5e1;
+        transform: translateX(-3px);
+    }
+
+/* =========================================
+   3. DETAIL CARD
+   ========================================= */
+.detail-card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+    padding: 40px;
+    border: 1px solid #f1f5f9;
+}
+
+/* Header Section (Title vs Action) */
+.detail-header-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+.header-text-area {
+    flex: 1;
+}
+
+.detail-category {
+    display: inline-block;
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+}
+
+.detail-title {
+    margin: 0 0 20px 0;
+    font-size: 32px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1.2;
+}
+
+/* Instructor Block */
+.instructor-block {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.instructor-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f1f5f9;
+    border: 2px solid #e2e8f0;
+}
+
+.instructor-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.instructor-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.instructor-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Action Area */
+.header-action-area {
+    background: #f8fafc;
+    padding: 25px;
+    border-radius: 14px;
+    min-width: 250px;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+}
+
+.price-box {
+    margin-bottom: 20px;
+}
+
+.detail-price {
+    font-size: 36px;
+    font-weight: 800;
+    color: #111827;
+}
+
+/* Dynamic Buttons */
+.btn-enroll-large {
+    width: 100%;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+}
+
+    .btn-enroll-large:hover {
+        background: #1d4ed8;
+        transform: translateY(-2px);
+    }
+
+.btn-goto-large {
+    width: 100%;
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+}
+
+    .btn-goto-large:hover {
+        background: #059669;
+        transform: translateY(-2px);
+    }
+
+/* Divider & Body */
+.divider {
+    border: 0;
+    height: 1px;
+    background: #e2e8f0;
+    margin: 40px 0;
+}
+
+.detail-body h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.description-text {
+    font-size: 16px;
+    color: #475569;
+    line-height: 1.8;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .detail-header-layout {
+        flex-direction: column;
+    }
+
+    .header-action-area {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
