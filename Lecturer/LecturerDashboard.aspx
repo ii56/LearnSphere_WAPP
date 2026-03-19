@@ -95,36 +95,42 @@
                     </asp:GridView>
                 </div>
 
-                <div class="quick-actions-section">
-                    <h3>Quick Actions</h3>
-                    <div class="quick-card-grid">
-                        <a href="CreateCourse.aspx" class="quick-card">
-                            <div class="quick-card-title">Create New Course</div>
-                            <div class="quick-card-desc">Add a new course to the platform</div>
-                        </a>
+<div class="quick-actions-section">
+    <h3>Quick Actions</h3>
+    <div class="quick-card-grid">
 
-                        <a href="ViewCourses.aspx" class="quick-card">
-                            <div class="quick-card-title">View All Courses</div>
-                            <div class="quick-card-desc">Manage and edit your courses</div>
-                        </a>
+        <!-- CREATE / CONTINUE -->
+        <a href="CreateCourse.aspx" class="quick-card">
+            <div class="quick-card-title">Create / Continue Course</div>
+            <div class="quick-card-desc">Start a new course or continue your draft</div>
+        </a>
 
-                        <a href="EditProfile.aspx" class="quick-card">
-                            <div class="quick-card-title">Edit Profile</div>
-                            <div class="quick-card-desc">Update your personal details</div>
-                        </a>
+        <!-- VIEW COURSES -->
+        <a href="ViewCourses.aspx" class="quick-card">
+            <div class="quick-card-title">Manage Courses</div>
+            <div class="quick-card-desc">Edit, publish, or delete your courses</div>
+        </a>
 
-                        <a href="../Chatbot/AdminChatbotKnowledge.aspx" class="quick-card">
-                            <div class="quick-card-title">Manage Chatbot</div>
-                            <div class="quick-card-desc">Add rules and data for chatbot
-                            </div>
-                        </a>
+        <!-- FORUMS -->
+        <a href="Forums.aspx" class="quick-card">
+            <div class="quick-card-title">Manage Forums</div>
+            <div class="quick-card-desc">Create and manage course discussions</div>
+        </a>
 
-                        <a href="MessageBox.aspx" class="quick-card">
-                            <div class="quick-card-title">Message Box</div>
-                            <div class="quick-card-desc">View your messages</div>
-                        </a>
-                    </div>
-                </div>
+        <!-- PROFILE -->
+        <a href="EditProfile.aspx" class="quick-card">
+            <div class="quick-card-title">Edit Profile</div>
+            <div class="quick-card-desc">Update your personal details</div>
+        </a>
+
+        <!-- MESSAGES -->
+        <a href="Message.aspx" class="quick-card">
+            <div class="quick-card-title">Messages</div>
+            <div class="quick-card-desc">Check and respond to messages</div>
+        </a>
+
+    </div>
+</div>
             </div>
         </div>
         

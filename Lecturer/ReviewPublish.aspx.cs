@@ -79,8 +79,8 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 // 🔐 Ownership check added
                 string query = @"SELECT coursename, description, price 
-                                 FROM Course 
-                                 WHERE courseid = @id AND lecturerid = @lecturerid";
+                 FROM Course 
+                 WHERE courseid = @id AND ownerid = @lecturerid";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -186,10 +186,9 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 con.Open();
 
-                // 🔐 Ownership check again (CRITICAL)
                 string query = @"UPDATE Course 
-                                 SET status = 1 
-                                 WHERE courseid = @id AND lecturerid = @lecturerid";
+                         SET status = 'Active' 
+                         WHERE courseid = @id AND ownerid = @lecturerid";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -201,17 +200,15 @@ namespace LearnSphere_WAPP.Lecturer
                     if (rowsAffected == 0)
                     {
                         lblMessage.Text = "❌ Unauthorized action.";
-                        lblMessage.ForeColor = System.Drawing.Color.Red;
                         return;
                     }
                 }
             }
 
-            // Clear session safely
             Session.Remove("CurrentCourseID");
 
-            // Success message (optional - will not show after redirect)
-            Response.Redirect("LecturerDashboard.aspx");
+            // 🔥 REDIRECT TO VIEW COURSES
+            Response.Redirect("ViewCourses.aspx");
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)

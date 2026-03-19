@@ -67,16 +67,17 @@ namespace LearnSphere_WAPP.Lecturer
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 string query = @"
-                            SELECT courseid, coursename, category, price,
-                            CASE 
-                                WHEN status = 0 THEN 'Draft'
-                                WHEN status = 1 THEN 'Published'
-                                ELSE 'Unknown'
-                            END AS statusText
-                            FROM Course
-                            WHERE ownerid = @id
-                            AND deletiontime IS NULL
-                        ";
+SELECT courseid, coursename, category, price,
+    CASE 
+        WHEN status = 'Active' THEN 'Published'
+        WHEN status = 'Unactive' THEN 'Draft'
+        WHEN status = 'Deleted' THEN 'Deleted'
+        ELSE 'Unknown'
+    END AS statusText
+FROM Course
+WHERE ownerid = @id
+AND deletiontime IS NULL
+";
 
                 List<SqlParameter> parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("@id", lecturerId));

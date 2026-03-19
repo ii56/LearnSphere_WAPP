@@ -272,7 +272,7 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void btnCancel_Click(object sender, EventArgs e)
         {
-            Response.Redirect("ViewQuestion.aspx?postid=" + questionId);
+            Response.Redirect("ViewForum.aspx?postid=" + questionId);
         }
 
 

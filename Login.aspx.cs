@@ -36,8 +36,8 @@ namespace LearnSphere_WAPP
                     con.Open();
 
                     string query = @"SELECT userid, uname, pwd, usertype 
-                             FROM [User] 
-                             WHERE uname = @uname AND status = 1";
+                 FROM [User] 
+                 WHERE uname = @uname AND status = 'Active'";
 
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());

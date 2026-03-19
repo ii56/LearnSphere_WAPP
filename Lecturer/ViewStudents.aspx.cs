@@ -77,29 +77,29 @@ namespace LearnSphere_WAPP.Lecturer
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 string query = @"
-    SELECT DISTINCT 
-        u.userid,
-        u.uname,
-        u.fname,
-        u.lname,
-        u.email,
-        u.age,
-        u.gender,
-        i.creationtime AS EnrolledOn
-    FROM Invoice i
-    INNER JOIN Course c ON i.courseid = c.courseid
-    INNER JOIN [User] u ON i.userid = u.userid
-    LEFT JOIN Receipt r ON i.invid = r.invid
-    WHERE i.courseid = @courseId
-      AND u.usertype = 'Student'
-      AND u.deletiontime IS NULL
-      AND u.status = 1
-      AND (
-            c.price = 0
-            OR
-            (c.price > 0 AND r.invid IS NOT NULL)
-          )
-";
+            SELECT DISTINCT
+                u.userid,
+                u.uname,
+                u.fname,
+                u.lname,
+                u.email,
+                u.age,
+                u.gender,
+                e.enrolldate AS EnrolledOn
+            FROM Enrollment e
+            INNER JOIN Course c  ON e.courseid = c.courseid
+            INNER JOIN [User] u  ON e.userid   = u.userid
+            LEFT  JOIN Invoice i ON e.userid   = i.userid AND e.courseid = i.courseid
+            LEFT  JOIN Receipt r ON i.invid    = r.invid
+            WHERE e.courseid  = @courseId
+              AND e.isactive  = 1
+              AND u.usertype  = 'Student'
+              AND u.deletiontime IS NULL
+              AND u.status    = 1
+              AND (
+                    c.price = 0
+                    OR (c.price > 0 AND r.invid IS NOT NULL)
+                  )";
 
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@courseId", courseId);
@@ -146,26 +146,31 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 con.Open();
 
+                // Remove from Enrollment table
+                SqlCommand deleteEnrollment = new SqlCommand(
+                    "DELETE FROM Enrollment WHERE userid=@uid AND courseid=@cid", con);
+                deleteEnrollment.Parameters.AddWithValue("@uid", userId);
+                deleteEnrollment.Parameters.AddWithValue("@cid", courseId);
+                deleteEnrollment.ExecuteNonQuery();
+
+                // Also clean up Invoice/Receipt if they exist
                 string getInvoiceQuery = "SELECT invid FROM Invoice WHERE userid=@uid AND courseid=@cid";
                 SqlCommand getCmd = new SqlCommand(getInvoiceQuery, con);
                 getCmd.Parameters.AddWithValue("@uid", userId);
                 getCmd.Parameters.AddWithValue("@cid", courseId);
 
                 object invoiceIdObj = getCmd.ExecuteScalar();
-
                 if (invoiceIdObj != null)
                 {
                     int invoiceId = Convert.ToInt32(invoiceIdObj);
 
-                    SqlCommand deleteReceipt = new SqlCommand(
-                        "DELETE FROM Receipt WHERE invid=@invid", con);
-                    deleteReceipt.Parameters.AddWithValue("@invid", invoiceId);
-                    deleteReceipt.ExecuteNonQuery();
+                    new SqlCommand("DELETE FROM Receipt WHERE invid=@invid", con)
+                    { Parameters = { new SqlParameter("@invid", invoiceId) } }
+                        .ExecuteNonQuery();
 
-                    SqlCommand deleteInvoice = new SqlCommand(
-                        "DELETE FROM Invoice WHERE invid=@invid", con);
-                    deleteInvoice.Parameters.AddWithValue("@invid", invoiceId);
-                    deleteInvoice.ExecuteNonQuery();
+                    new SqlCommand("DELETE FROM Invoice WHERE invid=@invid", con)
+                    { Parameters = { new SqlParameter("@invid", invoiceId) } }
+                        .ExecuteNonQuery();
                 }
             }
 
@@ -255,28 +260,29 @@ namespace LearnSphere_WAPP.Lecturer
                 courseName = courseName.Replace(" ", "_");
 
                 string query = @"
-        SELECT DISTINCT 
-            u.userid AS [User ID],
-            u.uname AS [Username],
-            u.fname AS [First Name],
-            u.lname AS [Last Name],
-            u.email AS [Email],
-            u.age AS [Age],
-            u.gender AS [Gender],
-            i.creationtime AS [Enrolled On]
-        FROM Invoice i
-        INNER JOIN Course c ON i.courseid = c.courseid
-        INNER JOIN [User] u ON i.userid = u.userid
-        LEFT JOIN Receipt r ON i.invid = r.invid
-        WHERE i.courseid = @courseId
-          AND u.usertype = 'Student'
-          AND u.deletiontime IS NULL
-          AND u.status = 1
-          AND (
-                c.price = 0
-                OR
-                (c.price > 0 AND r.invid IS NOT NULL)
-              )";
+    SELECT DISTINCT
+        u.userid       AS [User ID],
+        u.uname        AS [Username],
+        u.fname        AS [First Name],
+        u.lname        AS [Last Name],
+        u.email        AS [Email],
+        u.age          AS [Age],
+        u.gender       AS [Gender],
+        e.enrolldate   AS [Enrolled On]
+    FROM Enrollment e
+    INNER JOIN Course c  ON e.courseid = c.courseid
+    INNER JOIN [User] u  ON e.userid   = u.userid
+    LEFT  JOIN Invoice i ON e.userid   = i.userid AND e.courseid = i.courseid
+    LEFT  JOIN Receipt r ON i.invid    = r.invid
+    WHERE e.courseid  = @courseId
+      AND e.isactive  = 1
+      AND u.usertype  = 'Student'
+      AND u.deletiontime IS NULL
+      AND u.status    = 1
+      AND (
+            c.price = 0
+            OR (c.price > 0 AND r.invid IS NOT NULL)
+          )";
 
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@courseId", courseId);

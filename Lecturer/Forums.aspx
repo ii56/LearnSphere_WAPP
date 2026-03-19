@@ -70,7 +70,33 @@
         <div class="main-content">
 
             <h2>Manage Course Forums</h2>
+            <div class="filter-bar">
 
+    <!-- SEARCH -->
+    <asp:TextBox ID="txtSearch" runat="server"
+        CssClass="modern-input filter-input"
+        Placeholder="Search course name..." />
+
+    <!-- FORUM STATUS FILTER -->
+    <asp:DropDownList ID="ddlForumStatus" runat="server"
+        CssClass="modern-input filter-input">
+        <asp:ListItem Value="">All Forums</asp:ListItem>
+        <asp:ListItem Value="1">Has Forum</asp:ListItem>
+        <asp:ListItem Value="0">No Forum</asp:ListItem>
+    </asp:DropDownList>
+
+    <!-- BUTTONS -->
+    <asp:Button ID="btnFilter" runat="server"
+        Text="Apply Filter"
+        CssClass="btn-primary"
+        OnClick="btnFilter_Click" />
+
+    <asp:Button ID="btnReset" runat="server"
+        Text="Reset"
+        CssClass="btn-secondary"
+        OnClick="btnReset_Click" />
+
+</div>
             <!-- GRID -->
             <asp:GridView ID="gvCourses"
                           runat="server"

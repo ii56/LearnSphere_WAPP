@@ -73,11 +73,12 @@
                         <asp:ListItem>Machine Learning</asp:ListItem>
                     </asp:DropDownList>
 
-                    <asp:DropDownList ID="ddlStatus" runat="server" CssClass="modern-input filter-input">
-                        <asp:ListItem Value="">All Status</asp:ListItem>
-                        <asp:ListItem Value="1">Published</asp:ListItem>
-                        <asp:ListItem Value="0">Draft</asp:ListItem>
-                    </asp:DropDownList>
+<asp:DropDownList ID="ddlStatus" runat="server" CssClass="modern-input filter-input">
+    <asp:ListItem Value="">All Status</asp:ListItem>
+    <asp:ListItem Value="Active">Published</asp:ListItem>
+    <asp:ListItem Value="Unactive">Draft</asp:ListItem>
+    <asp:ListItem Value="Deleted">Deleted</asp:ListItem>
+</asp:DropDownList>
 
                     <asp:TextBox ID="txtMinPrice" runat="server" CssClass="modern-input filter-input" 
                         Placeholder="Min Price" />
