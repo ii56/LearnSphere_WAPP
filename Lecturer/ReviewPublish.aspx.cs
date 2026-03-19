@@ -202,6 +202,7 @@ namespace LearnSphere_WAPP.Lecturer
                         lblMessage.Text = "❌ Unauthorized action.";
                         return;
                     }
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Publish Course (CourseID: " + courseId + ")");
                 }
             }
 
@@ -215,6 +216,7 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("~/Login.aspx");
         }
 

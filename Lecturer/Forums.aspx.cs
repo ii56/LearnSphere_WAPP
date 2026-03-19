@@ -206,6 +206,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                     lblMessage.ForeColor = System.Drawing.Color.Green;
                     lblMessage.Text = "Forum deleted successfully.";
+                    LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Deleted Forum (ForumID: " + forumId + ")");
                 }
             }
             catch
@@ -218,6 +219,7 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Session.Clear();
             Session.Abandon();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout System");
             Response.Redirect("~/Login.aspx");
         }
 

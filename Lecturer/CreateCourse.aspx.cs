@@ -186,6 +186,7 @@ namespace LearnSphere_WAPP.Lecturer
                         cmd.Parameters.AddWithValue("@category", category);
 
                         cmd.ExecuteNonQuery();
+                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Created Course (CourseName: " + courseName + ")");
                     }
                 }
 
@@ -217,6 +218,7 @@ namespace LearnSphere_WAPP.Lecturer
             Session.Clear();
             Session.Abandon();
 
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Cookies.Add(new HttpCookie("ASP.NET_SessionId", ""));
             Response.Redirect("~/Login.aspx");
         }
