@@ -35,31 +35,27 @@ namespace LearnSphere_WAPP
                 {
                     con.Open();
 
-                    string query = @"SELECT userid, uname, pwd, usertype 
-FROM [User] 
-WHERE LOWER(uname) = LOWER(@uname) AND status = 'Active'";
+                    // 🔥 CHECK USERNAME + PASSWORD DIRECTLY
+                    string query = @"SELECT userid, uname, usertype 
+                             FROM [User] 
+                             WHERE LOWER(uname) = LOWER(@uname) 
+                             AND pwd = @pwd 
+                             AND status = 'Active'";
 
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
+                    cmd.Parameters.AddWithValue("@pwd", pwd.Text.Trim());
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     if (reader.Read())
                     {
-                        string storedHash = reader["pwd"].ToString();
+                        // ✅ LOGIN SUCCESS
+                        Session["userid"] = reader["userid"];
+                        Session["uname"] = reader["uname"];
+                        Session["usertype"] = reader["usertype"];
 
-                        if (BCrypt.Net.BCrypt.Verify(pwd.Text.Trim(), storedHash))
-                        {
-                            Session["userid"] = reader["userid"];
-                            Session["uname"] = reader["uname"];
-                            Session["usertype"] = reader["usertype"];
-
-                            RedirectUser(reader["usertype"].ToString());
-                        }
-                        else
-                        {
-                            errMsg.Text = "Invalid username or password.";
-                        }
+                        RedirectUser(reader["usertype"].ToString());
                     }
                     else
                     {

@@ -82,7 +82,7 @@ namespace LearnSphere_WAPP.GeneralUser
                     SELECT c.courseid, c.coursename, c.description, c.category 
                     FROM Course c
                     INNER JOIN Invoice i ON c.courseid = i.courseid
-                    WHERE i.userid = @UserId AND c.status = 1 AND c.deletiontime IS NULL";
+                    WHERE i.userid = @UserId AND c.status = 'Active' AND c.deletiontime IS NULL";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -117,7 +117,7 @@ namespace LearnSphere_WAPP.GeneralUser
                 string query = @"
                     SELECT TOP 4 courseid, coursename, description, price, category 
                     FROM Course 
-                    WHERE status = 1 AND deletiontime IS NULL AND price = 0
+                    WHERE status = 'Active' AND deletiontime IS NULL AND price = 0
                     AND courseid NOT IN (SELECT courseid FROM Invoice WHERE userid = @UserId)
                     ORDER BY creationtime DESC";
 

@@ -46,7 +46,7 @@ namespace LearnSphere_WAPP.GeneralUser
                         FROM Course c
                         INNER JOIN [User] u ON c.ownerid = u.userid
                         LEFT JOIN Invoice inv ON c.courseid = inv.courseid AND inv.userid = @UserId
-                        WHERE c.courseid = @CourseId AND c.status = 1 AND c.deletiontime IS NULL";
+                        WHERE c.courseid = @CourseId AND c.status = 'Active' AND c.deletiontime IS NULL";
 
                     using (SqlCommand cmd = new SqlCommand(query, con))
                     {
@@ -187,7 +187,7 @@ namespace LearnSphere_WAPP.GeneralUser
                     }
 
                     // 3. AUTO-UPGRADE LOGIC (General -> Student)
-                    if (currentRole == "General" || currentRole == "General User")
+                    if (amount>0)
                     {
                         // A. Update the User table
                         using (SqlCommand roleCmd = new SqlCommand("UPDATE [User] SET usertype = 'Student' WHERE userid = @uid", con))

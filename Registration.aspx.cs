@@ -42,7 +42,7 @@ namespace LearnSphere_WAPP
 
                 string query = "SELECT COUNT(*) FROM [User] WHERE uname=@uname";
                 SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text.Trim();
+                cmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text;
 
                 int count = (int)cmd.ExecuteScalar();
 
@@ -82,6 +82,9 @@ namespace LearnSphere_WAPP
                 return;
             }
 
+            ViewState["password"] = pwd.Text;
+            ViewState["email"] = email.Text;
+
             errMsg.Text = "";
             ShowStep(3);
         }
@@ -100,7 +103,6 @@ namespace LearnSphere_WAPP
         // ================= REGISTER =================
         protected void btnRegister_Click(object sender, EventArgs e)
         {
-            // 🔐 BASIC VALIDATION
             if (string.IsNullOrWhiteSpace(fname.Text) ||
                 string.IsNullOrWhiteSpace(lname.Text) ||
                 string.IsNullOrWhiteSpace(age.Text) ||
@@ -123,10 +125,10 @@ namespace LearnSphere_WAPP
                 {
                     con.Open();
 
-                    // 🔥 FINAL USERNAME CHECK (race condition protection)
+                    // FINAL USERNAME CHECK
                     string checkQuery = "SELECT COUNT(*) FROM [User] WHERE uname=@uname";
                     SqlCommand checkCmd = new SqlCommand(checkQuery, con);
-                    checkCmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text.Trim();
+                    checkCmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text;
 
                     int exists = (int)checkCmd.ExecuteScalar();
 
@@ -137,10 +139,10 @@ namespace LearnSphere_WAPP
                         return;
                     }
 
-                    // 🔐 HASH PASSWORD
-                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(pwd.Text);
+                    string plainPassword = ViewState["password"]?.ToString();
+                    string emailValue = ViewState["email"]?.ToString();
 
-                    // 🔐 INSERT USER
+                    // INSERT USER
                     string query = @"INSERT INTO [User]
                     (uname, email, pwd, fname, lname, age, gender, creationtime, deletiontime, usertype, status)
                     VALUES
@@ -148,26 +150,23 @@ namespace LearnSphere_WAPP
 
                     SqlCommand cmd = new SqlCommand(query, con);
 
-                    cmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text.Trim();
-                    cmd.Parameters.Add("@email", SqlDbType.NVarChar, 100).Value = email.Text.Trim();
-                    cmd.Parameters.Add("@pwd", SqlDbType.NVarChar).Value = hashedPassword;
+                    cmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text;
+                    cmd.Parameters.Add("@email", SqlDbType.NVarChar, 100).Value = email.Text;
+                    cmd.Parameters.Add("@pwd", SqlDbType.NVarChar).Value = plainPassword;
 
-                    cmd.Parameters.Add("@fname", SqlDbType.NVarChar, 50).Value = fname.Text.Trim();
-                    cmd.Parameters.Add("@lname", SqlDbType.NVarChar, 50).Value = lname.Text.Trim();
+                    cmd.Parameters.Add("@fname", SqlDbType.NVarChar, 50).Value = fname.Text;
+                    cmd.Parameters.Add("@lname", SqlDbType.NVarChar, 50).Value = lname.Text;
 
                     cmd.Parameters.Add("@age", SqlDbType.Int).Value = ageValue;
                     cmd.Parameters.Add("@gender", SqlDbType.NVarChar, 10).Value = gender.SelectedValue;
 
                     cmd.Parameters.Add("@creationtime", SqlDbType.DateTime).Value = DateTime.Now;
 
-                    // 🔥 DEFAULT ROLE
-                    cmd.Parameters.Add("@usertype", SqlDbType.NVarChar, 20).Value = "Public";
-
+                    cmd.Parameters.Add("@usertype", SqlDbType.NVarChar, 20).Value = "General";
                     cmd.Parameters.Add("@status", SqlDbType.NVarChar, 20).Value = "Active";
 
                     cmd.ExecuteNonQuery();
 
-                    // ✅ SUCCESS
                     Session["RegistrationSuccess"] = "Registration successful! Please login.";
                     Response.Redirect("Login.aspx");
                 }
