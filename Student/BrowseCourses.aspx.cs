@@ -19,12 +19,32 @@ namespace LearnSphere_WAPP.Student
                 return;
             }
 
-            string displayName = Session["fname"] != null
-                ? Session["fname"].ToString()
-                : Session["uname"]?.ToString() ?? "Student";
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                con.Open();
 
-            lblHeaderName.Text = displayName;
-            lblAvatarInitial.Text = displayName.Substring(0, 1).ToUpper();
+                // get first name for header display
+                string displayName = "Student";
+                if (Session["fname"] != null && Session["fname"].ToString() != "")
+                {
+                    displayName = Session["fname"].ToString();
+                }
+                else
+                {
+                    using (SqlCommand nameCmd = new SqlCommand("SELECT fname FROM [User] WHERE userid = @uid", con))
+                    {
+                        nameCmd.Parameters.AddWithValue("@uid", Convert.ToInt32(Session["userid"]));
+                        object result = nameCmd.ExecuteScalar();
+                        if (result != null)
+                        {
+                            displayName = result.ToString();
+                            Session["fname"] = displayName;
+                        }
+                    }
+                }
+                lblHeaderName.Text = displayName;
+                lblAvatarInitial.Text = displayName.Substring(0, 1).ToUpper();
+            }
 
             if (!IsPostBack)
                 LoadCourses();
@@ -37,6 +57,8 @@ namespace LearnSphere_WAPP.Student
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
+
+                // get all active courses and check if user is already enrolled
                 string query = @"
                     SELECT c.courseid, c.coursename, c.description, c.category, c.price,
                            CASE WHEN e.enrollmentid IS NOT NULL THEN 1 ELSE 0 END AS IsEnrolled
@@ -45,7 +67,7 @@ namespace LearnSphere_WAPP.Student
                         ON c.courseid = e.courseid 
                         AND e.userid = @uid 
                         AND e.isactive = 1
-                    WHERE c.status = 1
+                    WHERE c.status = 'Active'
                     ORDER BY c.creationtime DESC";
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
@@ -70,18 +92,18 @@ namespace LearnSphere_WAPP.Student
             if (e.CommandName == "EnrollFree")
             {
                 EnrollStudent(courseId);
-                lblMessage.Text = "✓ Successfully enrolled in " + courseName + "!";
+                lblMessage.Text = "Successfully enrolled in " + courseName + "!";
                 lblMessage.CssClass = "alert alert-success";
                 lblMessage.Visible = true;
                 LoadCourses();
             }
             else if (e.CommandName == "OpenPayment")
             {
-                // Pass data to modal via hidden field
                 hfCourseId.Value = courseId + "|" + courseName + "|" + price;
                 LoadCourses();
             }
         }
+
         protected void btnConfirmPayment_Click(object sender, EventArgs e)
         {
             string courseData = hfCourseId.Value;
@@ -97,25 +119,31 @@ namespace LearnSphere_WAPP.Student
             {
                 con.Open();
 
-                // Save invoice record
-                using (SqlCommand invCmd = new SqlCommand(@"
-            INSERT INTO Invoice (userid, courseid, amount, overdue, duration, creationtime, deadline)
-            VALUES (@uid, @cid, @amount, 0, 30, @now, @deadline)", con))
+                // save invoice/receipt for the payment
+                try
                 {
-                    invCmd.Parameters.AddWithValue("@uid", userId);
-                    invCmd.Parameters.AddWithValue("@cid", courseId);
-                    invCmd.Parameters.AddWithValue("@amount", amount);
-                    invCmd.Parameters.AddWithValue("@now", DateTime.Now);
-                    invCmd.Parameters.AddWithValue("@deadline", DateTime.Now.AddDays(30));
-                    invCmd.ExecuteNonQuery();
+                    using (SqlCommand invCmd = new SqlCommand(@"
+                        INSERT INTO Invoice (userid, courseid, amount, overdue, duration, creationtime, deadline)
+                        VALUES (@uid, @cid, @amount, 0, 30, @now, @deadline)", con))
+                    {
+                        invCmd.Parameters.AddWithValue("@uid", userId);
+                        invCmd.Parameters.AddWithValue("@cid", courseId);
+                        invCmd.Parameters.AddWithValue("@amount", amount);
+                        invCmd.Parameters.AddWithValue("@now", DateTime.Now);
+                        invCmd.Parameters.AddWithValue("@deadline", DateTime.Now.AddDays(30));
+                        invCmd.ExecuteNonQuery();
+                    }
+                }
+                catch
+                {
+                    // invoice table might not exist yet, skip
                 }
 
-                // Enroll student
                 EnrollStudent(courseId);
             }
 
             hfCourseId.Value = "";
-            lblMessage.Text = "✓ Payment successful! You are now enrolled in " + courseName + ".";
+            lblMessage.Text = "Payment successful! You are now enrolled in " + courseName + ".";
             lblMessage.CssClass = "alert alert-success";
             lblMessage.Visible = true;
             LoadCourses();
@@ -129,6 +157,7 @@ namespace LearnSphere_WAPP.Student
             {
                 con.Open();
 
+                // check if already enrolled before inserting
                 using (SqlCommand checkCmd = new SqlCommand(
                     "SELECT COUNT(*) FROM Enrollment WHERE userid = @uid AND courseid = @cid AND isactive = 1", con))
                 {

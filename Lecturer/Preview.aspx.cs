@@ -50,7 +50,7 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 string query = @"SELECT COUNT(*) FROM Course
                                  WHERE courseid=@id
-                                 AND status=1
+                                 AND status='Active'
                                  AND deletiontime IS NULL";
 
                 SqlCommand cmd = new SqlCommand(query, con);

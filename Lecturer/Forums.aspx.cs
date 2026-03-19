@@ -67,14 +67,38 @@ namespace LearnSphere_WAPP.Lecturer
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
                     string query = @"
-                        SELECT c.courseid, c.coursename,
-                        CASE WHEN f.forumid IS NULL THEN 0 ELSE 1 END AS HasForum
-                        FROM Course c
-                        LEFT JOIN CourseForum f ON c.courseid = f.courseid
-                        WHERE c.ownerid = @uid";
+            SELECT c.courseid, c.coursename,
+            CASE WHEN f.forumid IS NULL THEN 0 ELSE 1 END AS HasForum
+            FROM Course c
+            LEFT JOIN CourseForum f ON c.courseid = f.courseid
+            WHERE c.ownerid = @uid
+            AND c.status = 'Active'";
+
+                    List<SqlParameter> parameters = new List<SqlParameter>();
+                    parameters.Add(new SqlParameter("@uid", userId));
+
+                    // 🔍 SEARCH FILTER
+                    if (!string.IsNullOrEmpty(txtSearch.Text))
+                    {
+                        query += " AND c.coursename LIKE @search";
+                        parameters.Add(new SqlParameter("@search", "%" + txtSearch.Text.Trim() + "%"));
+                    }
+
+                    // 🔽 FORUM STATUS FILTER
+                    if (!string.IsNullOrEmpty(ddlForumStatus.SelectedValue))
+                    {
+                        query += " AND (CASE WHEN f.forumid IS NULL THEN 0 ELSE 1 END) = @forumStatus";
+                        parameters.Add(new SqlParameter("@forumStatus", ddlForumStatus.SelectedValue));
+                    }
+
+                    query += " ORDER BY c.coursename";
 
                     SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+
+                    foreach (var param in parameters)
+                    {
+                        cmd.Parameters.Add(param);
+                    }
 
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
@@ -195,6 +219,19 @@ namespace LearnSphere_WAPP.Lecturer
             Session.Clear();
             Session.Abandon();
             Response.Redirect("~/Login.aspx");
+        }
+
+        protected void btnFilter_Click(object sender, EventArgs e)
+        {
+            LoadCourses();
+        }
+
+        protected void btnReset_Click(object sender, EventArgs e)
+        {
+            txtSearch.Text = "";
+            ddlForumStatus.SelectedIndex = 0;
+
+            LoadCourses();
         }
     }
 }

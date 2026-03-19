@@ -160,60 +160,18 @@
                             </asp:Repeater>
 
                         </div>
-
-                        <!-- MODULE EXAM -->
-                        <asp:Panel runat="server" Visible='<%# Eval("HasExam") %>'>
-
-                            <div class="review-divider"></div>
-
-                            <div class="module-exam">
-                                <strong>Module Exam:</strong>
-                                <%# Server.HtmlEncode(Eval("ExamTitle").ToString()) %>
-
-                                <br />
-                                Questions: <%# Server.HtmlEncode(Eval("QuestionCount").ToString()) %>
-                            </div>
-
-                        </asp:Panel>
-
                     </div>
 
                 </ItemTemplate>
             </asp:Repeater>
 
-
-            <div class="review-divider"></div>
-
-            <!-- COURSE EXAM -->
-            <asp:Panel ID="pnlCourseExam" runat="server" Visible="false">
-
-                <h3 class="review-section-title">Course Exam</h3>
-
-                <div class="module-card">
-
-                    <div class="module-title">
-                        <asp:Label ID="lblCourseExamTitle" runat="server" />
-                    </div>
-
-                    <div class="lesson-item">
-                        Total Questions:
-                        <asp:Label ID="lblCourseExamQuestions" runat="server" />
-                    </div>
-
-                </div>
-
-            </asp:Panel>
-
-
             <!-- ACTION BUTTONS -->
             <div class="review-actions">
-
-<asp:Button ID="btnPublish"
+                <asp:Button ID="btnPublish"
     runat="server"
     Text="Publish Course"
     CssClass="btn-modern"
-    OnClick="btnPublish_Click"
-OnClientClick="if(confirmPublish()){ this.value='Publishing...'; this.disabled=true; return true;} else {return false;}" />
+    OnClick="btnPublish_Click" />
 
                 <asp:Button ID="btnBackToLessons"
                     runat="server"
@@ -232,10 +190,5 @@ OnClientClick="if(confirmPublish()){ this.value='Publishing...'; this.disabled=t
 </div>
 
 </form>
-    <script>
-function confirmPublish() {
-    return window.confirm("🚀 Publish Course?\n\nThis will make your course live.");
-}
-    </script>
 </body>
 </html>
