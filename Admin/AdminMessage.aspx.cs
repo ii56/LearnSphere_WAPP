@@ -387,6 +387,7 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout System");
             Session.Clear();
             Session.Abandon();
             Response.Redirect("~/Login.aspx");

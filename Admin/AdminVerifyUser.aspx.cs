@@ -107,6 +107,15 @@ namespace LearnSphere_WAPP.Admin
             cmd.Parameters.AddWithValue("@userid", userId);
 
             con.Open();
+            if (newStatus == "Approved")
+            {
+                string query2 = @"UPDATE [User] SET usertype = 'Lecturer' WHERE userid = @userid";
+                SqlCommand cmd2 = new SqlCommand(query2, con);
+                cmd2.Parameters.AddWithValue("@userid", userId);
+                cmd2.ExecuteNonQuery();
+
+            }
+            
             cmd.ExecuteNonQuery();
             con.Close();
 
@@ -115,9 +124,9 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Session.Abandon();
             Request.Cookies.Clear();
-            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
     }
