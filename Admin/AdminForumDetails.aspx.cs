@@ -319,15 +319,6 @@ ORDER BY p.creationtime ASC";
             Response.Redirect("../Login.aspx");
         }
 
-        // 🔐 CHECK IF USER OWNS POST
-        protected bool IsOwner(object postUserIdObj)
-        {
-            if (postUserIdObj == null) return false;
-
-            int postUserId = Convert.ToInt32(postUserIdObj);
-            return postUserId == userId;
-        }
-
         private void HandleVote(int postId, int voteType)
         {
             using (SqlConnection conn = new SqlConnection(connStr))

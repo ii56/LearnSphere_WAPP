@@ -98,8 +98,19 @@
 
                         <div class="card-actions">
 
+                            <asp:LinkButton 
+                                ID="btnDelete" 
+                                runat="server" 
+                                CssClass="btn-danger"
+                                CommandName="Delete"
+                                CommandArgument='<%# Eval("postid") %>'
+                                OnClientClick="return confirm('Are you sure you want to delete this post?');">
+                                Delete
+                            </asp:LinkButton>
+
                             <a class="btn-view"
-                               href='AdminForumDetails.aspx?postid=<%# Eval("postid") %>&courseid=<%# Request.QueryString["courseid"] %>'
+                               href='AdminForumDetails.aspx?postid=<%# Eval("postid") %>&courseid=<%# Request.QueryString["courseid"] %>'>
+                                Details
                             </a>
 
                             <a class="btn-comment"
