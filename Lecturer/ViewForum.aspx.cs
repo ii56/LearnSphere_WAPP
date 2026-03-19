@@ -199,7 +199,7 @@ ORDER BY p.creationtime DESC";
             {
                 conn.Open();
 
-                // 🔍 Check if user already voted
+                // Check if user already voted
                 string checkQuery = "SELECT votetype FROM ForumVote WHERE postid=@pid AND userid=@uid";
                 SqlCommand checkCmd = new SqlCommand(checkQuery, conn);
                 checkCmd.Parameters.AddWithValue("@pid", postId);
@@ -213,7 +213,7 @@ ORDER BY p.creationtime DESC";
 
                     if (currentVote == voteType)
                     {
-                        // 🔥 Same vote clicked again → REMOVE vote
+                        // Same vote clicked again → REMOVE vote
                         string deleteQuery = "DELETE FROM ForumVote WHERE postid=@pid AND userid=@uid";
                         SqlCommand delCmd = new SqlCommand(deleteQuery, conn);
                         delCmd.Parameters.AddWithValue("@pid", postId);
@@ -222,7 +222,7 @@ ORDER BY p.creationtime DESC";
                     }
                     else
                     {
-                        // 🔥 Change vote (like ↔ dislike)
+                        //  Change vote (like ↔ dislike)
                         string updateQuery = "UPDATE ForumVote SET votetype=@type WHERE postid=@pid AND userid=@uid";
                         SqlCommand updateCmd = new SqlCommand(updateQuery, conn);
                         updateCmd.Parameters.AddWithValue("@type", voteType);
@@ -233,7 +233,7 @@ ORDER BY p.creationtime DESC";
                 }
                 else
                 {
-                    // 🔥 Insert new vote
+                    // Insert new vote
                     string insertQuery = @"INSERT INTO ForumVote(postid, userid, votetype)
                                   VALUES(@pid, @uid, @type)";
                     SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
@@ -244,7 +244,7 @@ ORDER BY p.creationtime DESC";
                 }
             }
 
-            // 🔥 Refresh UI
+            //  Refresh UI
             LoadQuestions();
         }
     }

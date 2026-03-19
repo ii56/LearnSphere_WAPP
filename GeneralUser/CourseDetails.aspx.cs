@@ -169,7 +169,7 @@ namespace LearnSphere_WAPP.GeneralUser
                     {
                         checkCmd.Parameters.AddWithValue("@uid", userId);
                         checkCmd.Parameters.AddWithValue("@cid", courseId);
-                        if ((int)checkCmd.ExecuteScalar() > 0) return; // Already enrolled
+                        if ((int)checkCmd.ExecuteScalar() > 0) return; 
                     }
 
                     // 2. Insert Invoice (Payment Record)
@@ -213,10 +213,9 @@ namespace LearnSphere_WAPP.GeneralUser
                         Session.Clear();
                         Session.Abandon();
 
-                        // Redirect to login page. You could optionally add a query string here (e.g., ?status=upgraded) 
                         // to show a success message on the login screen.
                         Response.Redirect("~/Login.aspx");
-                        return; // Stop execution so it doesn't try to update the UI below
+                        return;
                     }
                 }
 

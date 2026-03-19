@@ -18,14 +18,14 @@ namespace LearnSphere_WAPP.Lecturer
 
         protected void Page_Init(object sender, EventArgs e)
         {
-            // 🔐 CSRF Protection
+            // CSRF Protection
             if (Session["userid"] != null)
                 ViewStateUserKey = Session["userid"].ToString();
         }
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            // 🔐 AUTHENTICATION
+            // AUTHENTICATION
             if (Session["userid"] == null || Session["usertype"] == null ||
                 Session["usertype"].ToString() != "Lecturer")
             {
@@ -77,14 +77,14 @@ namespace LearnSphere_WAPP.Lecturer
                     List<SqlParameter> parameters = new List<SqlParameter>();
                     parameters.Add(new SqlParameter("@uid", userId));
 
-                    // 🔍 SEARCH FILTER
+                    // SEARCH FILTER
                     if (!string.IsNullOrEmpty(txtSearch.Text))
                     {
                         query += " AND c.coursename LIKE @search";
                         parameters.Add(new SqlParameter("@search", "%" + txtSearch.Text.Trim() + "%"));
                     }
 
-                    // 🔽 FORUM STATUS FILTER
+                    // FORUM STATUS FILTER
                     if (!string.IsNullOrEmpty(ddlForumStatus.SelectedValue))
                     {
                         query += " AND (CASE WHEN f.forumid IS NULL THEN 0 ELSE 1 END) = @forumStatus";
@@ -114,7 +114,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // 🔐 OWNERSHIP CHECK
+        // OWNERSHIP CHECK
         private bool IsCourseOwner(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -138,7 +138,7 @@ namespace LearnSphere_WAPP.Lecturer
             if (!int.TryParse(e.CommandArgument.ToString(), out int courseId) || courseId <= 0)
                 return;
 
-            // 🔐 AUTHORIZATION CHECK
+            // AUTHORIZATION CHECK
             if (!IsCourseOwner(courseId))
             {
                 lblMessage.Text = "Unauthorized action.";
@@ -170,7 +170,7 @@ namespace LearnSphere_WAPP.Lecturer
                 {
                     con.Open();
 
-                    // 🔐 Ensure forum exists
+                    // Ensure forum exists
                     string checkQuery = "SELECT forumid FROM CourseForum WHERE courseid=@cid";
 
                     SqlCommand checkCmd = new SqlCommand(checkQuery, con);
@@ -186,7 +186,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                     int forumId = Convert.ToInt32(forumIdObj);
 
-                    // 🔐 SAFE DELETE (soft delete posts)
+                    // SAFE DELETE (soft delete posts)
                     string deletePostsQuery = @"
                         UPDATE ForumPost
                         SET deletiontime = GETDATE()
@@ -196,7 +196,7 @@ namespace LearnSphere_WAPP.Lecturer
                     deletePostsCmd.Parameters.Add("@fid", SqlDbType.Int).Value = forumId;
                     deletePostsCmd.ExecuteNonQuery();
 
-                    // 🔐 DELETE FORUM
+                    // DLETE FORUM
                     string deleteForumQuery = "DELETE FROM CourseForum WHERE forumid=@fid";
 
                     SqlCommand deleteForumCmd = new SqlCommand(deleteForumQuery, con);
