@@ -138,7 +138,8 @@ namespace LearnSphere_WAPP
                     }
 
                     // 🔐 HASH PASSWORD
-                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(pwd.Text);
+                    string password = pwd.Text.Trim();
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
 
                     // 🔐 INSERT USER
                     string query = @"INSERT INTO [User]
