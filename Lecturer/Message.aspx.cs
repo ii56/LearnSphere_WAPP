@@ -47,24 +47,19 @@ namespace LearnSphere_WAPP.Lecturer
             set { ViewState["ConversationID"] = value; }
         }
 
-        // 🔐 PROFILE IMAGE
+        // ── PROFILE IMAGE ──────────────────────────────────────────────────────
         private void LoadSidebarProfileImage()
         {
-            if (Session["userid"] == null)
-                return;
+            if (Session["userid"] == null) return;
 
             int userId = Convert.ToInt32(Session["userid"]);
 
-            using (SqlConnection con = new SqlConnection(
-                ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString))
+            using (SqlConnection con = new SqlConnection(connStr))
             {
                 string query = "SELECT ProfileImage FROM [User] WHERE userid = @id";
-
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@id", userId);
-
                 con.Open();
-
                 object result = cmd.ExecuteScalar();
 
                 if (result != null && result != DBNull.Value)
@@ -80,7 +75,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // 🔐 CONVERSATION ACCESS
+        // ── CONVERSATION ACCESS CHECK ───────────────────────────────────────────
         private bool CanAccessConversation(int convId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -88,17 +83,15 @@ namespace LearnSphere_WAPP.Lecturer
                 string q = @"SELECT COUNT(*) FROM ChatConversation
                              WHERE conversationid=@cid
                              AND (userid=@uid OR SecondUserID=@uid)";
-
                 SqlCommand cmd = new SqlCommand(q, con);
                 cmd.Parameters.Add("@cid", SqlDbType.Int).Value = convId;
                 cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
-
                 con.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
         }
 
-        // 🔐 LOAD CONVERSATIONS
+        // ── LOAD CONVERSATIONS ─────────────────────────────────────────────────
         private void LoadConversations()
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -119,27 +112,49 @@ namespace LearnSphere_WAPP.Lecturer
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
-
                 conn.Open();
                 rptConversations.DataSource = cmd.ExecuteReader();
                 rptConversations.DataBind();
             }
         }
 
-        // 🔐 VIEW PROFILE (WITH AUTHORIZATION)
+        // ── GET DISPLAY NAME FOR A CONVERSATION ────────────────────────────────
+        // Used to update lblChatTitle when a conversation is opened
+        private string GetConversationPartnerName(int convId)
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string query = @"
+                    SELECT 
+                        CASE WHEN c.userid=@uid THEN (u2.fname + ' ' + u2.lname)
+                             ELSE (u1.fname + ' ' + u1.lname) END AS DisplayName
+                    FROM ChatConversation c
+                    LEFT JOIN [User] u1 ON c.userid  = u1.userid
+                    LEFT JOIN [User] u2 ON c.SecondUserID = u2.userid
+                    WHERE c.conversationid = @cid";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.Add("@cid", SqlDbType.Int).Value = convId;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
+                conn.Open();
+                object result = cmd.ExecuteScalar();
+                return result != null ? result.ToString() : "Conversation";
+            }
+        }
+
+        // ── VIEW PROFILE POPUP ─────────────────────────────────────────────────
         private void ShowProfile(int userID)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
-        SELECT fname + ' ' + lname AS FullName,
-               email, usertype, ProfileImage, Description, status
-        FROM [User]
-        WHERE userid=@id";
+                    SELECT fname + ' ' + lname AS FullName,
+                           email, usertype, ProfileImage, Description, status
+                    FROM [User]
+                    WHERE userid=@id";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = userID;
-
                 conn.Open();
                 SqlDataReader dr = cmd.ExecuteReader();
 
@@ -150,25 +165,32 @@ namespace LearnSphere_WAPP.Lecturer
                     lblProfileRole.Text = Server.HtmlEncode(dr["usertype"].ToString());
                     lblProfileDesc.Text = Server.HtmlEncode(dr["Description"].ToString());
 
-                    int status = dr["status"] != DBNull.Value ? Convert.ToInt32(dr["status"]) : 0;
-                    lblProfileStatus.Text = status == 1 ? "Active" : "Inactive";
+                    // Handle status whether stored as int (0/1) or string ("Active"/"Inactive")
+                    if (dr["status"] != DBNull.Value)
+                    {
+                        string rawStatus = dr["status"].ToString().Trim();
+                        int statusInt;
+                        if (int.TryParse(rawStatus, out statusInt))
+                            lblProfileStatus.Text = statusInt == 1 ? "Active" : "Inactive";
+                        else
+                            lblProfileStatus.Text = rawStatus; // already a readable string
+                    }
+                    else
+                    {
+                        lblProfileStatus.Text = "Unknown";
+                    }
 
                     string finalImageUrl = ResolveUrl("~/images/default-user.png");
 
                     if (dr["ProfileImage"] != DBNull.Value)
                     {
                         string path = dr["ProfileImage"].ToString().Trim();
-
                         if (!string.IsNullOrEmpty(path))
                         {
-                            if (path.StartsWith("~/"))
-                                finalImageUrl = ResolveUrl(path);
-                            else if (path.StartsWith("images/"))
-                                finalImageUrl = ResolveUrl("~/" + path);
-                            else if (path.StartsWith("http"))
-                                finalImageUrl = path;
-                            else
-                                finalImageUrl = ResolveUrl("~/images/" + path);
+                            if (path.StartsWith("~/")) finalImageUrl = ResolveUrl(path);
+                            else if (path.StartsWith("images/")) finalImageUrl = ResolveUrl("~/" + path);
+                            else if (path.StartsWith("http")) finalImageUrl = path;
+                            else finalImageUrl = ResolveUrl("~/images/" + path);
                         }
                     }
 
@@ -182,75 +204,66 @@ namespace LearnSphere_WAPP.Lecturer
                     else if (role == "student") imgProfileCard.CssClass += " avatar-student";
                     else imgProfileCard.CssClass += " avatar-public";
 
-                    lblVerifyBadge.Visible = role == "lecturer";
-
-                    // 🔥 IMPORTANT FIX
+                    lblVerifyBadge.Visible = (role == "lecturer");
                     profilePopup.Style["display"] = "flex";
                 }
             }
         }
 
-        // 🔐 OPEN CHAT
+        // ── OPEN CHAT (conversations repeater) ─────────────────────────────────
         protected void rptConversations_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
-            // ✅ ONLY handle ViewProfile when explicitly clicked
             if (e.CommandName == "ViewProfile")
             {
                 int userID;
-                if (!int.TryParse(e.CommandArgument.ToString(), out userID))
-                    return;
-
+                if (!int.TryParse(e.CommandArgument.ToString(), out userID)) return;
                 ShowProfile(userID);
-                return; // 🔥 STOP further execution
+                return;
             }
 
-            // ✅ ONLY handle OpenChat here
             if (e.CommandName == "OpenChat")
             {
                 int convId;
-                if (!int.TryParse(e.CommandArgument.ToString(), out convId))
-                    return;
-
-                if (!CanAccessConversation(convId))
-                    return;
+                if (!int.TryParse(e.CommandArgument.ToString(), out convId)) return;
+                if (!CanAccessConversation(convId)) return;
 
                 CurrentConversationID = convId;
+
+                // Update the chat header with the partner's name
+                lblChatTitle.Text = "💬 " + Server.HtmlEncode(GetConversationPartnerName(convId));
+
                 LoadMessages();
             }
         }
 
-        // 🔐 SEND MESSAGE
+        // ── SEND MESSAGE ───────────────────────────────────────────────────────
         protected void btnSend_Click(object sender, EventArgs e)
         {
             profilePopup.Style["display"] = "none";
+
             if (CurrentConversationID == 0 || !CanAccessConversation(CurrentConversationID))
                 return;
 
             string msg = Server.HtmlEncode(txtMessage.Text.Trim());
+            if (msg.Length == 0 || msg.Length > 1000) return;
 
-            if (msg.Length == 0 || msg.Length > 1000)
-                return;
-
+            // Rate-limit: 1 message per 2 seconds
             if (Session["lastMsgTime"] != null)
             {
                 DateTime last = (DateTime)Session["lastMsgTime"];
-                if ((DateTime.UtcNow - last).TotalSeconds < 2)
-                    return;
+                if ((DateTime.UtcNow - last).TotalSeconds < 2) return;
             }
-
             Session["lastMsgTime"] = DateTime.UtcNow;
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"INSERT INTO ChatMessage 
-                                (conversationid, role, content, SenderID)
-                                VALUES (@cid, 'User', @content, @sid)";
-
+                                 (conversationid, role, content, SenderID)
+                                 VALUES (@cid, 'User', @content, @sid)";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.Add("@cid", SqlDbType.Int).Value = CurrentConversationID;
                 cmd.Parameters.Add("@content", SqlDbType.NVarChar, 1000).Value = msg;
                 cmd.Parameters.Add("@sid", SqlDbType.Int).Value = CurrentUserID;
-
                 conn.Open();
                 cmd.ExecuteNonQuery();
             }
@@ -259,41 +272,40 @@ namespace LearnSphere_WAPP.Lecturer
             LoadMessages();
         }
 
-        // 🔐 LOAD MESSAGES
+        // ── LOAD MESSAGES ──────────────────────────────────────────────────────
         private void LoadMessages()
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
                     SELECT m.content, m.creationtime, m.SenderID, u.ProfileImage,
-                    CASE WHEN m.SenderID=@uid THEN 1 ELSE 0 END AS IsMine
+                           CASE WHEN m.SenderID=@uid THEN 1 ELSE 0 END AS IsMine
                     FROM ChatMessage m
-                    INNER JOIN [User] u ON m.SenderID=u.userid
-                    WHERE m.conversationid=@cid
+                    INNER JOIN [User] u ON m.SenderID = u.userid
+                    WHERE m.conversationid = @cid
                     ORDER BY m.creationtime ASC";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.Add("@cid", SqlDbType.Int).Value = CurrentConversationID;
                 cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
-
                 conn.Open();
                 rptMessages.DataSource = cmd.ExecuteReader();
                 rptMessages.DataBind();
             }
 
-            // 🔥 AUTO SCROLL
-            ScriptManager.RegisterStartupScript(this, GetType(), "scroll",
-                "setTimeout(function(){var chat=document.querySelector('.chat-messages'); if(chat){chat.scrollTop=chat.scrollHeight;}},100);",
+            // Scroll to bottom — uses ClientScript (no ScriptManager needed)
+            ClientScript.RegisterStartupScript(
+                this.GetType(),
+                "scrollChat",
+                "setTimeout(function(){ var c = document.querySelector('.chat-messages'); if(c) c.scrollTop = c.scrollHeight; }, 100);",
                 true);
         }
 
-        // 🔐 SEARCH USERS
+        // ── SEARCH USERS ───────────────────────────────────────────────────────
         protected void btnSearchUser_Click(object sender, EventArgs e)
         {
             string input = txtSearchUser.Text.Trim();
-
-            if (input.Length < 2)
-                return;
+            if (input.Length < 2) return;
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
@@ -306,46 +318,45 @@ namespace LearnSphere_WAPP.Lecturer
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.Add("@search", SqlDbType.NVarChar, 100).Value = "%" + input + "%";
                 cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
-
                 conn.Open();
                 rptSearchResults.DataSource = cmd.ExecuteReader();
                 rptSearchResults.DataBind();
             }
         }
 
-        // 🔐 START CHAT
+        // ── START CHAT (search results repeater) ──────────────────────────────
         protected void rptSearchResults_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
-            // 🔥 STRICT separation
-
             if (e.CommandName == "ViewProfile")
             {
                 int userID;
-                if (!int.TryParse(e.CommandArgument.ToString(), out userID))
-                    return;
-
+                if (!int.TryParse(e.CommandArgument.ToString(), out userID)) return;
                 ShowProfile(userID);
-                return; // 🔥 IMPORTANT
+                return;
             }
 
             if (e.CommandName == "StartChat")
             {
                 int targetId;
-                if (!int.TryParse(e.CommandArgument.ToString(), out targetId))
-                    return;
+                if (!int.TryParse(e.CommandArgument.ToString(), out targetId)) return;
 
                 int convId = GetOrCreateConversation(CurrentUserID, targetId);
-
                 CurrentConversationID = convId;
+
+                // Update the chat header with the partner's name
+                lblChatTitle.Text = "💬 " + Server.HtmlEncode(GetConversationPartnerName(convId));
+
                 LoadMessages();
                 LoadConversations();
 
+                // Clear search after starting chat
                 rptSearchResults.DataSource = null;
                 rptSearchResults.DataBind();
                 txtSearchUser.Text = "";
             }
         }
 
+        // ── GET OR CREATE CONVERSATION ─────────────────────────────────────────
         private int GetOrCreateConversation(int user1, int user2)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -355,29 +366,24 @@ namespace LearnSphere_WAPP.Lecturer
                 string check = @"SELECT conversationid FROM ChatConversation
                                  WHERE ConversationType='User'
                                  AND ((userid=@u1 AND SecondUserID=@u2)
-                                 OR (userid=@u2 AND SecondUserID=@u1))";
-
+                                  OR  (userid=@u2 AND SecondUserID=@u1))";
                 SqlCommand cmd = new SqlCommand(check, conn);
                 cmd.Parameters.Add("@u1", SqlDbType.Int).Value = user1;
                 cmd.Parameters.Add("@u2", SqlDbType.Int).Value = user2;
-
                 object res = cmd.ExecuteScalar();
+                if (res != null) return Convert.ToInt32(res);
 
-                if (res != null)
-                    return Convert.ToInt32(res);
-
-                string insert = @"INSERT INTO ChatConversation(userid,SecondUserID,ConversationType)
-                                  VALUES(@u1,@u2,'User');
+                string insert = @"INSERT INTO ChatConversation(userid, SecondUserID, ConversationType)
+                                  VALUES(@u1, @u2, 'User');
                                   SELECT SCOPE_IDENTITY();";
-
                 SqlCommand ins = new SqlCommand(insert, conn);
                 ins.Parameters.Add("@u1", SqlDbType.Int).Value = user1;
                 ins.Parameters.Add("@u2", SqlDbType.Int).Value = user2;
-
                 return Convert.ToInt32(ins.ExecuteScalar());
             }
         }
 
+        // ── LOGOUT ─────────────────────────────────────────────────────────────
         protected void btnLogout_Click(object sender, EventArgs e)
         {
             LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout System");
