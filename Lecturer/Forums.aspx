@@ -540,7 +540,7 @@
             <asp:Button ID="btnBackToList" runat="server" Text="← Back to Forums"
                 CssClass="btn-back" OnClick="btnBackToList_Click" CausesValidation="false" />
 
-            <!-- Forum meta: tags + Edit Forum button (only visible to the creator) -->
+            <!-- Forum meta: tags + Edit Forum button -->
             <div class="forum-info-card">
                 <div class="forum-info-row">
                     <div class="tags-row">

@@ -12,8 +12,6 @@ using System.Web.UI.WebControls;
 
 namespace LearnSphere_WAPP.Lecturer
 {
-    // Typed classes used by the review repeater — strongly typed so the nested
-    // repeater in the .aspx can data-bind without casting to dynamic
     public class ModuleView
     {
         public int moduleid { get; set; }
@@ -429,19 +427,40 @@ namespace LearnSphere_WAPP.Lecturer
             Response.Redirect("MakeExam.aspx?courseid=" + EditCourseId + "&edit=1");
         }
 
-        // Deletes the exam for this course — questions cascade via the DB foreign key
+        // Deletes all questions first then the exam itself — order matters due to the FK constraint
         protected void btnDeleteExam_Click(object sender, EventArgs e)
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                SqlCommand cmd = new SqlCommand(
-                    "DELETE FROM Exam WHERE courseid=@courseid", con);
-                cmd.Parameters.Add("@courseid", SqlDbType.Int).Value = EditCourseId;
                 con.Open();
-                cmd.ExecuteNonQuery();
-                LearnSphere_WAPP.Syslog.action(CurrentUserId, "Deleted Exam (CourseID: " + EditCourseId + ")");
+                SqlTransaction trans = con.BeginTransaction();
+                try
+                {
+                    // Must delete child rows before the parent or the FK will reject it
+                    new SqlCommand(
+                        "DELETE FROM ExamQuestion WHERE examid IN (SELECT examid FROM Exam WHERE courseid=@cid)",
+                        con, trans)
+                    { Parameters = { new SqlParameter("@cid", EditCourseId) } }
+                    .ExecuteNonQuery();
+
+                    new SqlCommand(
+                        "DELETE FROM Exam WHERE courseid=@cid",
+                        con, trans)
+                    { Parameters = { new SqlParameter("@cid", EditCourseId) } }
+                    .ExecuteNonQuery();
+
+                    trans.Commit();
+                    LearnSphere_WAPP.Syslog.action(CurrentUserId, "Deleted Exam (CourseID: " + EditCourseId + ")");
+                    ShowMsg(lblEditCourseMsg, "Exam deleted.", true);
+                }
+                catch
+                {
+                    trans.Rollback();
+                    ShowMsg(lblEditCourseMsg, "Failed to delete exam. Please try again.", false);
+                }
             }
-            ShowMsg(lblEditCourseMsg, "Exam deleted.", true);
+            LoadCourseInfo(EditCourseId);
+            LoadModules(EditCourseId);
             ShowView("edit");
         }
 
