@@ -80,6 +80,12 @@ h2{
     background:#545b62;
 }
 
+.validator {
+    display: block;
+    margin-bottom: 10px;
+    color: red;
+    font-size: 0.9em;
+}
 </style>
 
 </head>
@@ -113,19 +119,32 @@ h2{
 
 <label>Question</label>
 <asp:TextBox ID="txtQuestion" runat="server" CssClass="textbox"></asp:TextBox>
+<div>
+<asp:RequiredFieldValidator ID="rfvQuestion" runat="server" ControlToValidate="txtQuestion"
+    ErrorMessage="Question is required" ForeColor="Red" Display="Dynamic" ValidationGroup="QAGroup" CssClass="validator"></asp:RequiredFieldValidator>
+</div>
 
 <label>Answer</label>
 <asp:TextBox ID="txtAnswer" runat="server" CssClass="textbox" TextMode="MultiLine" Rows="4"></asp:TextBox>
+<div>
+<asp:RequiredFieldValidator ID="rfvAnswer" runat="server" ControlToValidate="txtAnswer"
+    ErrorMessage="Answer is required" ForeColor="Red" Display="Dynamic" ValidationGroup="QAGroup" CssClass="validator"></asp:RequiredFieldValidator>
+</div>
 
 <label>Category</label>
 <asp:TextBox ID="txtCategory" runat="server" CssClass="textbox"></asp:TextBox>
+<div>
+<asp:RequiredFieldValidator ID="rfvCategory" runat="server" ControlToValidate="txtCategory"
+    ErrorMessage="Category is required" ForeColor="Red" Display="Dynamic" ValidationGroup="QAGroup" CssClass="validator"></asp:RequiredFieldValidator>
+</div>
 
 <asp:Button 
     ID="btnSaveKnowledge"
     runat="server"
     Text="Add Knowledge"
     CssClass="btn"
-    OnClick="btnSaveKnowledge_Click" />
+    OnClick="btnSaveKnowledge_Click"
+    ValidationGroup="QAGroup"/>
 
 
 <asp:GridView 
@@ -167,19 +186,32 @@ h2{
 
 <label>Rule Name</label>
 <asp:TextBox ID="txtRuleName" runat="server" CssClass="textbox"></asp:TextBox>
+<div>
+<asp:RequiredFieldValidator ID="rfvRuleName" runat="server" ControlToValidate="txtRuleName"
+    ErrorMessage="Rule Name is required" ForeColor="Red" Display="Dynamic" ValidationGroup="RuleGroup" CssClass="validator"></asp:RequiredFieldValidator>
+</div>
 
 <label>Rule Description</label>
 <asp:TextBox ID="txtRuleDescription" runat="server" CssClass="textbox"></asp:TextBox>
+<div>
+<asp:RequiredFieldValidator ID="rfvRuleDescription" runat="server" ControlToValidate="txtRuleDescription"
+    ErrorMessage="Rule Description is required" ForeColor="Red" Display="Dynamic" ValidationGroup="RuleGroup" CssClass="validator"></asp:RequiredFieldValidator>
+</div>
 
 <label>Rule Content</label>
 <asp:TextBox ID="txtRuleContent" runat="server" CssClass="textbox" TextMode="MultiLine" Rows="4"></asp:TextBox>
+<div>
+<asp:RequiredFieldValidator ID="rfvRuleContent" runat="server" ControlToValidate="txtRuleContent"
+    ErrorMessage="Rule Content is required" ForeColor="Red" Display="Dynamic" ValidationGroup="RuleGroup" CssClass="validator"></asp:RequiredFieldValidator>
+</div>
 
 <asp:Button 
     ID="btnSaveRule"
     runat="server"
     Text="Add Rule"
     CssClass="btn"
-    OnClick="btnSaveRule_Click" />
+    OnClick="btnSaveRule_Click" 
+    ValidationGroup="RuleGroup"/>
 
 
 <asp:GridView 
