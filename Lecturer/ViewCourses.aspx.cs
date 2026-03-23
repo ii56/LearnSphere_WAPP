@@ -12,7 +12,8 @@ using System.Web.UI.WebControls;
 
 namespace LearnSphere_WAPP.Lecturer
 {
-    // ── Typed classes for the Review repeater (from editPublish.aspx.cs) ──────
+    // Typed classes used by the review repeater — strongly typed so the nested
+    // repeater in the .aspx can data-bind without casting to dynamic
     public class ModuleView
     {
         public int moduleid { get; set; }
@@ -23,53 +24,62 @@ namespace LearnSphere_WAPP.Lecturer
     {
         public string lessontitle { get; set; }
         public int duration { get; set; }
-        public object lessonpoints { get; set; }   // nullable int
+        public object lessonpoints { get; set; }   // stored as object so DBNull doesn't throw
     }
 
     public partial class ViewCourses : System.Web.UI.Page
     {
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
 
-        // ── ViewState keys ────────────────────────────────────────────────────
+        // Tracks which panel is currently visible across postbacks
         protected string CurrentView
         {
             get { return ViewState["CV"] as string ?? "courses"; }
             set { ViewState["CV"] = value; }
         }
+
+        // The course being edited — 0 means none selected
         protected int EditCourseId
         {
             get { return ViewState["ECId"] != null ? (int)ViewState["ECId"] : 0; }
             set { ViewState["ECId"] = value; }
         }
-        protected int EditModuleId        // 0 = adding new
+
+        // The module being edited — 0 means a new module is being added
+        protected int EditModuleId
         {
             get { return ViewState["EMId"] != null ? (int)ViewState["EMId"] : 0; }
             set { ViewState["EMId"] = value; }
         }
-        protected int EditLessonId        // 0 = adding new
+
+        // The lesson being edited — 0 means a new lesson is being added
+        protected int EditLessonId
         {
             get { return ViewState["ELId"] != null ? (int)ViewState["ELId"] : 0; }
             set { ViewState["ELId"] = value; }
         }
-        protected int LessonModuleId      // module for new lesson
+
+        // The module a new lesson will be added to
+        protected int LessonModuleId
         {
             get { return ViewState["LMId"] != null ? (int)ViewState["LMId"] : 0; }
             set { ViewState["LMId"] = value; }
         }
+
+        // The course whose students are being viewed
         protected int StudentsForCourseId
         {
             get { return ViewState["SFCId"] != null ? (int)ViewState["SFCId"] : 0; }
             set { ViewState["SFCId"] = value; }
         }
 
+        // Shortcut to the logged-in lecturer's user ID
         private int CurrentUserId
         {
             get { return Session["userid"] != null ? Convert.ToInt32(Session["userid"]) : 0; }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PAGE LOAD
-        // ══════════════════════════════════════════════════════════════════════
+        // Redirects non-lecturers away, then loads the course list on first visit
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["userid"] == null || Session["usertype"] == null ||
@@ -92,9 +102,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL SWITCHER
-        // ══════════════════════════════════════════════════════════════════════
+        // Shows the correct panel and hides all others
         private void ShowView(string view)
         {
             pnlViewCourses.Visible = (view == "courses");
@@ -106,9 +114,7 @@ namespace LearnSphere_WAPP.Lecturer
             CurrentView = view;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PROFILE IMAGE
-        // ══════════════════════════════════════════════════════════════════════
+        // Pulls the lecturer's profile picture and sets it in the header avatar
         private void LoadSidebarProfileImage()
         {
             if (Session["userid"] == null) return;
@@ -125,9 +131,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 1 — VIEW COURSES  (ViewCourses.aspx.cs)
-        // ══════════════════════════════════════════════════════════════════════
+        // Loads the lecturer's courses with optional filtering by name, category, status and price
         private void LoadCourses()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -146,6 +150,7 @@ namespace LearnSphere_WAPP.Lecturer
                 var parameters = new List<SqlParameter>();
                 parameters.Add(new SqlParameter("@id", CurrentUserId));
 
+                // Each filter is only applied if the user actually entered a value
                 if (!string.IsNullOrEmpty(txtSearch.Text.Trim()))
                 {
                     query += " AND coursename LIKE @search";
@@ -191,6 +196,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowView("courses");
         }
 
+        // Clears all filter fields and reloads the full course list
         protected void btnReset_Click(object sender, EventArgs e)
         {
             txtSearch.Text = "";
@@ -202,6 +208,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowView("courses");
         }
 
+        // Routes each action button in the course grid to the correct handler
         protected void gvCourses_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             if (!int.TryParse(e.CommandArgument.ToString(), out int index)) return;
@@ -229,12 +236,14 @@ namespace LearnSphere_WAPP.Lecturer
                     ShowView("students");
                     break;
 
+                // Preview redirects to a separate page since it involves full lesson navigation
                 case "PreviewCourse":
                     Response.Redirect("Preview.aspx?courseid=" + courseId);
                     break;
             }
         }
 
+        // Marks the course as deleted without removing it from the database
         private void SoftDeleteCourse(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -250,15 +259,14 @@ namespace LearnSphere_WAPP.Lecturer
             ShowMsg(lblCoursesMsg, "Course deleted successfully.", true);
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 2 — EDIT COURSE  (editCourse.aspx.cs)
-        // ══════════════════════════════════════════════════════════════════════
+        // Goes back to the course list
         protected void btnBackToCourses_Click(object sender, EventArgs e)
         {
             LoadCourses();
             ShowView("courses");
         }
 
+        // Fetches the course name, description and price for the edit panel header
         private void LoadCourseInfo(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -283,7 +291,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Includes lessonpoints in the nested lessons query
+        // Loads the module list for the edit panel — the nested lessons are bound in ItemDataBound
         private void LoadModules(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -299,7 +307,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ItemDataBound: bind nested lesson repeater per module (includes lessonpoints)
+        // Binds the nested lesson repeater for each module row as the modules repeater renders
         protected void rptModules_ItemDataBound(object sender, RepeaterItemEventArgs e)
         {
             if (e.Item.ItemType != ListItemType.Item &&
@@ -329,11 +337,13 @@ namespace LearnSphere_WAPP.Lecturer
             Module_Command(source, e);
         }
 
-        // Module commands: EditModule, DeleteModule, AddLesson
+        // Handles Edit Module, Delete Module and Add Lesson commands from the modules repeater
         protected void Module_Command(object sender, CommandEventArgs e)
         {
             int moduleId;
             if (!int.TryParse(e.CommandArgument.ToString(), out moduleId)) return;
+
+            // Security check — the module must actually belong to the course being edited
             if (!IsModuleValid(moduleId, EditCourseId)) return;
 
             if (e.CommandName == "EditModule")
@@ -357,11 +367,13 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Lesson commands: EditLesson, DeleteLesson
+        // Handles Edit Lesson and Delete Lesson commands from the lessons repeater
         protected void Lesson_Command(object sender, CommandEventArgs e)
         {
             int lessonId;
             if (!int.TryParse(e.CommandArgument.ToString(), out lessonId)) return;
+
+            // Security check — the lesson must belong to this course via its module
             if (!IsLessonValid(lessonId, EditCourseId)) return;
 
             if (e.CommandName == "EditLesson")
@@ -379,6 +391,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Opens the module form in Add mode with all fields cleared
         protected void btnAddModule_Click(object sender, EventArgs e)
         {
             EditModuleId = 0;
@@ -392,6 +405,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowView("module");
         }
 
+        // Validates the course has content, then loads the review panel
         protected void btnReview_Click(object sender, EventArgs e)
         {
             if (!IsCourseValidForPublish())
@@ -405,7 +419,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowView("review");
         }
 
-        // Exam buttons — keep as Response.Redirect (separate exam pages)
+        // Exam buttons redirect to the dedicated exam page since exam creation is a separate flow
         protected void btnCreateExam_Click(object sender, EventArgs e)
         {
             Response.Redirect("MakeExam.aspx?courseid=" + EditCourseId);
@@ -414,6 +428,8 @@ namespace LearnSphere_WAPP.Lecturer
         {
             Response.Redirect("MakeExam.aspx?courseid=" + EditCourseId + "&edit=1");
         }
+
+        // Deletes the exam for this course — questions cascade via the DB foreign key
         protected void btnDeleteExam_Click(object sender, EventArgs e)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -429,7 +445,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowView("edit");
         }
 
-        // Transaction-safe module delete — matches original exactly
+        // Deletes materials, lessons and then the module itself in a single transaction to keep the DB consistent
         private void DeleteModule(int moduleId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -452,7 +468,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Transaction-safe lesson delete — matches original exactly
+        // Deletes materials then the lesson itself in a single transaction
         private void DeleteLesson(int lessonId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -472,20 +488,20 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 3 — EDIT MODULE  (editModule.aspx.cs)
-        // ══════════════════════════════════════════════════════════════════════
+        // Goes back to the edit panel without saving
         protected void btnCancelModule_Click(object sender, EventArgs e)
         {
             LoadModules(EditCourseId);
             ShowView("edit");
         }
 
+        // Shows the course name as a subtitle on the module form
         private void LoadModCourseTitle(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                SqlCommand cmd = new SqlCommand("SELECT coursename FROM Course WHERE courseid=@id", con);
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT coursename FROM Course WHERE courseid=@id", con);
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = courseId;
                 con.Open();
                 object r = cmd.ExecuteScalar();
@@ -493,6 +509,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Fills the module form fields with the existing module's data ready for editing
         private void LoadModuleForEdit(int moduleId)
         {
             lblModModeTitle.Text = "Edit Module";
@@ -515,7 +532,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches original editModule.aspx.cs btnSave_Click exactly
+        // Validates and saves a module — inserts a new one or updates the existing one
         protected void btnSaveModule_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
@@ -564,7 +581,7 @@ namespace LearnSphere_WAPP.Lecturer
                     }
                     else
                     {
-                        // INSERT with ordernumber subquery — matches editModule.aspx.cs
+                        // Order number is computed from the DB so there are no gaps or conflicts
                         SqlCommand cmd = new SqlCommand(@"
                             INSERT INTO Module (courseid, modulename, moduledescription, ordernumber, creationtime)
                             VALUES (@courseid, @name, @desc,
@@ -587,15 +604,14 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 4 — EDIT LESSON  (editLesson.aspx.cs) + lessonpoints
-        // ══════════════════════════════════════════════════════════════════════
+        // Goes back to the edit panel without saving
         protected void btnCancelLesson_Click(object sender, EventArgs e)
         {
             LoadModules(EditCourseId);
             ShowView("edit");
         }
 
+        // Opens the lesson form in Add mode with all fields cleared
         private void PrepareAddLesson(int moduleId)
         {
             lblLsnModeTitle.Text = "Add Lesson";
@@ -609,11 +625,13 @@ namespace LearnSphere_WAPP.Lecturer
             LoadLsnModuleName(moduleId);
         }
 
+        // Shows the module name as a subtitle on the lesson form
         private void LoadLsnModuleName(int moduleId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                SqlCommand cmd = new SqlCommand("SELECT modulename FROM Module WHERE moduleid=@id", con);
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT modulename FROM Module WHERE moduleid=@id", con);
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = moduleId;
                 con.Open();
                 object r = cmd.ExecuteScalar();
@@ -621,7 +639,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches editLesson.aspx.cs LoadLesson — now includes lessonpoints
+        // Fills the lesson form with the existing lesson's data including points
         private void LoadLessonForEdit(int lessonId)
         {
             lblLsnModeTitle.Text = "Edit Lesson";
@@ -650,7 +668,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches editLesson.aspx.cs btnUpdateModule_Click + adds lessonpoints
+        // Validates and saves a lesson — inserts a new one or updates the existing one, then handles file upload
         protected void btnSaveLesson_Click(object sender, EventArgs e)
         {
             try
@@ -672,7 +690,7 @@ namespace LearnSphere_WAPP.Lecturer
                     return;
                 }
 
-                // Lesson points — optional, 0–10000
+                // Points are optional — leave blank for no gamification on this lesson
                 int? lessonPoints = null;
                 if (!string.IsNullOrWhiteSpace(txtLsnPoints.Text))
                 {
@@ -685,7 +703,6 @@ namespace LearnSphere_WAPP.Lecturer
                     lessonPoints = pts;
                 }
 
-                // XSS protection — matches original
                 title = Server.HtmlEncode(title);
                 desc = Server.HtmlEncode(desc);
                 videoUrl = Server.HtmlEncode(videoUrl);
@@ -697,7 +714,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                     if (EditLessonId > 0)
                     {
-                        // UPDATE — matches original + adds lessonpoints
+                        // The WHERE clause includes a subquery to confirm the lesson belongs to this course
                         SqlCommand cmd = new SqlCommand(@"
                             UPDATE Lesson
                             SET lessontitle=@title, description=@desc, duration=@duration, lessonpoints=@pts
@@ -715,7 +732,7 @@ namespace LearnSphere_WAPP.Lecturer
                     }
                     else
                     {
-                        // INSERT — matches original + adds lessonpoints
+                        // Order number computed from the DB so there are no gaps or conflicts
                         SqlCommand cmd = new SqlCommand(@"
                             INSERT INTO Lesson
                             (moduleid, lessontitle, description, duration, lessonpoints, ordernumber, creationtime)
@@ -733,7 +750,8 @@ namespace LearnSphere_WAPP.Lecturer
                         currentLessonId = (int)cmd.ExecuteScalar();
                     }
 
-                    // File upload — matches original editLesson.aspx.cs
+                    // File upload — allowed types: PDF, DOC, DOCX, PPT, PPTX, max 5 MB
+                    // Saved with a random GUID name to avoid conflicts
                     if (fuLsnFile.HasFile)
                     {
                         if (fuLsnFile.PostedFile.ContentLength > 5 * 1024 * 1024)
@@ -742,8 +760,8 @@ namespace LearnSphere_WAPP.Lecturer
                             return;
                         }
                         string ext = Path.GetExtension(fuLsnFile.FileName).ToLower();
-                        string[] allowed = { ".pdf", ".doc", ".docx", ".ppt", ".pptx" };
-                        if (Array.IndexOf(allowed, ext) < 0)
+                        string[] allow = { ".pdf", ".doc", ".docx", ".ppt", ".pptx" };
+                        if (Array.IndexOf(allow, ext) < 0)
                         {
                             ShowMsg(lblLsnMsg, "Invalid file type.", false);
                             return;
@@ -767,20 +785,20 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 5 — VIEW STUDENTS  (ViewStudents.aspx.cs)
-        // ══════════════════════════════════════════════════════════════════════
+        // Goes back to the courses list from the students panel
         protected void btnBackFromStudents_Click(object sender, EventArgs e)
         {
             LoadCourses();
             ShowView("courses");
         }
 
+        // Shows the course name as a subtitle on the students panel
         private void LoadStudentsCourseTitle(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                SqlCommand cmd = new SqlCommand("SELECT coursename FROM Course WHERE courseid=@id", con);
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT coursename FROM Course WHERE courseid=@id", con);
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = courseId;
                 con.Open();
                 object r = cmd.ExecuteScalar();
@@ -788,7 +806,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches ViewStudents.aspx.cs LoadStudents exactly
+        // Loads only active, verified students who are enrolled in the course
         private void LoadStudents(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -818,6 +836,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Handles Remove and View Receipt commands from the students grid
         protected void gvStudents_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             if (e.CommandName != "DeleteStudent" && e.CommandName != "ViewReceipt") return;
@@ -837,7 +856,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches ViewStudents.aspx.cs RemoveEnrollment exactly
+        // Removes the enrollment and cleans up any associated invoice and receipt records
         private void RemoveEnrollment(int userId, int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -845,8 +864,9 @@ namespace LearnSphere_WAPP.Lecturer
                 con.Open();
                 new SqlCommand("DELETE FROM Enrollment WHERE userid=@uid AND courseid=@cid", con)
                 { Parameters = { new SqlParameter("@uid", userId), new SqlParameter("@cid", courseId) } }
-                .ExecuteNonQuery();
+                    .ExecuteNonQuery();
 
+                // If there's an invoice, clean up the receipt first then the invoice
                 SqlCommand getInvoice = new SqlCommand(
                     "SELECT invid FROM Invoice WHERE userid=@uid AND courseid=@cid", con);
                 getInvoice.Parameters.AddWithValue("@uid", userId);
@@ -867,7 +887,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowMsg(lblStudentsMsg, "Student removed from course.", true);
         }
 
-        // PDF receipt — matches ViewStudents.aspx.cs GenerateReceipt + GeneratePdf exactly
+        // Fetches the data needed for the receipt and hands it to the PDF generator
         private void GenerateReceipt(int userId, int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -875,7 +895,7 @@ namespace LearnSphere_WAPP.Lecturer
                 SqlCommand cmd = new SqlCommand(@"
                     SELECT u.fname + ' ' + u.lname AS StudentName,
                            c.coursename,
-                           ISNULL(i.amount, 0)              AS amount,
+                           ISNULL(i.amount, 0)                 AS amount,
                            ISNULL(i.creationtime, e.enrolldate) AS creationtime
                     FROM Enrollment e
                     INNER JOIN [User] u ON e.userid   = u.userid
@@ -901,6 +921,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Builds a PDF receipt using iTextSharp and streams it directly to the browser
         private void GeneratePdf(string studentName, string courseName, decimal amount, DateTime date)
         {
             Response.Clear();
@@ -964,7 +985,7 @@ namespace LearnSphere_WAPP.Lecturer
             Response.End();
         }
 
-        // Excel export — matches ViewStudents.aspx.cs btnExport_Click exactly
+        // Exports the student list to an Excel file — only includes paid students for paid courses
         protected void btnExport_Click(object sender, EventArgs e)
         {
             int courseId = StudentsForCourseId;
@@ -976,8 +997,9 @@ namespace LearnSphere_WAPP.Lecturer
                 string courseName = new SqlCommand(
                     "SELECT coursename FROM Course WHERE courseid=@cid", con)
                 { Parameters = { new SqlParameter("@cid", courseId) } }
-                .ExecuteScalar()?.ToString() ?? "Course";
+                    .ExecuteScalar()?.ToString() ?? "Course";
 
+                // Sanitise the course name so it's safe to use as a filename
                 foreach (char c in Path.GetInvalidFileNameChars())
                     courseName = courseName.Replace(c, '_');
                 courseName = courseName.Replace(" ", "_");
@@ -1008,6 +1030,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Renders a DataTable as an HTML table and streams it as an XLS file
         private void ExportToExcel(DataTable dt, string fileName)
         {
             Response.Clear();
@@ -1028,12 +1051,10 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Required for Excel export to work
+        // Required override so ASP.NET doesn't throw when rendering a GridView outside of a form for the export
         public override void VerifyRenderingInServerForm(Control control) { }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 6 — REVIEW & PUBLISH  (editPublish.aspx.cs)
-        // ══════════════════════════════════════════════════════════════════════
+        // Goes back to the edit panel from the review screen
         protected void btnBackToEdit_Click(object sender, EventArgs e)
         {
             LoadCourseInfo(EditCourseId);
@@ -1041,6 +1062,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowView("edit");
         }
 
+        // Fetches course details for the review summary, with an ownership check
         private void LoadCourseForReview()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -1065,8 +1087,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches editPublish.aspx.cs LoadModulesAndLessons using typed ModuleView/LessonView
-        // Now includes lessonpoints
+        // Builds the nested module/lesson structure for the review repeater, and loads the exam summary if one exists
         private void LoadModulesAndLessonsForReview()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -1110,9 +1131,9 @@ namespace LearnSphere_WAPP.Lecturer
                 rptReviewModules.DataSource = modules;
                 rptReviewModules.DataBind();
 
-                // Load exam info (from editPublish.aspx.cs pnlCourseExam logic)
+                // Only show the exam panel if an exam has been created for this course
                 SqlCommand eCmd = new SqlCommand(@"
-                    SELECT examtitle,
+                    SELECT examtitle, exampoints,
                         (SELECT COUNT(*) FROM ExamQuestion WHERE examid=e.examid) AS qcount
                     FROM Exam e WHERE e.courseid=@cid", con);
                 eCmd.Parameters.Add("@cid", SqlDbType.Int).Value = EditCourseId;
@@ -1121,7 +1142,8 @@ namespace LearnSphere_WAPP.Lecturer
                 {
                     pnlCourseExam.Visible = true;
                     lblCourseExamTitle.Text = Server.HtmlEncode(er["examtitle"].ToString());
-                    lblCourseExamQuestions.Text = er["qcount"].ToString();
+                    lblCourseExamQuestions.Text = er["qcount"].ToString()
+                        + " questions · ⚡ " + er["exampoints"].ToString() + " pts";
                 }
                 else
                 {
@@ -1131,7 +1153,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Validation — matches editPublish.aspx.cs IsCourseValidForPublish
+        // Returns false if the course has no modules, or has modules but no lessons
         private bool IsCourseValidForPublish()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -1152,7 +1174,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches editPublish.aspx.cs btnPublish_Click with ownership check
+        // Sets the course to Active — the ownership check in the WHERE means only the real owner can publish
         protected void btnPublish_Click(object sender, EventArgs e)
         {
             if (!IsCourseValidForPublish())
@@ -1186,11 +1208,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // SHARED HELPERS
-        // ══════════════════════════════════════════════════════════════════════
-
-        // Sets course to Draft whenever content is edited — the "draft on edit" feature
+        // Sets the course back to Draft whenever content is edited so it can't be live with stale content
         private void SetCourseToDraft(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -1204,6 +1222,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Confirms the given course belongs to the currently logged-in lecturer
         private bool IsCourseOwner(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -1217,6 +1236,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Confirms the module belongs to the given course — used before acting on any module command
         private bool IsModuleValid(int moduleId, int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -1230,6 +1250,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Confirms the lesson belongs to the given course via its module — used before acting on any lesson command
         private bool IsLessonValid(int lessonId, int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -1245,6 +1266,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Sets a label's text, style and visibility in one call
         private void ShowMsg(Label lbl, string msg, bool success)
         {
             lbl.Text = msg;
@@ -1252,9 +1274,7 @@ namespace LearnSphere_WAPP.Lecturer
             lbl.Visible = true;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // LOGOUT
-        // ══════════════════════════════════════════════════════════════════════
+        // Clears the session and sends the lecturer back to the login page
         protected void btnLogout_Click(object sender, EventArgs e)
         {
             LearnSphere_WAPP.Syslog.action(CurrentUserId, "Logout system");

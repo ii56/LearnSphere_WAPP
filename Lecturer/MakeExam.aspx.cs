@@ -20,18 +20,14 @@ namespace LearnSphere_WAPP.Lecturer
         bool isEdit = false;
         int userId;
 
-        // ══════════════════════════════════════════════════════════════════════
-        // CSRF PROTECTION
-        // ══════════════════════════════════════════════════════════════════════
+        // Ties the ViewState to the user session to prevent CSRF attacks
         protected void Page_Init(object sender, EventArgs e)
         {
             if (Session["userid"] != null)
                 ViewStateUserKey = Session["userid"].ToString();
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PAGE LOAD
-        // ══════════════════════════════════════════════════════════════════════
+        // Redirects non-lecturers away, reads the query string params, then loads the right initial state
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["userid"] == null || Session["usertype"]?.ToString() != "Lecturer")
@@ -56,9 +52,7 @@ namespace LearnSphere_WAPP.Lecturer
 
             if (!IsPostBack)
             {
-                // Banner title changes for edit mode
                 lblBannerTitle.Text = isEdit ? "Edit Exam" : "Create Exam";
-
                 CreateQuestionTable();
                 LoadExamType();
 
@@ -68,12 +62,11 @@ namespace LearnSphere_WAPP.Lecturer
                     LoadCourses();
             }
 
+            // Runs on every postback so the question count and points badges stay current
             RefreshQCount();
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PROFILE IMAGE
-        // ══════════════════════════════════════════════════════════════════════
+        // Pulls the lecturer's profile picture and sets it in the header avatar
         private void LoadSidebarProfileImage()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -89,9 +82,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // OWNERSHIP CHECK — matches original exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Confirms the given course belongs to the currently logged-in lecturer
         private bool IsOwner(int cid)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -105,9 +96,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // QUESTION TABLE SETUP — matches original exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Creates an empty in-memory DataTable to hold questions as the lecturer builds the exam
         private void CreateQuestionTable()
         {
             DataTable dt = new DataTable();
@@ -121,18 +110,28 @@ namespace LearnSphere_WAPP.Lecturer
             ViewState["questions"] = dt;
         }
 
-        // Refresh the question count badge and empty state panel
+        // Updates the question count, total points badges, and shows/hides the empty state message
         private void RefreshQCount()
         {
             DataTable dt = ViewState["questions"] as DataTable;
             int count = dt != null ? dt.Rows.Count : 0;
+
+            int total = 0;
+            if (dt != null)
+                foreach (DataRow r in dt.Rows)
+                {
+                    int m;
+                    if (int.TryParse(r["Marks"].ToString(), out m))
+                        total += m;
+                }
+
             lblQCount.Text = count.ToString();
+            lblTotalPoints.Text = total.ToString();
+            lblFinalTotalPoints.Text = total.ToString();
             pnlEmpty.Visible = (count == 0);
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // LOAD EXAM TYPE — matches original exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Populates the exam type dropdown with Course Exam and Module Exam options
         private void LoadExamType()
         {
             ddlExamType.Items.Clear();
@@ -141,9 +140,7 @@ namespace LearnSphere_WAPP.Lecturer
             ddlExamType.Items.Add(new ListItem("Module Exam", "module"));
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // LOAD COURSES — matches original exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Loads all active courses owned by this lecturer into the target dropdown
         private void LoadCourses()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -159,15 +156,14 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // LOAD FOR EDIT MODE — matches original LoadExamForEdit exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Fetches the existing exam title and all its questions so the lecturer can edit them
         private void LoadExamForEdit()
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
 
+                // Look up by module or course depending on which was passed in the query string
                 string query = moduleId > 0
                     ? "SELECT examid, examtitle FROM Exam WHERE moduleid=@id"
                     : "SELECT examid, examtitle FROM Exam WHERE courseid=@id";
@@ -184,7 +180,7 @@ namespace LearnSphere_WAPP.Lecturer
                 }
                 reader.Close();
 
-                // Load existing questions into ViewState table
+                // Load existing questions into the ViewState DataTable so the grid can render them
                 SqlCommand qCmd = new SqlCommand(@"
                     SELECT questiontext, optionA, optionB, optionC, optionD,
                            correctanswer, marks
@@ -213,9 +209,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // EXAM TYPE CHANGED (AutoPostBack)
-        // ══════════════════════════════════════════════════════════════════════
+        // Swaps the target dropdown between courses and modules when the exam type changes
         protected void ddlExamType_SelectedIndexChanged(object sender, EventArgs e)
         {
             ddlTarget.Items.Clear();
@@ -227,9 +221,7 @@ namespace LearnSphere_WAPP.Lecturer
                 LoadModulesForCourse();
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // LOAD MODULES — matches original LoadModulesForCourse exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Loads the modules belonging to the current course into the target dropdown
         private void LoadModulesForCourse()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -246,9 +238,36 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // ADD QUESTION — matches original btnAddQuestion_Click exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Pulls the selected question's data into the form fields and removes it from the list so it can be re-added after editing
+        protected void gvQuestions_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int index = gvQuestions.SelectedIndex;
+            if (index < 0) return;
+
+            DataTable dt = ViewState["questions"] as DataTable;
+            if (dt == null || index >= dt.Rows.Count) return;
+
+            DataRow row = dt.Rows[index];
+
+            txtQuestion.Text = row["Question"].ToString();
+            txtA.Text = row["A"].ToString();
+            txtB.Text = row["B"].ToString();
+            txtC.Text = row["C"].ToString();
+            txtD.Text = row["D"].ToString();
+            txtMarks.Text = row["Marks"].ToString();
+            ddlCorrect.SelectedValue = row["Correct"].ToString();
+
+            dt.Rows.RemoveAt(index);
+            ViewState["questions"] = dt;
+            gvQuestions.SelectedIndex = -1;
+            gvQuestions.DataSource = dt;
+            gvQuestions.DataBind();
+
+            RefreshQCount();
+            ShowMsg("Question loaded into the form. Edit the fields above and click \"+ Add Question\" to save.", true);
+        }
+
+        // Validates the inputs, XSS-encodes them, then appends the question to the in-memory table
         protected void btnAddQuestion_Click(object sender, EventArgs e)
         {
             if (!ValidateQuestionInputs()) return;
@@ -275,7 +294,7 @@ namespace LearnSphere_WAPP.Lecturer
             RefreshQCount();
         }
 
-        // Matches original ValidateQuestionInputs exactly
+        // Checks for empty question text, duplicate options, and marks within the allowed range
         private bool ValidateQuestionInputs()
         {
             if (string.IsNullOrWhiteSpace(txtQuestion.Text))
@@ -299,6 +318,7 @@ namespace LearnSphere_WAPP.Lecturer
             return true;
         }
 
+        // Resets the question form back to its default state ready for the next entry
         private void ClearInputs()
         {
             txtQuestion.Text = "";
@@ -310,9 +330,7 @@ namespace LearnSphere_WAPP.Lecturer
             ddlCorrect.SelectedIndex = 0;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PUBLISH — matches original btnPublish_Click exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Validates that a target and questions exist, then saves and redirects to View Courses
         protected void btnPublish_Click(object sender, EventArgs e)
         {
             try
@@ -322,14 +340,12 @@ namespace LearnSphere_WAPP.Lecturer
                     ShowMsg("Select exam type and target.", false);
                     return;
                 }
-
                 DataTable questions = (DataTable)ViewState["questions"];
                 if (questions == null || questions.Rows.Count == 0)
                 {
                     ShowMsg("Add at least one question before publishing.", false);
                     return;
                 }
-
                 SaveExam(questions, true);
             }
             catch
@@ -338,9 +354,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // SAVE DRAFT — matches original btnDraft_Click exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Same validation as Publish but saves without redirecting, leaving the page open to continue editing
         protected void btnDraft_Click(object sender, EventArgs e)
         {
             try
@@ -350,14 +364,12 @@ namespace LearnSphere_WAPP.Lecturer
                     ShowMsg("Select exam type and target.", false);
                     return;
                 }
-
                 DataTable questions = (DataTable)ViewState["questions"];
                 if (questions == null || questions.Rows.Count == 0)
                 {
                     ShowMsg("Add at least one question before saving draft.", false);
                     return;
                 }
-
                 SaveExam(questions, false);
             }
             catch
@@ -366,7 +378,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Shared save logic for publish and draft — transaction matches original exactly
+        // Sums all per-question marks to get the total, inserts the exam and all questions in a single transaction
         private void SaveExam(DataTable questions, bool publish)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -375,21 +387,29 @@ namespace LearnSphere_WAPP.Lecturer
                 SqlTransaction trans = con.BeginTransaction();
                 try
                 {
-                    // INSERT Exam — matches original exactly
+                    // Total is stored in both totalmarks and exampoints so students and the review panel both see it
+                    int totalPoints = 0;
+                    foreach (DataRow r in questions.Rows)
+                    {
+                        int m;
+                        if (int.TryParse(r["Marks"].ToString(), out m))
+                            totalPoints += m;
+                    }
+
                     string insertExam = ddlExamType.SelectedValue == "module"
-                        ? @"INSERT INTO Exam(moduleid, examtitle, totalmarks)
+                        ? @"INSERT INTO Exam (moduleid, examtitle, totalmarks, exampoints)
                             OUTPUT INSERTED.examid
-                            VALUES(@target, @title, 0)"
-                        : @"INSERT INTO Exam(courseid, examtitle, totalmarks)
+                            VALUES (@target, @title, @total, @total)"
+                        : @"INSERT INTO Exam (courseid, examtitle, totalmarks, exampoints)
                             OUTPUT INSERTED.examid
-                            VALUES(@target, @title, 0)";
+                            VALUES (@target, @title, @total, @total)";
 
                     SqlCommand cmd = new SqlCommand(insertExam, con, trans);
                     cmd.Parameters.Add("@target", SqlDbType.Int).Value = Convert.ToInt32(ddlTarget.SelectedValue);
                     cmd.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = Server.HtmlEncode(txtExamTitle.Text.Trim());
+                    cmd.Parameters.Add("@total", SqlDbType.Int).Value = totalPoints;
                     examId = (int)cmd.ExecuteScalar();
 
-                    // INSERT questions — matches original exactly
                     foreach (DataRow r in questions.Rows)
                     {
                         SqlCommand qCmd = new SqlCommand(@"
@@ -431,17 +451,13 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // CANCEL
-        // ══════════════════════════════════════════════════════════════════════
+        // Discards the current exam and returns to the courses list
         protected void btnCancel_Click(object sender, EventArgs e)
         {
             Response.Redirect("ViewCourses.aspx");
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // LOGOUT
-        // ══════════════════════════════════════════════════════════════════════
+        // Clears the session and sends the lecturer back to the login page
         protected void btnLogout_Click(object sender, EventArgs e)
         {
             LearnSphere_WAPP.Syslog.action(userId, "Logout System");
@@ -450,9 +466,7 @@ namespace LearnSphere_WAPP.Lecturer
             Response.Redirect("~/Login.aspx");
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // HELPER
-        // ══════════════════════════════════════════════════════════════════════
+        // Sets the message label's text, style and visibility in one call
         private void ShowMsg(string msg, bool success)
         {
             lblMessage.Text = msg;

@@ -27,40 +27,53 @@ namespace LearnSphere_WAPP
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            if (Page.IsValid)
+            if (!Page.IsValid)
+                return;
+
+            string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(connStr))
             {
-                string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+                con.Open();
 
-                using (SqlConnection con = new SqlConnection(connStr))
+                // Fetch the stored hash by username only (never pass the password to SQL)
+                string query = @"SELECT userid, uname, usertype, pwd
+                                 FROM [User]
+                                 WHERE LOWER(uname) = LOWER(@uname)
+                                 AND status = 'Active'";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.Read())
                 {
-                    con.Open();
+                    string storedHash = reader["pwd"].ToString();
+                    string enteredPass = pwd.Text.Trim();
 
-                    // CHECK USERNAME + PASSWORD DIRECTLY
-                    string query = @"SELECT userid, uname, usertype 
-                             FROM [User] 
-                             WHERE LOWER(uname) = LOWER(@uname) 
-                             AND pwd = @pwd 
-                             AND status = 'Active'";
+                    // VERIFY the entered password against the stored BCrypt hash
+                    bool passwordValid = BCrypt.Net.BCrypt.Verify(enteredPass, storedHash);
 
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
-                    cmd.Parameters.AddWithValue("@pwd", pwd.Text.Trim());
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.Read())
+                    if (passwordValid)
                     {
-                        // LOGIN SUCCESS
                         Session["userid"] = reader["userid"];
                         Session["uname"] = reader["uname"];
                         Session["usertype"] = reader["usertype"];
 
-                        RedirectUser(reader["usertype"].ToString());
+                        string usertype = reader["usertype"].ToString();
+                        reader.Close();
+
+                        RedirectUser(usertype);
                     }
                     else
                     {
                         errMsg.Text = "Invalid username or password.";
                     }
+                }
+                else
+                {
+                    errMsg.Text = "Invalid username or password.";
                 }
             }
         }
@@ -72,24 +85,19 @@ namespace LearnSphere_WAPP
                 case "SuperAdmin":
                     Response.Redirect("~/Admin/AdminDashboard.aspx");
                     break;
-
                 case "Admin":
                     Response.Redirect("~/Admin/AdminDashboard.aspx");
                     break;
-
                 case "Lecturer":
                     Response.Redirect("~/Lecturer/LecturerDashboard.aspx");
                     break;
-
                 case "Student":
                     Response.Redirect("~/Student/StudentDashboard.aspx");
                     break;
-
                 case "General":
                     Syslog.action(Convert.ToInt32(Session["userid"]), "Log In");
                     Response.Redirect("~/GeneralUser/GeneralDashboard.aspx");
                     break;
-
                 default:
                     Response.Redirect("Login.aspx");
                     break;

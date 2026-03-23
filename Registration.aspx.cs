@@ -142,6 +142,9 @@ namespace LearnSphere_WAPP
                     string plainPassword = ViewState["password"]?.ToString();
                     string emailValue = ViewState["email"]?.ToString();
 
+                    // HASH PASSWORD before storing
+                    string hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
+
                     // INSERT USER
                     string query = @"INSERT INTO [User]
                     (uname, email, pwd, fname, lname, age, gender, creationtime, deletiontime, usertype, status)
@@ -151,17 +154,13 @@ namespace LearnSphere_WAPP
                     SqlCommand cmd = new SqlCommand(query, con);
 
                     cmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text;
-                    cmd.Parameters.Add("@email", SqlDbType.NVarChar, 100).Value = email.Text;
-                    cmd.Parameters.Add("@pwd", SqlDbType.NVarChar).Value = plainPassword;
-
+                    cmd.Parameters.Add("@email", SqlDbType.NVarChar, 100).Value = emailValue;
+                    cmd.Parameters.Add("@pwd", SqlDbType.NVarChar).Value = hashedPassword;
                     cmd.Parameters.Add("@fname", SqlDbType.NVarChar, 50).Value = fname.Text;
                     cmd.Parameters.Add("@lname", SqlDbType.NVarChar, 50).Value = lname.Text;
-
                     cmd.Parameters.Add("@age", SqlDbType.Int).Value = ageValue;
                     cmd.Parameters.Add("@gender", SqlDbType.NVarChar, 10).Value = gender.SelectedValue;
-
                     cmd.Parameters.Add("@creationtime", SqlDbType.DateTime).Value = DateTime.Now;
-
                     cmd.Parameters.Add("@usertype", SqlDbType.NVarChar, 20).Value = "General";
                     cmd.Parameters.Add("@status", SqlDbType.NVarChar, 20).Value = "Active";
 

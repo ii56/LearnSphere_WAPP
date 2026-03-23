@@ -14,53 +14,55 @@ namespace LearnSphere_WAPP.Lecturer
     {
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
 
-        // ── Which step is active: 1=details, 2=modules, 3=lessons, 4=review ──
+        // Tracks which step of the wizard the lecturer is on (1–4)
         protected int CurrentStep
         {
             get { return ViewState["CurrentStep"] != null ? (int)ViewState["CurrentStep"] : 1; }
             set { ViewState["CurrentStep"] = value; }
         }
 
-        // ── Helpers for step indicator in .aspx ──────────────────────────────
+        // Used by the step indicator in the .aspx to apply active/done CSS classes
         protected string StepClass(int step)
         {
             if (step < CurrentStep) return "step done";
             if (step == CurrentStep) return "step active";
             return "step";
         }
+
+        // Returns a checkmark for completed steps, or the step number otherwise
         protected string StepIcon(int step)
         {
             return step < CurrentStep ? "✓" : step.ToString();
         }
 
-        // ── Shortcut properties ───────────────────────────────────────────────
+        // Shortcut to the logged-in lecturer's user ID
         private int CurrentUserID
         {
             get { return Convert.ToInt32(Session["userid"]); }
         }
+
+        // The course being built — persisted in session so it survives postbacks
         private int CurrentCourseID
         {
             get { return Session["CurrentCourseID"] != null ? Convert.ToInt32(Session["CurrentCourseID"]) : 0; }
             set { Session["CurrentCourseID"] = value; }
         }
+
+        // The module currently being added to — also in session for the same reason
         private int CurrentModuleID
         {
             get { return Session["CurrentModuleID"] != null ? Convert.ToInt32(Session["CurrentModuleID"]) : 0; }
             set { Session["CurrentModuleID"] = value; }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // CSRF PROTECTION
-        // ══════════════════════════════════════════════════════════════════════
+        // Ties the ViewState to the user session to prevent CSRF attacks
         protected void Page_Init(object sender, EventArgs e)
         {
             if (Session["userid"] != null)
                 ViewStateUserKey = Session["userid"].ToString();
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PAGE LOAD
-        // ══════════════════════════════════════════════════════════════════════
+        // Redirects non-lecturers away, then loads the correct wizard step on first visit
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["userid"] == null || Session["usertype"] == null ||
@@ -75,7 +77,7 @@ namespace LearnSphere_WAPP.Lecturer
                 LoadSidebarProfileImage();
                 ShowStep(1);
 
-                // If returning to an in-progress course, restore details
+                // If the lecturer is returning mid-flow, restore what they already filled in
                 if (CurrentCourseID > 0)
                     LoadDraftData(CurrentCourseID);
             }
@@ -85,9 +87,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // STEP SWITCHER
-        // ══════════════════════════════════════════════════════════════════════
+        // Shows the right panel and updates the banner text for the given step
         private void ShowStep(int step)
         {
             CurrentStep = step;
@@ -97,7 +97,6 @@ namespace LearnSphere_WAPP.Lecturer
             pnlAddLessons.Visible = (step == 3);
             pnlReviewPublish.Visible = (step == 4);
 
-            // Update banner text per step
             string[] titles = { "", "Create New Course", "Add Modules", "Add Lessons", "Review & Publish" };
             string[] subs = {
                 "",
@@ -113,9 +112,7 @@ namespace LearnSphere_WAPP.Lecturer
             lblDraftPill.Text = pills[step];
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PROFILE IMAGE
-        // ══════════════════════════════════════════════════════════════════════
+        // Pulls the lecturer's profile picture and sets it in the header avatar
         private void LoadSidebarProfileImage()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -126,22 +123,13 @@ namespace LearnSphere_WAPP.Lecturer
                 con.Open();
                 object result = cmd.ExecuteScalar();
 
-                string imagePath = "~/images/default-user.png";
-                if (result != null && result != DBNull.Value)
-                {
-                    string path = result.ToString();
-                    if (path.StartsWith("~/images/")) imagePath = path;
-                    else imagePath = path; // allow any valid path
-                }
-                imgSidebarProfile.Src = ResolveUrl(imagePath);
+                imgSidebarProfile.Src = (result != null && result != DBNull.Value)
+                    ? ResolveUrl(result.ToString())
+                    : ResolveUrl("~/images/default-user.png");
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // STEP 1 — COURSE DETAILS  (CreateCourse.aspx.cs)
-        // ══════════════════════════════════════════════════════════════════════
-
-        // Restore draft data if returning mid-flow — matches original LoadDraftData
+        // Refills the Step 1 form fields from an existing draft so the lecturer can continue where they left off
         private void LoadDraftData(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -163,9 +151,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches original btnCreate_Click exactly:
-        // - Creates new course (OUTPUT INSERTED.courseid, status='Unactive') OR updates existing draft
-        // - Then navigates to Step 2
+        // Creates a new draft course or updates an existing one, then moves to Step 2
         protected void btnCreate_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
@@ -188,7 +174,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                 if (CurrentCourseID == 0)
                 {
-                    // Create new draft — matches original INSERT
+                    // Brand new course — insert as a draft so changes are never lost
                     using (SqlConnection con = new SqlConnection(connStr))
                     {
                         con.Open();
@@ -212,7 +198,7 @@ namespace LearnSphere_WAPP.Lecturer
                 }
                 else
                 {
-                    // Update existing draft — matches original UPDATE
+                    // Returning to an existing draft — just update its details
                     using (SqlConnection con = new SqlConnection(connStr))
                     {
                         con.Open();
@@ -245,15 +231,14 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // STEP 2 — ADD MODULES  (AddModules.aspx.cs)
-        // ══════════════════════════════════════════════════════════════════════
+        // Goes back to Step 1 and restores whatever the lecturer previously saved
         protected void btnBackToCourse_Click(object sender, EventArgs e)
         {
             if (CurrentCourseID > 0) LoadDraftData(CurrentCourseID);
             ShowStep(1);
         }
 
+        // Fetches the course name and shows it as a subtitle on the modules step
         private void LoadCourseTitle()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -269,8 +254,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches original btnAddModule_Click exactly:
-        // - Validation, XSS encode, duplicate check, ordernumber subquery, INSERT
+        // Validates input, checks for duplicates, then inserts the module with an auto-calculated order number
         protected void btnAddModule_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
@@ -296,7 +280,6 @@ namespace LearnSphere_WAPP.Lecturer
                     return;
                 }
 
-                // XSS protection — matches original
                 moduleName = Server.HtmlEncode(moduleName);
                 moduleDesc = Server.HtmlEncode(moduleDesc);
 
@@ -304,7 +287,7 @@ namespace LearnSphere_WAPP.Lecturer
                 {
                     con.Open();
 
-                    // Duplicate module check — matches original
+                    // Prevent duplicate module names within the same course
                     SqlCommand check = new SqlCommand(@"
                         SELECT COUNT(*) FROM Module
                         WHERE modulename=@name AND courseid=@courseid AND deletiontime IS NULL", con);
@@ -316,7 +299,7 @@ namespace LearnSphere_WAPP.Lecturer
                         return;
                     }
 
-                    // Insert with ordernumber subquery — matches original exactly
+                    // Order number is computed from the DB so there are no gaps or conflicts
                     SqlCommand cmd = new SqlCommand(@"
                         INSERT INTO Module
                         (courseid, modulename, moduledescription, ordernumber, creationtime, deletiontime)
@@ -345,6 +328,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Refreshes the modules grid on Step 2
         private void LoadModules()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -362,17 +346,14 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches original gvModules_RowCommand:
-        // - Security check: module belongs to this course
-        // - Sets Session["CurrentModuleID"]
-        // - Navigates to AddLessons (now Step 3)
+        // Handles the "Add Lessons" button on each module row — verifies ownership then opens Step 3
         protected void gvModules_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             if (e.CommandName != "AddLessons") return;
 
             int moduleId = Convert.ToInt32(e.CommandArgument);
 
-            // Security check — matches original
+            // Make sure this module actually belongs to the current course before trusting it
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 SqlCommand cmd = new SqlCommand(@"
@@ -394,13 +375,11 @@ namespace LearnSphere_WAPP.Lecturer
             ShowStep(3);
         }
 
-        // Continue button — validates at least one module exists before proceeding
+        // Moves to Step 3 using the first available module if none was explicitly selected
         protected void btnContinue_Click(object sender, EventArgs e)
         {
-            // Must have at least one module and one selected
             if (CurrentModuleID == 0)
             {
-                // Auto-pick first module if available
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
                     SqlCommand cmd = new SqlCommand(@"
@@ -424,9 +403,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowStep(3);
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // STEP 3 — ADD LESSONS  (AddLessons.aspx.cs)
-        // ══════════════════════════════════════════════════════════════════════
+        // Goes back to the modules step
         protected void btnBackToModules_Click(object sender, EventArgs e)
         {
             LoadCourseTitle();
@@ -434,6 +411,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowStep(2);
         }
 
+        // Shows the module name as a subtitle on the lessons step
         private void LoadModuleTitle()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -448,18 +426,13 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches original btnAddLesson_Click exactly:
-        // - INPUT SANITIZATION, DURATION, VIDEO URL validation
-        // - INSERT Lesson with ordernumber subquery, OUTPUT INSERTED.lessonid
-        // - Material table: video URL row + file row
-        // - File saved to ~/Uploads/LessonMaterials/ with Guid name
+        // Validates all lesson fields, inserts the lesson, saves any uploaded file and video URL as Material rows
         protected void btnAddLesson_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
 
             try
             {
-                // Input sanitization — matches original
                 string lessonTitle = Server.HtmlEncode(txtLessonTitle.Text.Trim());
                 string lessonDesc = Server.HtmlEncode(txtLessonDesc.Text.Trim());
                 string videoUrl = Server.HtmlEncode(txtVideoUrl.Text.Trim());
@@ -480,20 +453,14 @@ namespace LearnSphere_WAPP.Lecturer
                     return;
                 }
 
-                // Duration validation — matches original
                 int duration;
-                if (!int.TryParse(txtDuration.Text, out duration))
-                {
-                    ShowMsg(lblLessonMsg, "Duration must be a valid number.", false);
-                    return;
-                }
-                if (duration <= 0 || duration > 600)
+                if (!int.TryParse(txtDuration.Text, out duration) || duration <= 0 || duration > 600)
                 {
                     ShowMsg(lblLessonMsg, "Duration must be between 1 and 600 minutes.", false);
                     return;
                 }
 
-                // Lesson points — optional, NULL if blank, 0–10000
+                // Points are optional — leave blank for no gamification on this lesson
                 int? lessonPoints = null;
                 if (!string.IsNullOrWhiteSpace(txtLessonPoints.Text))
                 {
@@ -506,7 +473,6 @@ namespace LearnSphere_WAPP.Lecturer
                     lessonPoints = pts;
                 }
 
-                // Video URL validation — matches original
                 if (!string.IsNullOrWhiteSpace(videoUrl))
                 {
                     Uri uriResult;
@@ -523,7 +489,7 @@ namespace LearnSphere_WAPP.Lecturer
                 {
                     con.Open();
 
-                    // INSERT Lesson with ordernumber subquery — matches original exactly
+                    // Order number is computed from existing lessons so nothing clashes
                     SqlCommand lessonCmd = new SqlCommand(@"
                         INSERT INTO Lesson
                         (moduleid, lessontitle, lessondescription, duration, ordernumber, creationtime, deletiontime, lessonpoints)
@@ -542,7 +508,7 @@ namespace LearnSphere_WAPP.Lecturer
                         lessonPoints.HasValue ? (object)lessonPoints.Value : DBNull.Value;
                     newLessonId = (int)lessonCmd.ExecuteScalar();
 
-                    // Video material — matches original
+                    // Store the video link as a separate Material row if one was provided
                     if (!string.IsNullOrWhiteSpace(videoUrl))
                     {
                         SqlCommand videoCmd = new SqlCommand(@"
@@ -553,15 +519,14 @@ namespace LearnSphere_WAPP.Lecturer
                         videoCmd.ExecuteNonQuery();
                     }
 
-                    // File upload — matches original exactly
-                    // Extensions: .pdf/.doc/.docx/.ppt/.pptx, max 5MB, Guid name
-                    // Saved to ~/Uploads/LessonMaterials/
+                    // File upload — allowed types: PDF, DOC, DOCX, PPT, PPTX, max 5 MB
+                    // Saved with a random GUID name to avoid conflicts
                     if (fuLessonFile.HasFile)
                     {
                         string extension = Path.GetExtension(fuLessonFile.FileName).ToLower();
-                        string[] allowedExts = { ".pdf", ".doc", ".docx", ".ppt", ".pptx" };
+                        string[] allowed = { ".pdf", ".doc", ".docx", ".ppt", ".pptx" };
 
-                        if (!Array.Exists(allowedExts, x => x == extension))
+                        if (!Array.Exists(allowed, x => x == extension))
                         {
                             ShowMsg(lblLessonMsg, "Invalid file type.", false);
                             return;
@@ -575,11 +540,10 @@ namespace LearnSphere_WAPP.Lecturer
                         string folder = Server.MapPath("~/Uploads/LessonMaterials/");
                         if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
-                        string newFileName = Guid.NewGuid().ToString() + extension;
-                        string savePath = Path.Combine(folder, newFileName);
-                        fuLessonFile.SaveAs(savePath);
+                        string fileName = Guid.NewGuid().ToString() + extension;
+                        fuLessonFile.SaveAs(Path.Combine(folder, fileName));
 
-                        string fileUrl = "~/Uploads/LessonMaterials/" + newFileName;
+                        string fileUrl = "~/Uploads/LessonMaterials/" + fileName;
 
                         SqlCommand fileCmd = new SqlCommand(@"
                             INSERT INTO Material (clickcount, filetype, lessonid, fileurl, videourl)
@@ -593,7 +557,6 @@ namespace LearnSphere_WAPP.Lecturer
                     }
                 }
 
-                // Reset form — matches original
                 txtLessonTitle.Text = "";
                 txtLessonDesc.Text = "";
                 txtVideoUrl.Text = "";
@@ -609,6 +572,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Refreshes the lessons grid on Step 3
         private void LoadLessons()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -626,6 +590,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Loads the review data and moves to Step 4
         protected void btnGoToReview_Click(object sender, EventArgs e)
         {
             LoadCourseForReview();
@@ -633,9 +598,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowStep(4);
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // STEP 4 — REVIEW & PUBLISH  (ReviewPublish.aspx.cs)
-        // ══════════════════════════════════════════════════════════════════════
+        // Goes back to the lessons step
         protected void btnBackToLessons_Click(object sender, EventArgs e)
         {
             LoadModuleTitle();
@@ -643,7 +606,7 @@ namespace LearnSphere_WAPP.Lecturer
             ShowStep(3);
         }
 
-        // Matches original LoadCourse with ownership check + XSS
+        // Fetches the course name, description and price for the review summary card
         private void LoadCourseForReview()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -664,14 +627,12 @@ namespace LearnSphere_WAPP.Lecturer
                 }
                 else
                 {
-                    // Unauthorized — go back to start
                     ShowStep(1);
                 }
             }
         }
 
-        // Matches original LoadModulesAndLessons exactly:
-        // List<dynamic> with nested Lessons list for nested repeater
+        // Builds the nested module/lesson structure needed by the review repeater
         private void LoadModulesAndLessons()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -697,6 +658,7 @@ namespace LearnSphere_WAPP.Lecturer
                 }
                 moduleReader.Close();
 
+                // Fetch lessons for each module individually to keep things readable
                 foreach (var module in modules)
                 {
                     SqlCommand lessonCmd = new SqlCommand(@"
@@ -722,11 +684,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches original btnPublish_Click exactly:
-        // - ownership check with rowsAffected==0 guard
-        // - status='Active'
-        // - Session.Remove("CurrentCourseID")
-        // - Redirect to ViewCourses.aspx
+        // Sets the course to Active, clears the session draft, and redirects to View Courses
         protected void btnPublish_Click(object sender, EventArgs e)
         {
             if (CurrentCourseID == 0 || Session["userid"] == null)
@@ -744,6 +702,7 @@ namespace LearnSphere_WAPP.Lecturer
                 cmd.Parameters.AddWithValue("@id", CurrentCourseID);
                 cmd.Parameters.AddWithValue("@uid", CurrentUserID);
 
+                // Ownership check — if nothing updated, the lecturer doesn't own this course
                 int rowsAffected = cmd.ExecuteNonQuery();
                 if (rowsAffected == 0)
                 {
@@ -758,9 +717,7 @@ namespace LearnSphere_WAPP.Lecturer
             Response.Redirect("ViewCourses.aspx");
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // SHARED HELPER
-        // ══════════════════════════════════════════════════════════════════════
+        // Sets a label's text, style and visibility in one call
         private void ShowMsg(Label lbl, string msg, bool success)
         {
             lbl.Text = msg;
@@ -768,9 +725,7 @@ namespace LearnSphere_WAPP.Lecturer
             lbl.Visible = true;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // LOGOUT
-        // ══════════════════════════════════════════════════════════════════════
+        // Clears the session and sends the lecturer back to the login page
         protected void btnLogout_Click(object sender, EventArgs e)
         {
             LearnSphere_WAPP.Syslog.action(CurrentUserID, "Logout system");
