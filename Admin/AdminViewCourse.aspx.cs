@@ -24,7 +24,6 @@ namespace LearnSphere_WAPP.Admin
             }
             if (!IsPostBack)
             {
-                lblWelcome.Text = "Welcome " + Session["uname"];
                 loadCourse();
                 LoadSidebarProfileImage();
             }
@@ -89,6 +88,23 @@ namespace LearnSphere_WAPP.Admin
             Session.Abandon();
             Request.Cookies.Clear();
             Response.Redirect("../Login.aspx");
+        }
+
+        protected void btnDeleteCourse_Click(object sender, EventArgs e)
+        {
+            con.Open();
+
+            string query = "Update [Course] set status = 'Deleted', deletiontime = @deletiontime where courseid = @courseid";
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@courseid", courseid);
+            cmd.Parameters.AddWithValue("@deletiontime", DateTime.Now);
+            cmd.ExecuteNonQuery();
+
+            LearnSphere_WAPP.Syslog.action((int)Session["userid"], "Deleted Course (CourseID:" + courseid + ")");
+
+            con.Close();
+
+            Response.Write("<script>alert('Course Deleted'); window.location.href='CourseManagement.aspx';</script>");
         }
     }
 }

@@ -9,258 +9,194 @@
 </head>
 <body>
     <form id="form1" runat="server">
-        <div class="layout">
-            <div class="sidebar">
-                <div>
-                    <div class="sidebar-title">LearnSphere</div>
-                    <a href="AdminDashboard.aspx" class="nav-item">Dashboard</a>
-                    <a href="UserManagement.aspx" class="nav-item">User Management</a>
-                    <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
-                    <a href="Database.aspx" class="nav-item">Database</a>
-                    <a href="AdminForums.aspx" class="nav-item">Forums</a>
-                    <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
-                    <a href="AdminSyslog.aspx" class="nav-item active">Syslog</a>
-                </div>
+        <div class="header">
+            <div class="logo">
+                <img src="~/LEARNSPHERE.png" runat="server" />
+                <div class="logo-text">Learn<span>Sphere</span></div>
+            </div>
+            <div class="header-right">
+                <span class="verified-badge">Administrator</span>
 
-                <div class="sidebar-profile">
-                    <div class="profile-box admin">
-                        <div class="profile-img-wrapper">
-                            <img id="sidebarImg" runat="server" class="profile-img" />
-                            <div class="verification-badge">✔</div>
+                <div class="user-pill">
+                        <div class="user-avatar">
+                            <img id="sidebarImg" runat="server" />
                         </div>
-
-                        <div class="profile-info">
-                            <div class="profile-name"><%= Session["uname"] %></div>
-                            <div class="profile-status">
-                                administrator
-                            </div>
-                        </div>
+                        <span class="user-name"><%= Session["uname"] %></span>
                     </div>
-
-                    <a href="AdminMessage.aspx" class="nav-item message-link">
-                        Messaging
-                        <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
-                            <span class="message-badge"><%= Session["unreadCount"] %></span>
-                    <% } %>
-                    </a>
-
-                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="btn-logout" OnClick="btnLogout_Click" />
                 </div>
             </div>
 
-                <!-- MAIN -->
-            <div class="main-content">
+            <div class="nav">
+                <a href="AdminDashboard.aspx" >Dashboard</a>
+                <a href="UserManagement.aspx" >User Management</a>
+                <a href="CourseManagement.aspx" >Course Management</a>
+                <a href="Database.aspx" >Database</a>
+                <a href="AdminForums.aspx" >Forums</a>
+                <a href="AdminEditProfile.aspx" >Edit Profile</a>
+                <a href="AdminSyslog.aspx" >Syslog</a>
+                <a href="AdminMessage.aspx" class="active">
+                    Messaging
+                    <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
+                        <span class="nav-badge"><%= Session["unreadCount"] %></span>
+                    <% } %>
+                </a>
+                <a href="../Chatbot/AdminChatbotKnowledge.aspx" >Chatbot</a>
+            </div>
 
-                <div class="chat-container">
+            <!-- ═══ CONTENT ═══ -->
+            <div class="container">
 
-                    <!-- LEFT -->
-                    <div class="chat-sidebar">
+                <!-- Page Banner -->
+                <div class="page-header">
+                    <div class="page-header-label">Communication</div>
+                    <div class="page-header-title">Messaging</div>
+                    <div class="page-header-sub">Search for users or continue a conversation.</div>
+                </div>
 
-                        <!-- SEARCH -->
-                        <asp:Panel runat="server" DefaultButton="btnSearchUser" CssClass="search-section">
+                <!-- Chat Layout -->
+                <div class="chat-layout">
 
-                            <asp:TextBox ID="txtSearchUser"
-                                runat="server"
-                                CssClass="search-box"
-                                placeholder="Search users..." />
+                    <!-- LEFT: Conversations + Search -->
+                    <div class="lecturers-panel">
 
-                            <asp:Button ID="btnSearchUser"
-                                runat="server"
-                                Text="Search"
-                                CssClass="search-btn"
-                                OnClick="btnSearchUser_Click" />
-
-                        </asp:Panel>
-
-                        <!-- SEARCH RESULTS -->
-                        <asp:Repeater ID="rptSearchResults" runat="server"
-                            OnItemCommand="rptSearchResults_ItemCommand">
-                            <ItemTemplate>
-
-                                <div class="user-card">
-
-                                    <div class="user-left">
-
-                                        <asp:LinkButton runat="server"
-                                            CommandName="ViewProfile"
-                                            CommandArgument='<%# Eval("userid") %>'
-                                            CssClass="avatar-link"
-                                            CausesValidation="false">
-
-                                            <img src='<%# Eval("ProfileImage") != DBNull.Value 
-                                                ? ResolveUrl(Eval("ProfileImage").ToString()) 
-                                                : ResolveUrl("~/images/default-user.png") %>' 
-                                                class="user-avatar" />
-
-                                        </asp:LinkButton>
-
-                                        <div class="user-text">
-                                            <div class="user-name">
-                                                <%# Server.HtmlEncode(Eval("FullName").ToString()) %>
-                                            </div>
-                                            <div class="user-email">
-                                                <%# Server.HtmlEncode(Eval("email").ToString()) %>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <asp:Button ID="btnStartChat"
-                                        runat="server"
-                                        Text="Start Chat"
-                                        CssClass="start-chat-btn"
-                                        CommandName="StartChat"
-                                        CommandArgument='<%# Eval("userid") %>' />
-
-                                </div>
-
-                            </ItemTemplate>
-                        </asp:Repeater>
-
-                        <!-- CONVERSATIONS -->
-                        <asp:Repeater ID="rptConversations" runat="server"
-                            OnItemCommand="rptConversations_ItemCommand">
-                            <ItemTemplate>
-
-                                <div class="conversation-item">
-
-                                    <asp:LinkButton runat="server"
-                                        CommandName="ViewProfile"
-                                        CommandArgument='<%# Eval("userid") %>'
-                                        CssClass="avatar-link"
-                                        CausesValidation="false">
-
-                                        <img src='<%# Eval("ProfileImage") != DBNull.Value 
-                                            ? ResolveUrl(Eval("ProfileImage").ToString()) 
-                                            : ResolveUrl("~/images/default-user.png") %>' 
-                                            class="conversation-avatar" />
-
-                                    </asp:LinkButton>
-
-                                    <asp:LinkButton ID="btnOpenChat"
-                                        runat="server"
-                                        CommandName="OpenChat"
-                                        CommandArgument='<%# Eval("conversationid") %>'
-                                        CssClass="conversation-link-full">
-
-                                        <%# Server.HtmlEncode(Eval("DisplayName").ToString()) %>
-
-                                    </asp:LinkButton>
-
-                                </div>
-
-                            </ItemTemplate>
-                        </asp:Repeater>
-
-                    </div>
-
-                    <!-- CHAT -->
-                    <div class="chat-main">
-
-                        <div class="chat-header">
-                            <asp:Label ID="lblChatTitle"
-                                runat="server"
-                                Text="Select a conversation" />
+                        <div class="panel-header">
+                            <span class="panel-header-dot"></span>
+                            Conversations
                         </div>
 
-                        <!-- MESSAGES -->
-                        <div class="chat-messages">
+                        <!-- Search -->
+                        <div class="search-section">
+                            <asp:TextBox ID="txtSearchUser" runat="server" CssClass="search-box" placeholder="Search users..." AutoPostBack="True" OnTextChanged="txtSearchUser_TextChanged" />
+                            <asp:Button ID="btnSearchUser" runat="server" Text="Search" CssClass="search-btn" OnClick="btnSearchUser_Click" />
+                        </div>
+
+                        <div class="panel-list">
+
+                            <!-- Search Results -->
+                            <asp:Repeater ID="rptSearchResults" runat="server" OnItemCommand="rptSearchResults_ItemCommand">
+                                <ItemTemplate>
+                                    <div class="user-card">
+                                        <div class="user-left">
+                                            <asp:LinkButton runat="server" CommandName="ViewProfile"
+                                                CommandArgument='<%# Eval("userid") %>'
+                                                CssClass="avatar-link" CausesValidation="false">
+                                                <img src='<%# Eval("ProfileImage") != DBNull.Value
+                                                    ? ResolveUrl(Eval("ProfileImage").ToString())
+                                                    : ResolveUrl("~/images/default-user.png") %>'
+                                                    class="user-avatar-img" />
+                                            </asp:LinkButton>
+                                            <div class="user-text">
+                                                <div class="user-name-text"><%# Server.HtmlEncode(Eval("FullName").ToString()) %></div>
+                                                <div class="user-email-text"><%# Server.HtmlEncode(Eval("email").ToString()) %></div>
+                                            </div>
+                                        </div>
+                                        <asp:Button ID="btnStartChat" runat="server" Text="Chat"
+                                            CssClass="start-chat-btn" CommandName="StartChat"
+                                            CommandArgument='<%# Eval("userid") %>' />
+                                    </div>
+                                </ItemTemplate>
+                            </asp:Repeater>
+
+                            <!-- Conversations -->
+                            <asp:Repeater ID="rptConversations" runat="server" OnItemCommand="rptConversations_ItemCommand">
+                                <ItemTemplate>
+                                    <div class="conversation-item">
+                                        <asp:LinkButton runat="server" CommandName="ViewProfile"
+                                            CommandArgument='<%# Eval("userid") %>'
+                                            CssClass="avatar-link" CausesValidation="false">
+                                            <img src='<%# Eval("ProfileImage") != DBNull.Value
+                                                ? ResolveUrl(Eval("ProfileImage").ToString())
+                                                : ResolveUrl("~/images/default-user.png") %>'
+                                                class="conversation-avatar" />
+                                        </asp:LinkButton>
+                                        <asp:LinkButton ID="btnOpenChat" runat="server"
+                                            CommandName="OpenChat"
+                                            CommandArgument='<%# Eval("conversationid") %>'
+                                            CssClass="conversation-link">
+                                            <%# Server.HtmlEncode(Eval("DisplayName").ToString()) %>
+                                        </asp:LinkButton>
+                                    </div>
+                                </ItemTemplate>
+                            </asp:Repeater>
+
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Chat Area -->
+                    <div class="chat-panel">
+
+                        <div class="chat-header">
+                            <asp:Label ID="lblChatTitle" runat="server" Text="Select a conversation" />
+                        </div>
+
+                        <div class="chat-messages" id="chatMessages">
                             <asp:Repeater ID="rptMessages" runat="server">
                                 <ItemTemplate>
-
                                     <div class="message-row <%# Convert.ToInt32(Eval("IsMine")) == 1 ? "mine" : "other" %>">
-
                                         <asp:LinkButton runat="server"
                                             CommandName="ViewProfile"
                                             CommandArgument='<%# Eval("SenderID") %>'
-                                            CssClass="avatar-link"
-                                            CausesValidation="false"
+                                            CssClass="avatar-link" CausesValidation="false"
                                             Visible='<%# Convert.ToInt32(Eval("IsMine")) == 0 %>'>
-
-                                            <img src='<%# Eval("ProfileImage") != DBNull.Value 
-                                                ? ResolveUrl(Eval("ProfileImage").ToString()) 
-                                                : ResolveUrl("~/images/default-user.png") %>' 
+                                            <img src='<%# Eval("ProfileImage") != DBNull.Value
+                                                ? ResolveUrl(Eval("ProfileImage").ToString())
+                                                : ResolveUrl("~/images/default-user.png") %>'
                                                 class="message-avatar" />
-
                                         </asp:LinkButton>
-
                                         <div class='<%# Convert.ToInt32(Eval("IsMine")) == 1 ? "message sent" : "message received" %>'>
-
                                             <%# Server.HtmlEncode(Eval("content").ToString()) %>
-
-                                            <div class="message-time">
-                                                <%# Eval("creationtime", "{0:hh:mm tt}") %>
-                                            </div>
-
+                                            <div class="message-time"><%# Eval("creationtime", "{0:hh:mm tt}") %></div>
                                         </div>
-
                                     </div>
-
                                 </ItemTemplate>
                             </asp:Repeater>
                         </div>
 
-                        <!-- INPUT -->
                         <div class="chat-input">
-
-                            <asp:TextBox ID="txtMessage"
-                                runat="server"
-                                CssClass="message-box"
-                                TextMode="MultiLine"
-                                Rows="2"
-                                MaxLength="1000" />
-
-                            <asp:Button ID="btnSend"
-                                runat="server"
-                                Text="Send"
-                                CssClass="send-btn"
-                                OnClick="btnSend_Click" />
-
-                        </div>
-
-                    </div>
-
-                    <!-- PROFILE POPUP -->
-                    <div class="profile-popup" id="profilePopup" runat="server" style="display:none;">
-
-                        <div class="profile-card-inner">
-
-                            <div class="profile-img-wrapper">
-                                <asp:Image ID="imgProfileCard" runat="server" CssClass="popup-avatar"/>
-                                <asp:Label ID="lblVerifyBadge" runat="server" CssClass="verify-badge">✔</asp:Label>
-                            </div>
-
-                            <asp:Label ID="lblProfileName" runat="server" CssClass="popup-name"/>
-                            <asp:Label ID="lblProfileRole" runat="server" CssClass="popup-role"/>
-                            <asp:Label ID="lblProfileEmail" runat="server" CssClass="popup-email"/>
-                            <asp:Label ID="lblProfileStatus" runat="server" CssClass="popup-status"/>
-                            <asp:Label ID="lblProfileDesc" runat="server" CssClass="popup-desc"/>
-
+                            <asp:TextBox ID="txtMessage" runat="server" CssClass="message-box"
+                                TextMode="MultiLine" Rows="2" MaxLength="1000" />
+                            <asp:Button ID="btnSend" runat="server" Text="Send" CssClass="send-btn" OnClick="btnSend_Click" />
                         </div>
 
                     </div>
 
                 </div>
-
             </div>
 
-        </div>
+            <!-- Profile Popup (unchanged functionality) -->
+            <div class="profile-popup" id="profilePopup" runat="server" style="display:none;">
+                <div class="profile-card-inner">
+                    <div class="profile-img-wrapper">
+                        <asp:Image ID="imgProfileCard" runat="server" CssClass="popup-avatar" />
+                        <asp:Label ID="lblVerifyBadge" runat="server" CssClass="verify-badge">✔</asp:Label>
+                    </div>
+                    <asp:Label ID="lblProfileName" runat="server" CssClass="popup-name" />
+                    <asp:Label ID="lblProfileRole" runat="server" CssClass="popup-role" />
+                    <asp:Label ID="lblProfileEmail" runat="server" CssClass="popup-email" />
+                    <asp:Label ID="lblProfileStatus" runat="server" CssClass="popup-status" />
+                    <asp:Label ID="lblProfileDesc" runat="server" CssClass="popup-desc" />
+                </div>
+            </div>
     </form>
 
     <script>
-        // CLOSE POPUP WHEN CLICK OUTSIDE
+        window.onload = function () {
+            var chat = document.getElementById('chatMessages');
+            if (chat) chat.scrollTop = chat.scrollHeight;
+        };
+
+        // Close popup on outside click
         document.addEventListener("click", function (e) {
             var popup = document.getElementById("<%= profilePopup.ClientID %>");
             var card = document.querySelector(".profile-card-inner");
-
             if (!popup) return;
-
             if (card && !card.contains(e.target) && !e.target.closest(".avatar-link")) {
                 popup.style.display = "none";
             }
         });
 
-        // ESC TO CLOSE
+        // ESC to close popup
         document.addEventListener("keydown", function (e) {
             if (e.key === "Escape") {
                 var popup = document.getElementById("<%= profilePopup.ClientID %>");

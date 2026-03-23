@@ -20,19 +20,14 @@ namespace LearnSphere_WAPP.Admin
             userid = Request.QueryString["userid"] != null ? Convert.ToInt32(Request.QueryString["userid"]) : 0;
             if (!IsPostBack)
             {
-                LoadSidebarProfileImage();
-                lblWelcome.Text = "Welcome " + Session["uname"];
                 if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
                 {
                     Response.Redirect("../Login.aspx");
                 }
                 if (userid != 0)
                 {
-                    if (Session["usertype"].ToString() != "SuperAdmin")
-                    {
-                        dropdownUsertype.Items.Remove("Admin");
-                    }
                     loadUserDetails();
+                    LoadSidebarProfileImage();
                 }
                 else
                 {
@@ -75,13 +70,14 @@ namespace LearnSphere_WAPP.Admin
             DataTable dt = new DataTable();
             da.Fill(dt);
 
-            lblUname.Text = dt.Rows[0]["uname"].ToString();
-            lblFname.Text = dt.Rows[0]["fname"].ToString();
-            lblLname.Text = dt.Rows[0]["lname"].ToString();
-            lblEmail.Text = dt.Rows[0]["email"].ToString();
-            lblAge.Text = dt.Rows[0]["age"].ToString();
+            txtUserid.Text = userid.ToString();
+            txtUname.Text = dt.Rows[0]["uname"].ToString();
+            txtFname.Text = dt.Rows[0]["fname"].ToString();
+            txtLname.Text = dt.Rows[0]["lname"].ToString();
+            txtEmail.Text = dt.Rows[0]["email"].ToString();
+            txtAge.Text = dt.Rows[0]["age"].ToString();
             dropdownGender.Text = dt.Rows[0]["gender"].ToString();
-            dropdownUsertype.Text = dt.Rows[0]["usertype"].ToString();
+            txtUsertype.Text = dt.Rows[0]["usertype"].ToString();
 
             con.Close();
         }
@@ -90,15 +86,14 @@ namespace LearnSphere_WAPP.Admin
         {
             con.Open();
 
-            string query = "Update [User] Set uname = @uname, fname = @fname, lname = @lname, email = @email, age = @age, gender = @gender, usertype = @usertype where userid = @userid";
+            string query = "Update [User] Set uname = @uname, fname = @fname, lname = @lname, email = @email, age = @age, gender = @gender where userid = @userid";
             SqlCommand cmd = new SqlCommand(query, con);
-            cmd.Parameters.AddWithValue("@uname", lblUname.Text);
-            cmd.Parameters.AddWithValue("@fname", lblFname.Text);
-            cmd.Parameters.AddWithValue("@lname", lblLname.Text);
-            cmd.Parameters.AddWithValue("@email", lblEmail.Text);
-            cmd.Parameters.AddWithValue("@age", Convert.ToInt32(lblAge.Text));
+            cmd.Parameters.AddWithValue("@uname", txtUname.Text);
+            cmd.Parameters.AddWithValue("@fname", txtFname.Text);
+            cmd.Parameters.AddWithValue("@lname", txtLname.Text);
+            cmd.Parameters.AddWithValue("@email", txtEmail.Text);
+            cmd.Parameters.AddWithValue("@age", Convert.ToInt32(txtAge.Text));
             cmd.Parameters.AddWithValue("@gender", dropdownGender.Text);
-            cmd.Parameters.AddWithValue("@usertype", dropdownUsertype.Text);
             cmd.Parameters.AddWithValue("@userid", userid);
             cmd.ExecuteNonQuery();
 

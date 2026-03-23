@@ -23,7 +23,6 @@ namespace LearnSphere_WAPP.Admin
 
             if (!IsPostBack)
             {
-                lblWelcome.Text = "Welcome " + Session["uname"];
                 loadUsers();
                 LoadSidebarProfileImage();
             }
@@ -59,10 +58,12 @@ namespace LearnSphere_WAPP.Admin
                 string query;
 
                 if (Session["usertype"].ToString() == "Admin")
-                    query = "SELECT u.userid, u.uname, u.email, u.fname, u.lname, u.age, u.gender, u.creationtime, u.usertype, u.status " +
+                    query = "SELECT u.userid, u.uname, u.email, u.fname, u.lname, u.age, u.gender, u.creationtime, u.usertype, u.status, " +
+                            "CASE WHEN EXISTS (SELECT 1 FROM VerificationRequest v WHERE v.userid = u.userid AND v.status = 'Pending') THEN 1 ELSE 0 END AS HasPending " +
                             "FROM [User] u WHERE NOT u.usertype='Admin' AND NOT u.usertype='SuperAdmin' AND NOT u.status='Deleted'";
                 else
                     query = "SELECT u.userid, u.uname, u.email, u.fname, u.lname, u.age, u.gender, u.creationtime, u.usertype, u.status " +
+                            "CASE WHEN EXISTS (SELECT 1 FROM VerificationRequest v WHERE v.userid = u.userid AND v.status = 'Pending') THEN 1 ELSE 0 END AS HasPending " +
                             "FROM [User] u WHERE NOT u.usertype='SuperAdmin' AND NOT u.status='Deleted'";
 
                 if (!string.IsNullOrEmpty(txtSearch.Text))
@@ -182,33 +183,15 @@ namespace LearnSphere_WAPP.Admin
             GridView1.PageIndex = e.NewPageIndex;
             loadUsers();
         }
-        
-        protected bool HasPendingRequest(object userId)
-        {
-            if (userId == null) return false;
-
-            string query = "SELECT COUNT(*) FROM VerificationRequest WHERE userid=@userid AND status='Pending'";
-            SqlCommand cmd = new SqlCommand(query, con);
-            cmd.Parameters.AddWithValue("@userid", userId);
-            try
-            {
-                con.Open();
-                int count = (int)cmd.ExecuteScalar();
-                return count > 0;
-            }
-            catch
-            {
-                return false;
-            }
-            finally
-            {
-                con.Close();
-            }
-        }
 
         protected void chkPending_CheckedChanged(object sender, EventArgs e)
         {
             loadUsers();
+        }
+
+        protected void btnCreate_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("AddUser.aspx");
         }
     }
 }

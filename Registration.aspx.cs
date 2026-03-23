@@ -22,7 +22,8 @@ namespace LearnSphere_WAPP
                 ShowStep(1);
             }
         }
-        // method to show/hide panels based on current step
+
+        // ================= STEP CONTROL =================
         private void ShowStep(int step)
         {
             pnlStep1.Visible = step == 1;
@@ -32,7 +33,7 @@ namespace LearnSphere_WAPP
             lblStep.Text = step.ToString();
         }
 
-        // username validation
+        // ================= USERNAME VALIDATION =================
         protected void cvUsername_ServerValidate(object source, ServerValidateEventArgs args)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -49,7 +50,7 @@ namespace LearnSphere_WAPP
             }
         }
 
-        // step 1 to step 2
+        // ================= STEP 1 → STEP 2 =================
         protected void btnNext1_Click(object sender, EventArgs e)
         {
             Page.Validate("Step1");
@@ -60,7 +61,7 @@ namespace LearnSphere_WAPP
             ShowStep(2);
         }
 
-        // step 2 to step 3
+        // ================= STEP 2 → STEP 3 =================
         protected void btnNext2_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(email.Text))
@@ -88,7 +89,7 @@ namespace LearnSphere_WAPP
             ShowStep(3);
         }
 
-        // back buttons
+        // ================= BACK BUTTONS =================
         protected void btnBack1_Click(object sender, EventArgs e)
         {
             ShowStep(1);
@@ -99,7 +100,7 @@ namespace LearnSphere_WAPP
             ShowStep(2);
         }
 
-        // registration button logic
+        // ================= REGISTER =================
         protected void btnRegister_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(fname.Text) ||
@@ -153,13 +154,17 @@ namespace LearnSphere_WAPP
                     SqlCommand cmd = new SqlCommand(query, con);
 
                     cmd.Parameters.Add("@uname", SqlDbType.NVarChar, 50).Value = uname.Text;
-                    cmd.Parameters.Add("@email", SqlDbType.NVarChar, 100).Value = emailValue;
-                    cmd.Parameters.Add("@pwd", SqlDbType.NVarChar).Value = hashedPassword;
+                    cmd.Parameters.Add("@email", SqlDbType.NVarChar, 100).Value = email.Text;
+                    cmd.Parameters.Add("@pwd", SqlDbType.NVarChar).Value = plainPassword;
+
                     cmd.Parameters.Add("@fname", SqlDbType.NVarChar, 50).Value = fname.Text;
                     cmd.Parameters.Add("@lname", SqlDbType.NVarChar, 50).Value = lname.Text;
+
                     cmd.Parameters.Add("@age", SqlDbType.Int).Value = ageValue;
                     cmd.Parameters.Add("@gender", SqlDbType.NVarChar, 10).Value = gender.SelectedValue;
+
                     cmd.Parameters.Add("@creationtime", SqlDbType.DateTime).Value = DateTime.Now;
+
                     cmd.Parameters.Add("@usertype", SqlDbType.NVarChar, 20).Value = "General";
                     cmd.Parameters.Add("@status", SqlDbType.NVarChar, 20).Value = "Active";
 
