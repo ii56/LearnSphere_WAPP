@@ -46,7 +46,7 @@ namespace LearnSphere_WAPP.GeneralUser
                         FROM Course c
                         INNER JOIN [User] u ON c.ownerid = u.userid
                         LEFT JOIN Invoice inv ON c.courseid = inv.courseid AND inv.userid = @UserId
-                        WHERE c.courseid = @CourseId AND c.status = 1 AND c.deletiontime IS NULL";
+                        WHERE c.courseid = @CourseId AND c.status = 'Active' AND c.deletiontime IS NULL";
 
                     using (SqlCommand cmd = new SqlCommand(query, con))
                     {
@@ -169,7 +169,7 @@ namespace LearnSphere_WAPP.GeneralUser
                     {
                         checkCmd.Parameters.AddWithValue("@uid", userId);
                         checkCmd.Parameters.AddWithValue("@cid", courseId);
-                        if ((int)checkCmd.ExecuteScalar() > 0) return; // Already enrolled
+                        if ((int)checkCmd.ExecuteScalar() > 0) return; 
                     }
 
                     // 2. Insert Invoice (Payment Record)
@@ -187,7 +187,7 @@ namespace LearnSphere_WAPP.GeneralUser
                     }
 
                     // 3. AUTO-UPGRADE LOGIC (General -> Student)
-                    if (amount > 0)
+                    if (amount>0)
                     {
                         // A. Update the User table
                         using (SqlCommand roleCmd = new SqlCommand("UPDATE [User] SET usertype = 'Student' WHERE userid = @uid", con))
@@ -213,10 +213,9 @@ namespace LearnSphere_WAPP.GeneralUser
                         Session.Clear();
                         Session.Abandon();
 
-                        // Redirect to login page. You could optionally add a query string here (e.g., ?status=upgraded) 
                         // to show a success message on the login screen.
                         Response.Redirect("~/Login.aspx");
-                        return; // Stop execution so it doesn't try to update the UI below
+                        return;
                     }
                 }
 

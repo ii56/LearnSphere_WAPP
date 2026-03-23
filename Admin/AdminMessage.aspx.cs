@@ -387,9 +387,35 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout System");
             Session.Clear();
             Session.Abandon();
             Response.Redirect("~/Login.aspx");
+        }
+
+        protected void txtSearchUser_TextChanged(object sender, EventArgs e)
+        {
+            string input = txtSearchUser.Text.Trim();
+
+            if (input.Length < 2)
+                return;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string query = @"
+                    SELECT TOP 20 userid, fname + ' ' + lname AS FullName, email, ProfileImage
+                    FROM [User]
+                    WHERE (fname + ' ' + lname) LIKE @search
+                    AND userid != @uid";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.Add("@search", SqlDbType.NVarChar, 100).Value = "%" + input + "%";
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = CurrentUserID;
+
+                conn.Open();
+                rptSearchResults.DataSource = cmd.ExecuteReader();
+                rptSearchResults.DataBind();
+            }
         }
     }
 }

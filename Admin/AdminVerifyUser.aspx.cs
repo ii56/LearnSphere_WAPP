@@ -14,11 +14,11 @@ namespace LearnSphere_WAPP.Admin
     public partial class AdminVerifyUser : System.Web.UI.Page
     {
         static SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString);
-        int requestId;
+        int userId;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            requestId = Request.QueryString["requestid"] != null ? Convert.ToInt32(Request.QueryString["requestid"]) : 0;
+            userId = Request.QueryString["userid"] != null ? Convert.ToInt32(Request.QueryString["userid"]) : 0;
 
             if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
             {
@@ -27,7 +27,6 @@ namespace LearnSphere_WAPP.Admin
 
             if (!IsPostBack)
             {
-                lblWelcome.Text = "Welcome " + Session["uname"];
                 LoadVerificationRequest();
                 LoadSidebarProfileImage();
             }
@@ -54,29 +53,45 @@ namespace LearnSphere_WAPP.Admin
 
         private void LoadVerificationRequest()
         {
-            string query = @"SELECT userid, currentrole, requestedrole, documentpath, status, requesttime, remarks 
+            string query = @"SELECT requestid, userid, currentrole, requestedrole, documentpath, status, requesttime, reviewedtime, reviewedby, remarks 
                              FROM VerificationRequest 
-                             WHERE requestid = @requestid";
+                             WHERE userid = @userid";
 
             SqlCommand cmd = new SqlCommand(query, con);
-            cmd.Parameters.AddWithValue("@requestid", requestId);
+            cmd.Parameters.AddWithValue("@userid", userId);
 
             con.Open();
             SqlDataReader dr = cmd.ExecuteReader();
             if (dr.Read())
             {
-                lblRequestId.Text = requestId.ToString();
-                lblUserId.Text = dr["userid"].ToString();
+                lblRequestId.Text = dr["requestid"].ToString();
+                lblUserId.Text = userId.ToString();
                 lblCurrentRole.Text = dr["currentrole"].ToString();
                 lblRequestedRole.Text = dr["requestedrole"].ToString();
                 lblRequestTime.Text = Convert.ToDateTime(dr["requesttime"]).ToString("yyyy-MM-dd HH:mm");
                 lblStatus.Text = dr["status"].ToString();
-                lblRemarks.Text = dr["remarks"].ToString();
+                if (lblStatus.Text != "Pending")
+                {
+                    lblReviewTime.Text = Convert.ToDateTime(dr["reviewedtime"]).ToString("yyyy-MM-dd HH:mm");
+                    lblReviewBy.Text = dr["reviewedby"].ToString();
+                }
+                else
+                {
+                    lblReviewTime.Text = "None";
+                    lblReviewBy.Text = "None";
+                }
+
+                txtRemarks.Text = dr["remarks"].ToString();
 
                 string docPath = dr["documentpath"].ToString();
-                if (File.Exists(Server.MapPath(docPath)))
+                string fullPath = Server.MapPath(docPath);
+                if (File.Exists(fullPath))
                 {
                     docFrame.Src = ResolveUrl(docPath);
+                }
+                else
+                {
+                    docFrame.Src = "";
                 }
             }
             dr.Close();
@@ -86,27 +101,37 @@ namespace LearnSphere_WAPP.Admin
         protected void btnApprove_Click(object sender, EventArgs e)
         {
             UpdateStatus("Approved");
-            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Approved request for user (UserID: " + requestId + ")");
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Approved request for user (UserID: " + userId + ")");
         }
 
         protected void btnDecline_Click(object sender, EventArgs e)
         {
-            UpdateStatus("Declined");
-            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Declined request for user (UserID: " + requestId + ")");
+            UpdateStatus("Rejected");
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Declined request for user (UserID: " + userId + ")");
         }
 
         private void UpdateStatus(string newStatus)
         {
             string query = @"UPDATE VerificationRequest 
-                             SET status=@status, reviewedtime=GETDATE(), reviewedby=@adminId 
-                             WHERE requestid=@requestid";
+                             SET status=@status, reviewedtime=GETDATE(), reviewedby=@adminId, remarks=@remarks 
+                             WHERE userid=@userid";
 
             SqlCommand cmd = new SqlCommand(query, con);
             cmd.Parameters.AddWithValue("@status", newStatus);
             cmd.Parameters.AddWithValue("@adminId", Session["userid"]);
-            cmd.Parameters.AddWithValue("@requestid", requestId);
+            cmd.Parameters.AddWithValue("@remarks", txtRemarks.Text);
+            cmd.Parameters.AddWithValue("@userid", userId);
 
             con.Open();
+            if (newStatus == "Approved")
+            {
+                string query2 = @"UPDATE [User] SET usertype = 'Lecturer' WHERE userid = @userid";
+                SqlCommand cmd2 = new SqlCommand(query2, con);
+                cmd2.Parameters.AddWithValue("@userid", userId);
+                cmd2.ExecuteNonQuery();
+
+            }
+            
             cmd.ExecuteNonQuery();
             con.Close();
 
@@ -115,9 +140,9 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Session.Abandon();
             Request.Cookies.Clear();
-            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Response.Redirect("../Login.aspx");
         }
     }

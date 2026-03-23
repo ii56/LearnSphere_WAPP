@@ -79,7 +79,7 @@ namespace LearnSphere_WAPP.GeneralUser
                         FROM Course c
                         INNER JOIN [User] u ON c.ownerid = u.userid
                         LEFT JOIN Invoice inv ON c.courseid = inv.courseid AND inv.userid = @currentUserId
-                        WHERE c.status = 1 
+                        WHERE c.status = 'Active' 
                         AND c.deletiontime IS NULL";
 
                     List<SqlParameter> parameters = new List<SqlParameter>

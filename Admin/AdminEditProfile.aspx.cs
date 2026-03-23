@@ -9,6 +9,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Configuration;
 using System.IO;
+using iTextSharp.xmp.impl.xpath;
 
 namespace LearnSphere_WAPP.Admin
 {
@@ -25,7 +26,6 @@ namespace LearnSphere_WAPP.Admin
 
             if (!IsPostBack)
             {
-                lblWelcome.Text = "Welcome " + Session["uname"];
                 loadProfile();
                 LoadSidebarProfileImage();
             }
@@ -65,48 +65,40 @@ namespace LearnSphere_WAPP.Admin
             DataTable dt = new DataTable();
             da.Fill(dt);
 
-            lblUname.Text = dt.Rows[0]["uname"].ToString();
-            lblFname.Text = dt.Rows[0]["fname"].ToString();
-            lblLname.Text = dt.Rows[0]["lname"].ToString();
-            lblEmail.Text = dt.Rows[0]["email"].ToString();
-            lblAge.Text = dt.Rows[0]["age"].ToString();
-            dropdownGender.Text = dt.Rows[0]["gender"].ToString();
-            Image1.ImageUrl = dt.Rows[0]["ProfileImage"].ToString();
+            txtUserid.Text = Session["userid"].ToString();
+            txtUsername.Text = dt.Rows[0]["uname"].ToString();
+            txtFname.Text = dt.Rows[0]["fname"].ToString();
+            txtLname.Text = dt.Rows[0]["lname"].ToString();
+            txtEmail.Text = dt.Rows[0]["email"].ToString();
+            txtAge.Text = dt.Rows[0]["age"].ToString();
+            dropdownGender.SelectedValue = dt.Rows[0]["gender"].ToString().Trim();
             txtDescription.Text = dt.Rows[0]["description"].ToString();
-            imgText = dt.Rows[0]["ProfileImage"].ToString();
+
+            if (dt.Rows[0]["ProfileImage"] != DBNull.Value)
+            {
+                profilePic.Src = ResolveUrl(dt.Rows[0]["ProfileImage"].ToString());
+                lblUploadMessage.Text = dt.Rows[0]["ProfileImage"].ToString();
+            }
+            else
+            {
+                profilePic.Src = ResolveUrl("~/images/default-user.png");
+                lblUploadMessage.Text = "~/images/default-user.png";
+            }
 
             con.Close();
         }
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
-            string folderPath = Server.MapPath("../ProfilePic/");
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-
-            string ImgPath = "";
-            if (this.FileUpload1.HasFile)
-            {
-                ImgPath = "../ProfilePic/" + this.FileUpload1.FileName.ToString();
-                FileUpload1.SaveAs(folderPath + Path.GetFileName(FileUpload1.FileName));
-            }
-            else
-            {
-                ImgPath = imgText;
-            }
-
             con.Open();
-            string query = "update [User] set uname = @uname, email = @email, fname = @fname, lname = @lname, age = @age, gender = @gender, ProfileImage = @profileimage, description = @description where userid = @userid";
+            string query = "update [User] set uname = @uname, email = @email, fname = @fname, lname = @lname, age = @age, gender = @gender, description = @description where userid = @userid";
             SqlCommand cmd = new SqlCommand(query, con);
-            cmd.Parameters.AddWithValue("@uname", lblUname.Text);
-            cmd.Parameters.AddWithValue("@email", lblEmail.Text);
-            cmd.Parameters.AddWithValue("@fname", lblFname.Text);
-            cmd.Parameters.AddWithValue("@lname", lblLname.Text);
-            cmd.Parameters.AddWithValue("@age", Convert.ToInt32(lblAge.Text));
+            cmd.Parameters.AddWithValue("@uname", txtUsername.Text);
+            cmd.Parameters.AddWithValue("@email", txtEmail.Text);
+            cmd.Parameters.AddWithValue("@fname", txtFname.Text);
+            cmd.Parameters.AddWithValue("@lname", txtLname.Text);
+            cmd.Parameters.AddWithValue("@age", Convert.ToInt32(txtAge.Text));
             cmd.Parameters.AddWithValue("@gender", dropdownGender.Text);
-            cmd.Parameters.AddWithValue("@profileimage", ImgPath);
             cmd.Parameters.AddWithValue("@description", txtDescription.Text);
             cmd.Parameters.AddWithValue("@userid", Session["userid"]);
             cmd.ExecuteNonQuery();
@@ -116,11 +108,59 @@ namespace LearnSphere_WAPP.Admin
             Response.Write("<script>alert('Profile Updated'); window.history.back();</script>");
         }
 
-        protected void btnLogout_Click(object sender, EventArgs e)
+        protected void btnSave_Click1(object sender, EventArgs e)
         {
+            string folderPath = Server.MapPath("../ProfilePic/");
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string ImgPath = "";
+            if (this.fuProfileImage.HasFile)
+            {
+                ImgPath = "../ProfilePic/" + this.fuProfileImage.FileName.ToString();
+                fuProfileImage.SaveAs(folderPath + Path.GetFileName(fuProfileImage.FileName));
+            }
+            else
+            {
+                ImgPath = lblUploadMessage.Text;
+            }
+
+            con.Open();
+            string query = "Update [User] set ProfileImage = @profileimage where userid=@userid";
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@profileimage", ImgPath);
+            cmd.Parameters.AddWithValue("@userid", Session["userid"]);
+            cmd.ExecuteNonQuery();
+
+            con.Close();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Update Profile Image");
+            Response.Write("<script>alert('Profile Image Updated'); window.history.back();</script>");
+        }
+
+        protected void btnSave_Click2(object sender, EventArgs e)
+        {
+            con.Open();
+            string query = "Update [User] set pwd=@pwd where userid=@userid";
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@pwd", txtPassword.Text);
+            cmd.Parameters.AddWithValue("@userid", Session["userid"]);
+            cmd.ExecuteNonQuery();
+
+            con.Close();
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Update Password");
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Session.Abandon();
             Request.Cookies.Clear();
+            Response.Write("<script>alert('Password Updated'); window.location='../Login.aspx';</script>");
+        }
+
+        protected void btnLogout_Click(object sender, EventArgs e)
+        {
             LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
+            Session.Abandon();
+            Request.Cookies.Clear();
             Response.Redirect("../Login.aspx");
         }
 

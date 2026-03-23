@@ -27,44 +27,53 @@ namespace LearnSphere_WAPP
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            if (Page.IsValid)
+            if (!Page.IsValid)
+                return;
+
+            string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+
+            using (SqlConnection con = new SqlConnection(connStr))
             {
-                string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+                con.Open();
 
-                using (SqlConnection con = new SqlConnection(connStr))
+                // Fetch the stored hash by username only (never pass the password to SQL)
+                string query = @"SELECT userid, uname, usertype, pwd
+                                 FROM [User]
+                                 WHERE LOWER(uname) = LOWER(@uname)
+                                 AND status = 'Active'";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.Read())
                 {
-                    con.Open();
+                    string storedHash = reader["pwd"].ToString();
+                    string enteredPass = pwd.Text.Trim();
 
-                    string query = @"SELECT userid, uname, pwd, usertype 
-FROM [User] 
-WHERE LOWER(uname) = LOWER(@uname) ";
+                    // VERIFY the entered password against the stored BCrypt hash
+                    bool passwordValid = BCrypt.Net.BCrypt.Verify(enteredPass, storedHash);
 
-                    SqlCommand cmd = new SqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
-
-                    SqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.Read())
+                    if (passwordValid)
                     {
-                        string storedHash = reader["pwd"].ToString();
+                        Session["userid"] = reader["userid"];
+                        Session["uname"] = reader["uname"];
+                        Session["usertype"] = reader["usertype"];
 
-                        if (BCrypt.Net.BCrypt.Verify(pwd.Text.Trim(), storedHash))
-                        {
-                            Session["userid"] = reader["userid"];
-                            Session["uname"] = reader["uname"];
-                            Session["usertype"] = reader["usertype"];
+                        string usertype = reader["usertype"].ToString();
+                        reader.Close();
 
-                            RedirectUser(reader["usertype"].ToString());
-                        }
-                        else
-                        {
-                            errMsg.Text = "Invalid username or password.";
-                        }
+                        RedirectUser(usertype);
                     }
                     else
                     {
                         errMsg.Text = "Invalid username or password.";
                     }
+                }
+                else
+                {
+                    errMsg.Text = "Invalid username or password.";
                 }
             }
         }
@@ -76,23 +85,18 @@ WHERE LOWER(uname) = LOWER(@uname) ";
                 case "SuperAdmin":
                     Response.Redirect("~/Admin/AdminDashboard.aspx");
                     break;
-
                 case "Admin":
                     Response.Redirect("~/Admin/AdminDashboard.aspx");
                     break;
-
                 case "Lecturer":
                     Response.Redirect("~/Lecturer/LecturerDashboard.aspx");
                     break;
-
                 case "Student":
                     Response.Redirect("~/Student/StudentDashboard.aspx");
                     break;
-
                 case "General":
                     Response.Redirect("~/GeneralUser/GeneralDashboard.aspx");
                     break;
-
                 default:
                     Response.Redirect("Login.aspx");
                     break;

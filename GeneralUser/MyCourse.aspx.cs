@@ -42,7 +42,7 @@ namespace LearnSphere_WAPP.GeneralUser
                         FROM Course c
                         INNER JOIN Invoice i ON c.courseid = i.courseid
                         WHERE i.userid = @UserId 
-                        AND c.status = 1 
+                        AND c.status = 'Active' 
                         AND c.deletiontime IS NULL
                         ORDER BY i.creationtime DESC";
 

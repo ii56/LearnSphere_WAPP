@@ -42,13 +42,22 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
-        /// lblWelcome control.
+        /// Label1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblWelcome;
+        protected global::System.Web.UI.WebControls.Label Label1;
+
+        /// <summary>
+        /// txtUserid control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtUserid;
 
         /// <summary>
         /// Label2 control.
@@ -60,13 +69,13 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label Label2;
 
         /// <summary>
-        /// lblUname control.
+        /// txtUname control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox lblUname;
+        protected global::System.Web.UI.WebControls.TextBox txtUname;
 
         /// <summary>
         /// Label3 control.
@@ -78,13 +87,13 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label Label3;
 
         /// <summary>
-        /// lblFname control.
+        /// txtFname control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox lblFname;
+        protected global::System.Web.UI.WebControls.TextBox txtFname;
 
         /// <summary>
         /// Label4 control.
@@ -96,13 +105,13 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label Label4;
 
         /// <summary>
-        /// lblLname control.
+        /// txtLname control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox lblLname;
+        protected global::System.Web.UI.WebControls.TextBox txtLname;
 
         /// <summary>
         /// Label5 control.
@@ -114,13 +123,13 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label Label5;
 
         /// <summary>
-        /// lblEmail control.
+        /// txtEmail control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox lblEmail;
+        protected global::System.Web.UI.WebControls.TextBox txtEmail;
 
         /// <summary>
         /// Label6 control.
@@ -132,13 +141,13 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label Label6;
 
         /// <summary>
-        /// lblAge control.
+        /// txtAge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox lblAge;
+        protected global::System.Web.UI.WebControls.TextBox txtAge;
 
         /// <summary>
         /// Label7 control.
@@ -168,13 +177,13 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label Label8;
 
         /// <summary>
-        /// dropdownUsertype control.
+        /// txtUsertype control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList dropdownUsertype;
+        protected global::System.Web.UI.WebControls.TextBox txtUsertype;
 
         /// <summary>
         /// btnSave control.
@@ -184,5 +193,14 @@ namespace LearnSphere_WAPP.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnSave;
+
+        /// <summary>
+        /// lblMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblMessage;
     }
 }

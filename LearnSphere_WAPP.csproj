@@ -123,17 +123,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="About.aspx" />
+    <Content Include="Admin\AddUser.aspx" />
     <Content Include="Admin\AdminChangePassword.aspx" />
     <Content Include="Admin\AdminCSS.css" />
     <Content Include="Admin\AdminDashboard.aspx" />
     <Content Include="Admin\AdminEditProfile.aspx" />
-    <Content Include="Admin\AdminForumDetails.aspx" />
     <Content Include="Admin\AdminForums.aspx" />
     <Content Include="Admin\AdminMessage.aspx" />
-    <Content Include="Admin\AdminReply.aspx" />
     <Content Include="Admin\AdminVerifyUser.aspx" />
     <Content Include="Admin\AdminViewCourse.aspx" />
-    <Content Include="Admin\AdminViewForums.aspx" />
     <Content Include="Admin\CourseManagement.aspx" />
     <Content Include="Admin\Database.aspx" />
     <Content Include="Admin\EditUser.aspx" />
@@ -188,44 +186,19 @@
     <Content Include="LEARNSPHERE.png" />
     <Content Include="LEARNSPHERE_sign.png" />
     <Content Include="LearnSphere_WAPP.slnx" />
-    <Content Include="Lecturer\AddLessons.aspx" />
-    <Content Include="Lecturer\AddModules.aspx" />
-    <Content Include="Lecturer\answer.aspx" />
-    <Content Include="Lecturer\courses.css" />
     <Content Include="Lecturer\CreateCourse.aspx" />
-    <Content Include="Lecturer\CreateCourse.css" />
-    <Content Include="Lecturer\CreateForum.aspx" />
-    <Content Include="Lecturer\editCourse.aspx" />
-    <Content Include="Lecturer\editCourse.css" />
-    <Content Include="Lecturer\editLesson.aspx" />
-    <Content Include="Lecturer\editModule.aspx" />
     <Content Include="Lecturer\EditProfile.aspx" />
-    <Content Include="Lecturer\EditProfile.css" />
-    <Content Include="Lecturer\editPublish.aspx" />
-    <Content Include="Lecturer\ForumDetail.aspx" />
     <Content Include="Lecturer\Forums.aspx" />
-    <Content Include="Lecturer\Forums.css" />
     <Content Include="Lecturer\LEARNSPHERE_sign.png" />
-    <Content Include="Lecturer\lecturer.css" />
     <Content Include="Lecturer\LecturerDashboard.aspx" />
-    <Content Include="Lecturer\LecturerDashboard.css" />
     <Content Include="Lecturer\MakeExam.aspx" />
     <Content Include="Lecturer\Message.aspx" />
-    <Content Include="Lecturer\Message.css" />
-    <Content Include="Lecturer\MyCourses.aspx" />
     <Content Include="Lecturer\Preview.aspx" />
-    <Content Include="Lecturer\Preview.css" />
-    <Content Include="Lecturer\question.aspx" />
-    <Content Include="Lecturer\question.css" />
-    <Content Include="Lecturer\ReviewPublish.aspx" />
     <Content Include="Lecturer\ViewCourses.aspx" />
-    <Content Include="Lecturer\ViewCourses.css" />
-    <Content Include="Lecturer\ViewForum.aspx" />
-    <Content Include="Lecturer\ViewStudents.aspx" />
-    <Content Include="Lecturer\ViewStudents.css" />
     <Content Include="Login.aspx" />
     <Content Include="GeneralUser\GeneralDashboard.aspx" />
     <Content Include="GeneralUser\GeneralDashboard.css" />
+    <Content Include="images\default-user.png" />
     <Content Include="Registration.aspx" />
     <Content Include="registration.css" />
     <Content Include="Scripts\bootstrap.bundle.js" />
@@ -302,6 +275,13 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin\AddUser.aspx.cs">
+      <DependentUpon>AddUser.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AddUser.aspx.designer.cs">
+      <DependentUpon>AddUser.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Admin\AdminChangePassword.aspx.cs">
       <DependentUpon>AdminChangePassword.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -323,13 +303,6 @@
     <Compile Include="Admin\AdminEditProfile.aspx.designer.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Admin\AdminForumDetails.aspx.cs">
-      <DependentUpon>AdminForumDetails.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Admin\AdminForumDetails.aspx.designer.cs">
-      <DependentUpon>AdminForumDetails.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Admin\AdminForums.aspx.cs">
       <DependentUpon>AdminForums.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -344,13 +317,6 @@
     <Compile Include="Admin\AdminMessage.aspx.designer.cs">
       <DependentUpon>AdminMessage.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Admin\AdminReply.aspx.cs">
-      <DependentUpon>AdminReply.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Admin\AdminReply.aspx.designer.cs">
-      <DependentUpon>AdminReply.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Admin\AdminVerifyUser.aspx.cs">
       <DependentUpon>AdminVerifyUser.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -364,13 +330,6 @@
     </Compile>
     <Compile Include="Admin\AdminViewCourse.aspx.designer.cs">
       <DependentUpon>AdminViewCourse.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Admin\AdminViewForums.aspx.cs">
-      <DependentUpon>AdminViewForums.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Admin\AdminViewForums.aspx.designer.cs">
-      <DependentUpon>AdminViewForums.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\CourseManagement.aspx.cs">
       <DependentUpon>CourseManagement.aspx</DependentUpon>
@@ -524,27 +483,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Lecturer\AddLessons.aspx.cs">
-      <DependentUpon>AddLessons.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\AddLessons.aspx.designer.cs">
-      <DependentUpon>AddLessons.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\AddModules.aspx.cs">
-      <DependentUpon>AddModules.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\AddModules.aspx.designer.cs">
-      <DependentUpon>AddModules.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\answer.aspx.cs">
-      <DependentUpon>answer.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\answer.aspx.designer.cs">
-      <DependentUpon>answer.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Lecturer\CreateCourse.aspx.cs">
       <DependentUpon>CreateCourse.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -552,54 +490,12 @@
     <Compile Include="Lecturer\CreateCourse.aspx.designer.cs">
       <DependentUpon>CreateCourse.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Lecturer\CreateForum.aspx.cs">
-      <DependentUpon>CreateForum.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\CreateForum.aspx.designer.cs">
-      <DependentUpon>CreateForum.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\editCourse.aspx.cs">
-      <DependentUpon>editCourse.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\editCourse.aspx.designer.cs">
-      <DependentUpon>editCourse.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\editLesson.aspx.cs">
-      <DependentUpon>editLesson.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\editLesson.aspx.designer.cs">
-      <DependentUpon>editLesson.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\editModule.aspx.cs">
-      <DependentUpon>editModule.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\editModule.aspx.designer.cs">
-      <DependentUpon>editModule.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Lecturer\EditProfile.aspx.cs">
       <DependentUpon>EditProfile.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Lecturer\EditProfile.aspx.designer.cs">
       <DependentUpon>EditProfile.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\editPublish.aspx.cs">
-      <DependentUpon>editPublish.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\editPublish.aspx.designer.cs">
-      <DependentUpon>editPublish.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\ForumDetail.aspx.cs">
-      <DependentUpon>ForumDetail.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\ForumDetail.aspx.designer.cs">
-      <DependentUpon>ForumDetail.aspx</DependentUpon>
     </Compile>
     <Compile Include="Lecturer\Forums.aspx.cs">
       <DependentUpon>Forums.aspx</DependentUpon>
@@ -629,13 +525,6 @@
     <Compile Include="Lecturer\Message.aspx.designer.cs">
       <DependentUpon>Message.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Lecturer\MyCourses.aspx.cs">
-      <DependentUpon>MyCourses.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\MyCourses.aspx.designer.cs">
-      <DependentUpon>MyCourses.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Lecturer\Preview.aspx.cs">
       <DependentUpon>Preview.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -643,40 +532,11 @@
     <Compile Include="Lecturer\Preview.aspx.designer.cs">
       <DependentUpon>Preview.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Lecturer\question.aspx.cs">
-      <DependentUpon>question.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\question.aspx.designer.cs">
-      <DependentUpon>question.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\ReviewPublish.aspx.cs">
-      <DependentUpon>ReviewPublish.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\ReviewPublish.aspx.designer.cs">
-      <DependentUpon>ReviewPublish.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Lecturer\ViewCourses.aspx.cs">
       <DependentUpon>ViewCourses.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Lecturer\ViewCourses.aspx.designer.cs">
       <DependentUpon>ViewCourses.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\ViewForum.aspx.cs">
-      <DependentUpon>ViewForum.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\ViewForum.aspx.designer.cs">
-      <DependentUpon>ViewForum.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Lecturer\ViewStudents.aspx.cs">
-      <DependentUpon>ViewStudents.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Lecturer\ViewStudents.aspx.designer.cs">
-      <DependentUpon>ViewStudents.aspx</DependentUpon>
     </Compile>
     <Compile Include="Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>
@@ -818,6 +678,21 @@
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.7.0.slim.min.map" />
     <Content Include="Scripts\jquery-3.7.0.min.map" />
+    <Content Include="Uploads\LessonMaterials\05d16dc9-eb44-4a27-9031-a11255da22b8.pdf" />
+    <Content Include="Uploads\LessonMaterials\1064255e-439b-4da5-9b92-f6b236ca5d7c.pdf" />
+    <Content Include="Uploads\LessonMaterials\2cb0ded2-e904-473b-afed-4008a3d2aee5.pdf" />
+    <Content Include="Uploads\LessonMaterials\3c61d5b9-37af-4e8c-8ed4-2b714e25edc9.docx" />
+    <Content Include="Uploads\LessonMaterials\3d06b510-4b9e-4137-99c2-330bb0f96d45.pdf" />
+    <Content Include="Uploads\LessonMaterials\4705c6da-185d-491e-a279-39af87e531f6.pdf" />
+    <Content Include="Uploads\LessonMaterials\58a20b90-561d-47af-bf4f-4caa01fd0c3d.pdf" />
+    <Content Include="Uploads\LessonMaterials\94fdb541-ba67-4d01-b777-50c400761f8c.pdf" />
+    <Content Include="Uploads\LessonMaterials\c0f751c2-0276-4533-9e0f-e577e00104e0.pdf" />
+    <Content Include="Uploads\LessonMaterials\c878ec57-53cc-49e0-84a3-73d7b4a01a46.pdf" />
+    <Content Include="Uploads\LessonMaterials\da7af36b-37a0-4507-98f9-7b6bb434e587.pdf" />
+    <Content Include="Uploads\VerificationDocs\55c91162-c527-4aae-8313-206a768ffa70.pdf" />
+    <Content Include="Uploads\VerificationDocs\67b51ab7-c79e-4c09-a4db-bc1a53dc1c9d.pdf" />
+    <Content Include="Uploads\VerificationDocs\LecturerReq_23_f147d24f.pdf" />
+    <Content Include="Uploads\VerificationDocs\LecturerReq_9_5d48c67b.pdf" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

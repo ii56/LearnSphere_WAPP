@@ -42,7 +42,7 @@
                         <div class="nav-header">
                             <span class="nav-label">Now Learning</span>
                             <h3 class="nav-course-name"><asp:Label ID="lblCourseName" runat="server" Text="..." /></h3>
-                            <a href="MyCourses.aspx" class="back-link">← Back to My Courses</a>
+                            <a href="MyCourse.aspx" class="back-link">← Back to My Courses</a>
                         </div>
 
                         <div class="nav-modules">

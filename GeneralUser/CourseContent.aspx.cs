@@ -34,8 +34,8 @@ namespace LearnSphere_WAPP.GeneralUser
             int userId = Convert.ToInt32(Session["userid"]);
             int courseId = 0;
 
-            if (Request.QueryString["id"] != null)
-                courseId = Convert.ToInt32(Request.QueryString["id"]);
+            if (Request.QueryString["lessonId"] != null)
+                courseId = Convert.ToInt32(Request.QueryString["lessonId"]);
 
             using (SqlConnection con = new SqlConnection(connStr))
             {

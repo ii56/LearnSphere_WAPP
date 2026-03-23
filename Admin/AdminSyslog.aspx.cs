@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -22,7 +23,6 @@ namespace LearnSphere_WAPP.Admin
 
             if (!IsPostBack)
             {
-                lblWelcome.Text = "Welcome " + Session["uname"];
                 loadTable();
                 LoadSidebarProfileImage();
             }
@@ -169,9 +169,103 @@ namespace LearnSphere_WAPP.Admin
         {
             loadTable();
         }
+        protected void btnExport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string query = @"SELECT s.userid, u.usertype, s.action, s.dateTime 
+                         FROM Syslog s 
+                         INNER JOIN [User] u ON s.userid = u.userid";
+
+                bool search = false;
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    cmd.Connection = con;
+
+                    if (!string.IsNullOrEmpty(txtSearch1.Text))
+                    {
+                        search = true;
+                        query += " WHERE s.userid LIKE @search1";
+                        cmd.Parameters.AddWithValue("@search1", "%" + txtSearch1.Text + "%");
+
+                        if (!string.IsNullOrEmpty(txtSearch2.Text))
+                        {
+                            query += " AND s.action LIKE @search2";
+                            cmd.Parameters.AddWithValue("@search2", "%" + txtSearch2.Text + "%");
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(txtSearch2.Text))
+                    {
+                        search = true;
+                        query += " WHERE s.action LIKE @search2";
+                        cmd.Parameters.AddWithValue("@search2", "%" + txtSearch2.Text + "%");
+                    }
+
+                    switch (Filter.Text)
+                    {
+                        case "General":
+                            query += search ? " AND u.usertype = 'General'" : " WHERE u.usertype = 'General'";
+                            break;
+                        case "Student":
+                            query += search ? " AND u.usertype = 'Student'" : " WHERE u.usertype = 'Student'";
+                            break;
+                        case "Lecturer":
+                            query += search ? " AND u.usertype = 'Lecturer'" : " WHERE u.usertype = 'Lecturer'";
+                            break;
+                        case "Admin":
+                            query += search ? " AND u.usertype = 'Admin'" : " WHERE u.usertype = 'Admin'";
+                            break;
+                    }
+
+                    query += (Order.Text == "Datetime Ascending") ? " ORDER BY dateTime ASC" : " ORDER BY dateTime DESC";
+
+                    cmd.CommandText = query;
+
+                    if (con.State != ConnectionState.Open)
+                        con.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        StringBuilder csv = new StringBuilder();
+                        csv.AppendLine("UserID,UserType,Action,DateTime");
+
+                        while (reader.Read())
+                        {
+                            string userId = reader["userid"].ToString();
+                            string userType = reader["usertype"].ToString();
+                            string action = reader["action"].ToString().Replace(",", " ");
+                            string dateTime = reader["dateTime"].ToString();
+
+                            csv.AppendLine($"{userId},{userType},{action},{dateTime}");
+                        }
+
+                        string fileName = "SyslogExport-" + DateTime.Now.ToString("ddMMyy-HHmm") + ".csv";
+
+                        Response.Clear();
+                        Response.Buffer = true;
+                        Response.AddHeader("content-disposition", "attachment;filename=" + fileName);
+                        Response.Charset = "";
+                        Response.ContentType = "text/csv";
+                        Response.Output.Write(csv.ToString());
+                        Response.Flush();
+                        Response.End();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                lblResult.Text = "Export failed: " + ex.Message;
+            }
+            finally
+            {
+                if (con.State != ConnectionState.Closed)
+                    con.Close();
+            }
+        }
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout System");
             Session.Abandon();
             Request.Cookies.Clear();
             Response.Redirect("../Login.aspx");

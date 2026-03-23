@@ -24,13 +24,13 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// rptModules control.
+        /// btnBack control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptModules;
+        protected global::System.Web.UI.WebControls.Button btnBack;
 
         /// <summary>
         /// lblCourseName control.
@@ -42,22 +42,31 @@ namespace LearnSphere_WAPP.Lecturer
         protected global::System.Web.UI.WebControls.Label lblCourseName;
 
         /// <summary>
-        /// litProgressBar control.
+        /// litProgressFill control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litProgressBar;
+        protected global::System.Web.UI.WebControls.Literal litProgressFill;
 
         /// <summary>
-        /// btnBack control.
+        /// litProgressText control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnBack;
+        protected global::System.Web.UI.WebControls.Literal litProgressText;
+
+        /// <summary>
+        /// rptModules control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptModules;
 
         /// <summary>
         /// phOverview control.

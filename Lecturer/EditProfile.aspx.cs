@@ -18,6 +18,7 @@ namespace LearnSphere_WAPP.Lecturer
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
         int userId;
 
+        // Redirects unauthenticated users, then loads all profile data on first visit
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["userid"] == null || Session["usertype"] == null)
@@ -30,65 +31,58 @@ namespace LearnSphere_WAPP.Lecturer
 
             if (!IsPostBack)
             {
-                if (Session["profileImage"] != null)
-                {
-                    imgSidebarProfile.Src = ResolveUrl(Session["profileImage"].ToString());
-                }
-                else
-                {
-                    imgSidebarProfile.Src = ResolveUrl("~/images/default-user.png");
-                }
-
                 LoadSidebarProfileImage();
                 LoadProfile();
-
                 LoadRoleOptions();
                 LoadVerificationHistory();
             }
         }
+
+        // Fetches the user's current role directly from the DB rather than trusting the session
         private string GetCurrentRoleFromDB()
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string q = "SELECT usertype FROM [User] WHERE userid=@id";
-
-                SqlCommand cmd = new SqlCommand(q, con);
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT usertype FROM [User] WHERE userid=@id", con);
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
-
                 con.Open();
                 return cmd.ExecuteScalar().ToString();
             }
         }
 
+        // Sets the profile picture in both the header avatar and the hero banner, and keeps the session in sync
         private void LoadSidebarProfileImage()
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = "SELECT ProfileImage FROM [User] WHERE userid=@id";
-
-                SqlCommand cmd = new SqlCommand(query, con);
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT ProfileImage FROM [User] WHERE userid=@id", con);
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
-
                 con.Open();
                 object result = cmd.ExecuteScalar();
 
-                imgSidebarProfile.Src = (result != null && result != DBNull.Value)
+                string resolvedImg = (result != null && result != DBNull.Value)
                     ? ResolveUrl(result.ToString())
                     : ResolveUrl("~/images/default-user.png");
+
+                imgSidebarProfile.Src = resolvedImg;
+                imgHeroProfile.Src = resolvedImg;
+
+                if (result != null && result != DBNull.Value)
+                    Session["profileImage"] = result.ToString();
             }
         }
 
+        // Fills every form field with the user's current data, including the hero banner email
         private void LoadProfile()
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = @"SELECT uname, fname, lname, email, age, gender, description, ProfileImage
-                                 FROM [User]
-                                 WHERE userid=@id";
-
-                SqlCommand cmd = new SqlCommand(query, con);
+                SqlCommand cmd = new SqlCommand(@"
+                    SELECT uname, fname, lname, email, age, gender, description, ProfileImage
+                    FROM [User] WHERE userid=@id", con);
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
-
                 con.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
 
@@ -99,16 +93,21 @@ namespace LearnSphere_WAPP.Lecturer
                     txtLastName.Text = reader["lname"].ToString();
                     txtEmail.Text = reader["email"].ToString();
                     txtAge.Text = reader["age"].ToString();
-                    ddlGender.SelectedValue = reader["gender"].ToString();
                     txtDescription.Text = reader["description"]?.ToString();
+
+                    string gender = reader["gender"].ToString();
+                    if (ddlGender.Items.FindByValue(gender) != null)
+                        ddlGender.SelectedValue = gender;
+
+                    lblHeroEmail.Text = Server.HtmlEncode(reader["email"].ToString());
                 }
             }
         }
 
+        // Populates the role upgrade dropdown based on what the current role is allowed to request
         private void LoadRoleOptions()
         {
             string role = Session["usertype"].ToString();
-
             txtCurrentRole.Text = role;
 
             ddlRequestedRole.Items.Clear();
@@ -129,6 +128,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Validates the uploaded PDF and requested role, then submits a verification request to the admin
         protected void btnSendVerification_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(ddlRequestedRole.SelectedValue))
@@ -142,6 +142,7 @@ namespace LearnSphere_WAPP.Lecturer
                 lblVerificationMsg.Text = "Please upload a document.";
                 return;
             }
+
             string ext = Path.GetExtension(fuVerificationDoc.FileName).ToLower();
             string mime = fuVerificationDoc.PostedFile.ContentType;
 
@@ -157,21 +158,14 @@ namespace LearnSphere_WAPP.Lecturer
                 return;
             }
 
-            // ROLE VALIDATION
             string currentRole = GetCurrentRoleFromDB();
             string requestedRole = ddlRequestedRole.SelectedValue;
 
-            bool valid = false;
-
-            if (currentRole == "General" &&
-                (requestedRole == "Student" || requestedRole == "Lecturer"))
-                valid = true;
-
-            else if (currentRole == "Lecturer" && requestedRole == "Admin")
-                valid = true;
-
-            else if (currentRole == "Admin" && requestedRole == "SuperAdmin")
-                valid = true;
+            // Only allow role transitions that make sense in the hierarchy
+            bool valid =
+                (currentRole == "General" && (requestedRole == "Student" || requestedRole == "Lecturer")) ||
+                (currentRole == "Lecturer" && requestedRole == "Admin") ||
+                (currentRole == "Admin" && requestedRole == "SuperAdmin");
 
             if (!valid)
             {
@@ -179,87 +173,69 @@ namespace LearnSphere_WAPP.Lecturer
                 return;
             }
 
-            // CHECK EXISTING PENDING REQUEST
+            // Block duplicate pending requests for the same role
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
-                string check = @"
-SELECT COUNT(*) 
-FROM VerificationRequest
-WHERE userid=@uid 
-AND requestedrole=@role
-AND status='Pending'";
-
-                SqlCommand checkCmd = new SqlCommand(check, con);
+                SqlCommand checkCmd = new SqlCommand(@"
+                    SELECT COUNT(*) FROM VerificationRequest
+                    WHERE userid=@uid AND requestedrole=@role AND status='Pending'", con);
                 checkCmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
                 checkCmd.Parameters.Add("@role", SqlDbType.NVarChar).Value = requestedRole;
-                int exists = (int)checkCmd.ExecuteScalar();
 
-                if (exists > 0)
+                if ((int)checkCmd.ExecuteScalar() > 0)
                 {
                     lblVerificationMsg.Text = "You already have a pending request.";
                     return;
                 }
             }
 
-            // -------- SAVE FILE --------
+            // Save the document with a GUID name to avoid conflicts
             string folder = Server.MapPath("~/Uploads/VerificationDocs/");
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
             string fileName = Guid.NewGuid().ToString() + ".pdf";
-            string fullPath = Path.Combine(folder, fileName);
-
-            fuVerificationDoc.SaveAs(fullPath);
-
+            fuVerificationDoc.SaveAs(Path.Combine(folder, fileName));
             string relPath = "~/Uploads/VerificationDocs/" + fileName;
 
-            // -------- INSERT REQUEST --------
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = @"
-            INSERT INTO VerificationRequest
-            (userid, currentrole, requestedrole, documentpath, status, requesttime)
-            VALUES
-            (@uid, @current, @requested, @doc, 'Pending', GETDATE())";
-
-                SqlCommand cmd = new SqlCommand(query, con);
-
+                SqlCommand cmd = new SqlCommand(@"
+                    INSERT INTO VerificationRequest
+                    (userid, currentrole, requestedrole, documentpath, status, requesttime)
+                    VALUES (@uid, @current, @requested, @doc, 'Pending', GETDATE())", con);
                 cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
                 cmd.Parameters.Add("@current", SqlDbType.NVarChar).Value = currentRole;
                 cmd.Parameters.Add("@requested", SqlDbType.NVarChar).Value = requestedRole;
                 cmd.Parameters.Add("@doc", SqlDbType.NVarChar).Value = relPath;
-
                 con.Open();
                 cmd.ExecuteNonQuery();
-                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Send Verification Request to Admin");
+                LearnSphere_WAPP.Syslog.action(userId, "Send Verification Request to Admin");
             }
 
             lblVerificationMsg.ForeColor = System.Drawing.Color.Green;
             lblVerificationMsg.Text = "Verification request sent successfully.";
-
             LoadVerificationHistory();
         }
 
+        // Loads the user's past verification requests so they can track their request history
         private void LoadVerificationHistory()
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                string query = @"
-            SELECT requestedrole, status, requesttime
-            FROM VerificationRequest
-            WHERE userid=@uid
-            ORDER BY requesttime DESC";
-
-                SqlCommand cmd = new SqlCommand(query, con);
+                SqlCommand cmd = new SqlCommand(@"
+                    SELECT requestedrole, status, requesttime
+                    FROM VerificationRequest
+                    WHERE userid=@uid
+                    ORDER BY requesttime DESC", con);
                 cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
-
                 con.Open();
                 rptVerificationHistory.DataSource = cmd.ExecuteReader();
                 rptVerificationHistory.DataBind();
             }
         }
 
+        // Validates and saves changes to personal info, optionally updates the password and profile picture
         protected void btnSave_Click(object sender, EventArgs e)
         {
             try
@@ -270,7 +246,6 @@ AND status='Pending'";
                 string desc = txtDescription.Text.Trim();
                 string password = txtPassword.Text;
 
-                // VALIDATION
                 if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
                 {
                     lblMessage.Text = "Invalid email format.";
@@ -290,7 +265,6 @@ AND status='Pending'";
                     return;
                 }
 
-                // XSS PROTECTION
                 fname = Server.HtmlEncode(fname);
                 lname = Server.HtmlEncode(lname);
                 email = Server.HtmlEncode(email);
@@ -300,8 +274,6 @@ AND status='Pending'";
                 {
                     con.Open();
 
-                    string query;
-
                     if (!string.IsNullOrEmpty(password))
                     {
                         if (password.Length < 6)
@@ -310,15 +282,14 @@ AND status='Pending'";
                             return;
                         }
 
+                        // Hash the new password before storing it
                         string hashed = BCrypt.Net.BCrypt.HashPassword(password);
 
-                        query = @"UPDATE [User]
-                                  SET fname=@fname, lname=@lname, email=@email,
-                                      age=@age, gender=@gender, description=@desc,
-                                      pwd=@pwd
-                                  WHERE userid=@id";
-
-                        SqlCommand cmd = new SqlCommand(query, con);
+                        SqlCommand cmd = new SqlCommand(@"
+                            UPDATE [User]
+                            SET fname=@fname, lname=@lname, email=@email,
+                                age=@age, gender=@gender, description=@desc, pwd=@pwd
+                            WHERE userid=@id", con);
                         cmd.Parameters.Add("@pwd", SqlDbType.NVarChar).Value = hashed;
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
                         cmd.Parameters.Add("@fname", SqlDbType.NVarChar, 50).Value = fname;
@@ -327,17 +298,16 @@ AND status='Pending'";
                         cmd.Parameters.Add("@age", SqlDbType.Int).Value = age;
                         cmd.Parameters.Add("@gender", SqlDbType.NVarChar, 10).Value = ddlGender.SelectedValue;
                         cmd.Parameters.Add("@desc", SqlDbType.NVarChar).Value = desc;
-
                         cmd.ExecuteNonQuery();
                     }
                     else
                     {
-                        query = @"UPDATE [User]
-                                  SET fname=@fname, lname=@lname, email=@email,
-                                      age=@age, gender=@gender, description=@desc
-                                  WHERE userid=@id";
-
-                        SqlCommand cmd = new SqlCommand(query, con);
+                        // No password change — just update the personal info fields
+                        SqlCommand cmd = new SqlCommand(@"
+                            UPDATE [User]
+                            SET fname=@fname, lname=@lname, email=@email,
+                                age=@age, gender=@gender, description=@desc
+                            WHERE userid=@id", con);
                         cmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
                         cmd.Parameters.Add("@fname", SqlDbType.NVarChar, 50).Value = fname;
                         cmd.Parameters.Add("@lname", SqlDbType.NVarChar, 50).Value = lname;
@@ -345,16 +315,16 @@ AND status='Pending'";
                         cmd.Parameters.Add("@age", SqlDbType.Int).Value = age;
                         cmd.Parameters.Add("@gender", SqlDbType.NVarChar, 10).Value = ddlGender.SelectedValue;
                         cmd.Parameters.Add("@desc", SqlDbType.NVarChar).Value = desc;
-
                         cmd.ExecuteNonQuery();
                     }
 
-                    // IMAGE UPLOAD SECURITY
+                    // Profile picture — JPG/PNG only, max 3 MB
+                    // Saved using the user ID as the filename so old pictures are automatically overwritten
                     if (fuProfileImage.HasFile)
                     {
-                        string ext = Path.GetExtension(fuProfileImage.FileName).ToLower();
+                        string imgExt = Path.GetExtension(fuProfileImage.FileName).ToLower();
 
-                        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png")
+                        if (imgExt != ".jpg" && imgExt != ".jpeg" && imgExt != ".png")
                         {
                             lblUploadMessage.Text = "Only JPG/PNG allowed.";
                             return;
@@ -366,13 +336,10 @@ AND status='Pending'";
                             return;
                         }
 
-                        // Validate actual image
+                        // Verify the file is actually a valid image before saving it
                         try
                         {
-                            using (var img = System.Drawing.Image.FromStream(fuProfileImage.PostedFile.InputStream))
-                            {
-                                // valid image
-                            }
+                            using (var img = System.Drawing.Image.FromStream(fuProfileImage.PostedFile.InputStream)) { }
                         }
                         catch
                         {
@@ -380,33 +347,37 @@ AND status='Pending'";
                             return;
                         }
 
-                        string folder = Server.MapPath("~/Profile_pictures/");
-                        if (!Directory.Exists(folder))
-                            Directory.CreateDirectory(folder);
+                        string imgFolder = Server.MapPath("~/Profile_pictures/");
+                        if (!Directory.Exists(imgFolder)) Directory.CreateDirectory(imgFolder);
 
-                        string fileName = userId + ".jpg";
-                        string path = Path.Combine(folder, fileName);
+                        string imgFileName = userId + ".jpg";
+                        string imgPath = Path.Combine(imgFolder, imgFileName);
 
                         using (var img = System.Drawing.Image.FromStream(fuProfileImage.PostedFile.InputStream))
                         {
-                            img.Save(path, System.Drawing.Imaging.ImageFormat.Jpeg);
+                            img.Save(imgPath, System.Drawing.Imaging.ImageFormat.Jpeg);
                         }
 
-                        string relPath = "~/Profile_pictures/" + fileName;
+                        string relPath = "~/Profile_pictures/" + imgFileName;
 
                         SqlCommand imgCmd = new SqlCommand(
                             "UPDATE [User] SET ProfileImage=@img WHERE userid=@id", con);
-
                         imgCmd.Parameters.Add("@img", SqlDbType.NVarChar).Value = relPath;
                         imgCmd.Parameters.Add("@id", SqlDbType.Int).Value = userId;
-
                         imgCmd.ExecuteNonQuery();
 
-                        LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Updated Profile");
-
                         Session["profileImage"] = relPath;
+                        LearnSphere_WAPP.Syslog.action(userId, "Updated Profile");
+
+                        // Refresh both header and hero avatars immediately so the page doesn't look stale
+                        string resolved = ResolveUrl(relPath);
+                        imgSidebarProfile.Src = resolved;
+                        imgHeroProfile.Src = resolved;
                     }
                 }
+
+                // Keep the hero banner email in sync with whatever was just saved
+                lblHeroEmail.Text = Server.HtmlEncode(email);
 
                 lblMessage.ForeColor = System.Drawing.Color.Green;
                 lblMessage.Text = "Profile updated successfully.";
@@ -417,11 +388,12 @@ AND status='Pending'";
             }
         }
 
+        // Clears the session and sends the user back to the login page
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            LearnSphere_WAPP.Syslog.action(userId, "Logout System");
             Session.Clear();
             Session.Abandon();
-            LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout System");
             Response.Redirect("~/Login.aspx");
         }
     }
