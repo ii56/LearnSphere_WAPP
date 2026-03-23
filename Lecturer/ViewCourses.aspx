@@ -407,9 +407,7 @@
 
     <div class="container">
 
-        <!-- ═══════════════════════════════════════
-             PANEL 1 — VIEW COURSES
-             ═══════════════════════════════════════ -->
+        <!-- view course panel -->
         <asp:Panel ID="pnlViewCourses" runat="server">
             <div class="page-banner banner-courses">
                 <div class="banner-label">Lecturer Portal</div>
@@ -483,9 +481,7 @@
             <asp:Label ID="lblCoursesMsg" runat="server" CssClass="alert" Visible="false" />
         </asp:Panel>
 
-        <!-- ═══════════════════════════════════════
-             PANEL 2 — EDIT COURSE (modules + lessons)
-             ═══════════════════════════════════════ -->
+        <!-- edit course panel -->
         <asp:Panel ID="pnlEditCourse" runat="server" Visible="false">
             <div class="page-banner banner-edit">
                 <div class="banner-label">Course Editor</div>
@@ -507,7 +503,7 @@
                     <asp:Button ID="btnCreateExam"   runat="server" Text="Create Exam"   CssClass="btn-warning"   OnClick="btnCreateExam_Click" CausesValidation="false" />
                     <asp:Button ID="btnEditExam"     runat="server" Text="Edit Exam"     CssClass="btn-secondary" OnClick="btnEditExam_Click" CausesValidation="false" />
                     <asp:Button ID="btnDeleteExam"   runat="server" Text="Delete Exam"   CssClass="btn-danger"    OnClick="btnDeleteExam_Click" CausesValidation="false"
-                        OnClientClick="this.disabled=true; return confirm('Delete this exam?');" />
+                        OnClientClick="return confirm('Delete this exam and all its questions?');" />
                 </div>
             </div>
 
@@ -574,9 +570,7 @@
             </asp:Repeater>
         </asp:Panel>
 
-        <!-- ═══════════════════════════════════════
-             PANEL 3 — EDIT MODULE (add / edit)
-             ═══════════════════════════════════════ -->
+        <!-- edit module panel -->
         <asp:Panel ID="pnlEditModule" runat="server" Visible="false">
             <div class="page-banner banner-module">
                 <div class="banner-label">Course Editor</div>
@@ -631,9 +625,7 @@
             </div>
         </asp:Panel>
 
-        <!-- ═══════════════════════════════════════
-             PANEL 4 — EDIT LESSON (add / edit) with lessonpoints
-             ═══════════════════════════════════════ -->
+        <!-- edit lesson panel -->
         <asp:Panel ID="pnlEditLesson" runat="server" Visible="false">
             <div class="page-banner banner-lesson">
                 <div class="banner-label">Course Editor</div>
@@ -719,9 +711,7 @@
             </div>
         </asp:Panel>
 
-        <!-- ═══════════════════════════════════════
-             PANEL 5 — VIEW STUDENTS
-             ═══════════════════════════════════════ -->
+        <!-- view students panel -->
         <asp:Panel ID="pnlViewStudents" runat="server" Visible="false">
             <div class="page-banner banner-students">
                 <div class="banner-label">Course Management</div>
@@ -777,9 +767,7 @@
             <asp:Label ID="lblStudentsMsg" runat="server" CssClass="alert" Visible="false" />
         </asp:Panel>
 
-        <!-- ═══════════════════════════════════════
-             PANEL 6 — REVIEW & PUBLISH
-             ═══════════════════════════════════════ -->
+        <!-- Review and publish panel -->
         <asp:Panel ID="pnlReviewPublish" runat="server" Visible="false">
             <div class="page-banner banner-review">
                 <div class="banner-label">Course Editor</div>
@@ -835,7 +823,7 @@
                     </ItemTemplate>
                 </asp:Repeater>
 
-                <!-- Course Exam (preserved from editPublish) -->
+                <!-- Course Exam-->
                 <asp:Panel ID="pnlCourseExam" runat="server" Visible="false">
                     <div class="form-card-title" style="margin-top:20px;">
                         <span class="title-dot dot-red"></span> Course Exam

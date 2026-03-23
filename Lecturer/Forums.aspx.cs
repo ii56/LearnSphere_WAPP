@@ -15,8 +15,7 @@ namespace LearnSphere_WAPP.Lecturer
         string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
         int userId;
 
-        // ── ViewState keys ────────────────────────────────────────────────────
-        // "list" | "create" | "forum" | "detail"
+        // Tracks which panel is visible and which course/forum/post the lecturer is looking at
         protected string CurrentView
         {
             get { return ViewState["CurrentView"] as string ?? "list"; }
@@ -38,18 +37,28 @@ namespace LearnSphere_WAPP.Lecturer
             set { ViewState["CurrentPostId"] = value; }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // CSRF PROTECTION
-        // ══════════════════════════════════════════════════════════════════════
+        // The question or answer currently being edited
+        protected int EditPostId
+        {
+            get { return ViewState["EditPostId"] != null ? (int)ViewState["EditPostId"] : 0; }
+            set { ViewState["EditPostId"] = value; }
+        }
+
+        // True when pnlCreateForum is being used to edit an existing forum rather than create a new one
+        protected bool ForumEditMode
+        {
+            get { return ViewState["ForumEditMode"] != null && (bool)ViewState["ForumEditMode"]; }
+            set { ViewState["ForumEditMode"] = value; }
+        }
+
+        // Ties the ViewState to the user session to prevent CSRF attacks
         protected void Page_Init(object sender, EventArgs e)
         {
             if (Session["userid"] != null)
                 ViewStateUserKey = Session["userid"].ToString();
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PAGE LOAD
-        // ══════════════════════════════════════════════════════════════════════
+        // Redirects non-lecturers away, then loads the forum list on first visit
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["userid"] == null || Session["usertype"] == null ||
@@ -74,21 +83,21 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL SWITCHING
-        // ══════════════════════════════════════════════════════════════════════
+        // Shows the correct panel and hides the rest
         private void ShowPanel(string view)
         {
             pnlForumsList.Visible = (view == "list");
             pnlCreateForum.Visible = (view == "create");
             pnlViewForum.Visible = (view == "forum");
             pnlForumDetail.Visible = (view == "detail");
+            pnlEditQuestion.Visible = (view == "editquestion");
             CurrentView = view;
         }
 
-        // ── Back buttons ──────────────────────────────────────────────────────
+        // Goes back to the course list and resets edit mode
         protected void btnBackFromCreate_Click(object sender, EventArgs e)
         {
+            ForumEditMode = false;
             ShowPanel("list");
             LoadCourses();
         }
@@ -103,13 +112,12 @@ namespace LearnSphere_WAPP.Lecturer
         protected void btnBackToForum_Click(object sender, EventArgs e)
         {
             pnlAddAnswer.Visible = false;
+            pnlEditAnswer.Visible = false;
             ShowPanel("forum");
             LoadViewForum(CurrentCourseId);
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PROFILE IMAGE
-        // ══════════════════════════════════════════════════════════════════════
+        // Pulls the lecturer's profile picture and sets it in the header avatar
         private void LoadSidebarProfileImage()
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -125,16 +133,13 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 1 — FORUM LIST
-        // ══════════════════════════════════════════════════════════════════════
+        // Loads the list of active courses owned by this lecturer, with a flag for whether each has a forum
         private void LoadCourses()
         {
             try
             {
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
-                    // Matches original Forums.aspx.cs: ownerid, status='Active', CourseForum
                     string query = @"
                         SELECT c.courseid, c.coursename,
                                CASE WHEN f.forumid IS NULL THEN 0 ELSE 1 END AS HasForum
@@ -151,7 +156,6 @@ namespace LearnSphere_WAPP.Lecturer
                         query += " AND c.coursename LIKE @search";
                         parameters.Add(new SqlParameter("@search", "%" + txtSearch.Text.Trim() + "%"));
                     }
-
                     if (!string.IsNullOrEmpty(ddlForumStatus.SelectedValue))
                     {
                         query += " AND (CASE WHEN f.forumid IS NULL THEN 0 ELSE 1 END) = @forumStatus";
@@ -166,7 +170,6 @@ namespace LearnSphere_WAPP.Lecturer
                     SqlDataAdapter da = new SqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
-
                     gvCourses.DataSource = dt;
                     gvCourses.DataBind();
                 }
@@ -177,6 +180,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Confirms the given course belongs to the currently logged-in lecturer
         private bool IsCourseOwner(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -184,6 +188,34 @@ namespace LearnSphere_WAPP.Lecturer
                 SqlCommand cmd = new SqlCommand(
                     "SELECT COUNT(*) FROM Course WHERE courseid=@cid AND ownerid=@uid", con);
                 cmd.Parameters.Add("@cid", SqlDbType.Int).Value = courseId;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+                con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
+
+        // Returns true if the current user created the given forum — used to show/hide Edit Forum button
+        private bool IsForumCreator(int forumId)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT COUNT(*) FROM CourseForum WHERE forumid=@fid AND createdby=@uid", con);
+                cmd.Parameters.Add("@fid", SqlDbType.Int).Value = forumId;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+                con.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+        }
+
+        // Returns true if the current user authored the given post — used before allowing edits
+        private bool IsPostOwner(int postId)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT COUNT(*) FROM ForumPost WHERE postid=@pid AND userid=@uid", con);
+                cmd.Parameters.Add("@pid", SqlDbType.Int).Value = postId;
                 cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
                 con.Open();
                 return (int)cmd.ExecuteScalar() > 0;
@@ -204,6 +236,7 @@ namespace LearnSphere_WAPP.Lecturer
             LoadCourses();
         }
 
+        // Handles Create Forum, View Forum and Delete Forum buttons in the course grid
         protected void gvCourses_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             if (e.CommandArgument == null) return;
@@ -219,11 +252,13 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 case "CreateForum":
                     CurrentCourseId = courseId;
-                    // Clear form fields
+                    ForumEditMode = false;
                     txtForumTitle.Text = "";
                     txtForumDescription.Text = "";
                     txtForumTags.Text = "";
                     lblCreateMsg.Visible = false;
+                    lblCreateForumTitle.Text = "Create Forum";
+                    btnCreateForum.Text = "Create Forum";
                     ShowPanel("create");
                     break;
 
@@ -241,7 +276,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Soft-delete matching original Forums.aspx.cs
+        // Soft-deletes all posts then hard-deletes the forum record itself
         private void DeleteForum(int courseId)
         {
             try
@@ -263,17 +298,11 @@ namespace LearnSphere_WAPP.Lecturer
 
                     int forumId = Convert.ToInt32(forumIdObj);
 
-                    // Soft-delete all posts
-                    new SqlCommand(
-                        "UPDATE ForumPost SET deletiontime=GETDATE() WHERE forumid=@fid",
-                        con)
-                    { Parameters = { new SqlParameter("@fid", forumId) } }
-                        .ExecuteNonQuery();
+                    new SqlCommand("UPDATE ForumPost SET deletiontime=GETDATE() WHERE forumid=@fid", con)
+                    { Parameters = { new SqlParameter("@fid", forumId) } }.ExecuteNonQuery();
 
-                    // Hard-delete forum record
                     new SqlCommand("DELETE FROM CourseForum WHERE forumid=@fid", con)
-                    { Parameters = { new SqlParameter("@fid", forumId) } }
-                        .ExecuteNonQuery();
+                    { Parameters = { new SqlParameter("@fid", forumId) } }.ExecuteNonQuery();
 
                     LearnSphere_WAPP.Syslog.action(userId, "Deleted Forum (ForumID: " + forumId + ")");
                     ShowMsg(lblListMessage, "Forum deleted successfully.", true);
@@ -285,9 +314,39 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 2 — CREATE FORUM  (was CreateForum.aspx)
-        // ══════════════════════════════════════════════════════════════════════
+        // Opens the create/edit forum panel pre-filled with the existing forum data
+        protected void btnEditForum_Click(object sender, EventArgs e)
+        {
+            if (!IsForumCreator(CurrentForumId))
+            {
+                ShowMsg(lblForumMsg, "Only the forum creator can edit this forum.", false);
+                return;
+            }
+
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand(@"
+                    SELECT title, description, tags
+                    FROM CourseForum WHERE forumid=@fid", con);
+                cmd.Parameters.Add("@fid", SqlDbType.Int).Value = CurrentForumId;
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    txtForumTitle.Text = reader["title"].ToString();
+                    txtForumDescription.Text = reader["description"].ToString();
+                    txtForumTags.Text = reader["tags"] != DBNull.Value ? reader["tags"].ToString() : "";
+                }
+            }
+
+            ForumEditMode = true;
+            lblCreateForumTitle.Text = "Edit Forum";
+            btnCreateForum.Text = "Save Changes";
+            lblCreateMsg.Visible = false;
+            ShowPanel("create");
+        }
+
+        // Handles both creating a new forum and saving changes to an existing one depending on ForumEditMode
         protected void btnCreateForum_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
@@ -299,56 +358,85 @@ namespace LearnSphere_WAPP.Lecturer
             if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(description)) return;
             if (title.Length > 100 || description.Length > 1000 || tags.Length > 200) return;
 
-            // XSS protection
             title = Server.HtmlEncode(title);
             description = Server.HtmlEncode(description);
             tags = Server.HtmlEncode(tags);
 
             try
             {
-                using (SqlConnection conn = new SqlConnection(connStr))
+                if (ForumEditMode)
                 {
-                    conn.Open();
-
-                    // Duplicate check — matches original CreateForum.aspx.cs
-                    SqlCommand dup = new SqlCommand(@"
-                        SELECT COUNT(*) FROM CourseForum
-                        WHERE courseid=@courseid AND title=@title", conn);
-                    dup.Parameters.Add("@courseid", SqlDbType.Int).Value = CurrentCourseId;
-                    dup.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = title;
-                    if ((int)dup.ExecuteScalar() > 0)
+                    // UPDATE existing forum — WHERE createdby=@uid enforces ownership at DB level
+                    using (SqlConnection con = new SqlConnection(connStr))
                     {
-                        ShowMsg(lblCreateMsg, "A forum with this title already exists for this course.", false);
-                        return;
+                        con.Open();
+                        SqlCommand upd = new SqlCommand(@"
+                            UPDATE CourseForum
+                            SET title=@title, description=@description, tags=@tags
+                            WHERE forumid=@fid AND createdby=@uid", con);
+                        upd.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = title;
+                        upd.Parameters.Add("@description", SqlDbType.NVarChar, 1000).Value = description;
+                        upd.Parameters.Add("@tags", SqlDbType.NVarChar, 200).Value = tags;
+                        upd.Parameters.Add("@fid", SqlDbType.Int).Value = CurrentForumId;
+                        upd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+                        int rows = upd.ExecuteNonQuery();
+
+                        if (rows == 0)
+                        {
+                            ShowMsg(lblCreateMsg, "Unauthorized action.", false);
+                            return;
+                        }
+                        LearnSphere_WAPP.Syslog.action(userId, "Updated Forum (ForumID: " + CurrentForumId + ")");
                     }
 
-                    // Insert — matches original: courseid, createdby, title, description, tags
-                    SqlCommand ins = new SqlCommand(@"
-                        INSERT INTO CourseForum (courseid, createdby, title, description, tags)
-                        VALUES (@courseid, @createdby, @title, @description, @tags)", conn);
-                    ins.Parameters.Add("@courseid", SqlDbType.Int).Value = CurrentCourseId;
-                    ins.Parameters.Add("@createdby", SqlDbType.Int).Value = userId;
-                    ins.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = title;
-                    ins.Parameters.Add("@description", SqlDbType.NVarChar, 1000).Value = description;
-                    ins.Parameters.Add("@tags", SqlDbType.NVarChar, 200).Value = tags;
-                    ins.ExecuteNonQuery();
-
-                    LearnSphere_WAPP.Syslog.action(userId, "Created Forum (CourseID: " + CurrentCourseId + ")");
+                    ForumEditMode = false;
+                    ShowPanel("forum");
+                    LoadViewForum(CurrentCourseId);
                 }
+                else
+                {
+                    // INSERT new forum — check for duplicate titles first
+                    using (SqlConnection conn = new SqlConnection(connStr))
+                    {
+                        conn.Open();
 
-                // After creation go straight to the new forum
-                ShowPanel("forum");
-                LoadViewForum(CurrentCourseId);
+                        SqlCommand dup = new SqlCommand(@"
+                            SELECT COUNT(*) FROM CourseForum
+                            WHERE courseid=@courseid AND title=@title", conn);
+                        dup.Parameters.Add("@courseid", SqlDbType.Int).Value = CurrentCourseId;
+                        dup.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = title;
+                        if ((int)dup.ExecuteScalar() > 0)
+                        {
+                            ShowMsg(lblCreateMsg, "A forum with this title already exists for this course.", false);
+                            return;
+                        }
+
+                        SqlCommand ins = new SqlCommand(@"
+                            INSERT INTO CourseForum (courseid, createdby, title, description, tags)
+                            VALUES (@courseid, @createdby, @title, @description, @tags)", conn);
+                        ins.Parameters.Add("@courseid", SqlDbType.Int).Value = CurrentCourseId;
+                        ins.Parameters.Add("@createdby", SqlDbType.Int).Value = userId;
+                        ins.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = title;
+                        ins.Parameters.Add("@description", SqlDbType.NVarChar, 1000).Value = description;
+                        ins.Parameters.Add("@tags", SqlDbType.NVarChar, 200).Value = tags;
+                        ins.ExecuteNonQuery();
+
+                        LearnSphere_WAPP.Syslog.action(userId, "Created Forum (CourseID: " + CurrentCourseId + ")");
+                    }
+
+                    ShowPanel("forum");
+                    LoadViewForum(CurrentCourseId);
+                }
             }
             catch
             {
-                ShowMsg(lblCreateMsg, "An error occurred while creating the forum.", false);
+                ShowMsg(lblCreateMsg, ForumEditMode
+                    ? "An error occurred while updating the forum."
+                    : "An error occurred while creating the forum.", false);
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 3 — VIEW FORUM
-        // ══════════════════════════════════════════════════════════════════════
+        // Fetches the forum header info and questions, then shows the Edit Forum button only to the creator
         private void LoadViewForum(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -366,6 +454,9 @@ namespace LearnSphere_WAPP.Lecturer
                     lblDescription.Text = Server.HtmlEncode(fr["description"].ToString());
                     lblTags.Text = FormatTags(fr["tags"]);
                     CurrentForumId = Convert.ToInt32(fr["forumid"]);
+
+                    // Only the person who created the forum gets the Edit button
+                    btnEditForum.Visible = IsForumCreator(CurrentForumId);
                 }
                 else
                 {
@@ -378,11 +469,11 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches original ViewForum.aspx.cs query exactly
+        // Loads all top-level questions for the current forum, including vote counts
         private void LoadQuestions(SqlConnection con)
         {
-            string query = @"
-                SELECT p.postid, p.title, p.content, p.tags, p.creationtime,
+            SqlCommand cmd = new SqlCommand(@"
+                SELECT p.postid, p.title, p.content, p.tags, p.creationtime, p.userid,
                        u.uname, u.ProfileImage,
                        ISNULL(SUM(CASE WHEN v.votetype =  1 THEN 1 ELSE 0 END),0) AS upvotes,
                        ISNULL(SUM(CASE WHEN v.votetype = -1 THEN 1 ELSE 0 END),0) AS downvotes
@@ -393,10 +484,8 @@ namespace LearnSphere_WAPP.Lecturer
                 WHERE f.forumid = @fid
                 AND p.parentid IS NULL
                 AND p.deletiontime IS NULL
-                GROUP BY p.postid, p.title, p.content, p.tags, p.creationtime, u.uname, u.ProfileImage
-                ORDER BY p.creationtime DESC";
-
-            SqlCommand cmd = new SqlCommand(query, con);
+                GROUP BY p.postid, p.title, p.content, p.tags, p.creationtime, p.userid, u.uname, u.ProfileImage
+                ORDER BY p.creationtime DESC", con);
             cmd.Parameters.Add("@fid", SqlDbType.Int).Value = CurrentForumId;
 
             SqlDataAdapter da = new SqlDataAdapter(cmd);
@@ -408,6 +497,7 @@ namespace LearnSphere_WAPP.Lecturer
             lblNoQuestions.Visible = (dt.Rows.Count == 0);
         }
 
+        // Toggles the ask-question form open or closed and resets its fields
         protected void btnAskQuestion_Click(object sender, EventArgs e)
         {
             pnlAskQuestion.Visible = !pnlAskQuestion.Visible;
@@ -423,13 +513,12 @@ namespace LearnSphere_WAPP.Lecturer
             pnlAskQuestion.Visible = false;
         }
 
-        // Matches original question.aspx.cs:
-        // rate-limit, OUTPUT INSERTED.postid, file/image to Forum_materials, videourl column
+        // Rate-limits submissions, then inserts the question and optionally saves file and image attachments
         protected void btnSubmitQuestion_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
 
-            // Rate-limit (anti-spam) — from question.aspx.cs
+            // Simple rate-limit to stop accidental double-posts
             if (Session["lastPostTime"] != null)
             {
                 DateTime last = (DateTime)Session["lastPostTime"];
@@ -446,7 +535,6 @@ namespace LearnSphere_WAPP.Lecturer
             string tags = txtQuestionTags.Text.Trim();
             string videoUrl = txtQuestionVideoUrl.Text.Trim();
 
-            // Length validation
             if (title.Length < 3 || title.Length > 150)
             {
                 ShowMsg(lblQuestionFormMsg, "Title must be 3–150 characters.", false);
@@ -480,14 +568,13 @@ namespace LearnSphere_WAPP.Lecturer
                 {
                     conn.Open();
 
-                    // INSERT with OUTPUT INSERTED.postid — matches original question.aspx.cs
+                    // OUTPUT INSERTED.postid lets us use the new ID for file naming right away
                     SqlCommand cmd = new SqlCommand(@"
                         INSERT INTO ForumPost
                         (forumid, userid, parentid, title, content, tags, videourl)
                         OUTPUT INSERTED.postid
                         VALUES
                         (@forumid, @userid, NULL, @title, @content, @tags, @videourl)", conn);
-
                     cmd.Parameters.Add("@forumid", SqlDbType.Int).Value = CurrentForumId;
                     cmd.Parameters.Add("@userid", SqlDbType.Int).Value = userId;
                     cmd.Parameters.Add("@title", SqlDbType.NVarChar, 150).Value = Server.HtmlEncode(title);
@@ -496,16 +583,16 @@ namespace LearnSphere_WAPP.Lecturer
                         string.IsNullOrEmpty(tags) ? (object)DBNull.Value : Server.HtmlEncode(tags);
                     cmd.Parameters.Add("@videourl", SqlDbType.NVarChar, 300).Value =
                         string.IsNullOrEmpty(videoUrl) ? (object)DBNull.Value : videoUrl;
-
                     newPostId = (int)cmd.ExecuteScalar();
 
-                    // File upload — matches question.aspx.cs paths exactly
+                    // Document attachment — saved to ~/Forum_materials/questions/files/
                     if (fileUploadQFile.HasFile)
                     {
                         string ext = Path.GetExtension(fileUploadQFile.FileName).ToLower();
-                        string[] allowed = { ".pdf", ".docx", ".zip" };
-                        if (Array.IndexOf(allowed, ext) < 0 || fileUploadQFile.PostedFile.ContentLength > 5 * 1024 * 1024
-                            || fileUploadQFile.FileName.Contains(".."))
+                        string[] allow = { ".pdf", ".docx", ".zip" };
+                        if (Array.IndexOf(allow, ext) < 0 ||
+                            fileUploadQFile.PostedFile.ContentLength > 5 * 1024 * 1024 ||
+                            fileUploadQFile.FileName.Contains(".."))
                         {
                             ShowMsg(lblQuestionFormMsg, "Invalid document (PDF/DOCX/ZIP, max 5MB).", false);
                             return;
@@ -524,16 +611,16 @@ namespace LearnSphere_WAPP.Lecturer
                         }.ExecuteNonQuery();
                     }
 
-                    // Image upload
+                    // Image attachment — saved to ~/Forum_materials/questions/images/
                     if (fileUploadQImage.HasFile)
                     {
                         string ext = Path.GetExtension(fileUploadQImage.FileName).ToLower();
                         string mime = fileUploadQImage.PostedFile.ContentType;
-                        string[] allowedImg = { ".jpg", ".jpeg", ".png" };
-                        if (Array.IndexOf(allowedImg, ext) < 0
-                            || !(mime == "image/jpeg" || mime == "image/png")
-                            || fileUploadQImage.PostedFile.ContentLength > 3 * 1024 * 1024
-                            || fileUploadQImage.FileName.Contains(".."))
+                        string[] allow = { ".jpg", ".jpeg", ".png" };
+                        if (Array.IndexOf(allow, ext) < 0 ||
+                            !(mime == "image/jpeg" || mime == "image/png") ||
+                            fileUploadQImage.PostedFile.ContentLength > 3 * 1024 * 1024 ||
+                            fileUploadQImage.FileName.Contains(".."))
                         {
                             ShowMsg(lblQuestionFormMsg, "Invalid image (JPG/PNG, max 3MB).", false);
                             return;
@@ -564,6 +651,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Handles View, Like, Dislike and Edit commands on each question card
         protected void rptQuestions_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
             if (!int.TryParse(e.CommandArgument.ToString(), out int postId)) return;
@@ -573,6 +661,7 @@ namespace LearnSphere_WAPP.Lecturer
                 if (!CanAccessPost(postId)) return;
                 CurrentPostId = postId;
                 pnlAddAnswer.Visible = false;
+                pnlEditAnswer.Visible = false;
                 ShowPanel("detail");
                 LoadForumDetail(postId);
             }
@@ -586,11 +675,118 @@ namespace LearnSphere_WAPP.Lecturer
                 HandleVote(postId, -1);
                 LoadViewForum(CurrentCourseId);
             }
+            else if (e.CommandName == "EditQuestion")
+            {
+                // Only the question's author can edit it
+                if (!IsPostOwner(postId))
+                {
+                    ShowMsg(lblForumMsg, "You can only edit your own questions.", false);
+                    return;
+                }
+                pnlAskQuestion.Visible = false;
+                EditPostId = postId;
+                LoadQuestionForEdit(postId);
+                ShowPanel("editquestion");
+            }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PANEL 4 — FORUM DETAIL
-        // ══════════════════════════════════════════════════════════════════════
+        // Fills the edit question form with the existing question's current values
+        private void LoadQuestionForEdit(int postId)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand(@"
+                    SELECT title, content, tags, videourl
+                    FROM ForumPost
+                    WHERE postid=@pid AND userid=@uid AND deletiontime IS NULL", con);
+                cmd.Parameters.Add("@pid", SqlDbType.Int).Value = postId;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    txtEditQuestionTitle.Text = reader["title"].ToString();
+                    txtEditQuestionContent.Text = reader["content"].ToString();
+                    txtEditQuestionTags.Text = reader["tags"] != DBNull.Value ? reader["tags"].ToString() : "";
+                    txtEditQuestionVideoUrl.Text = reader["videourl"] != DBNull.Value ? reader["videourl"].ToString() : "";
+                }
+                lblEditQuestionMsg.Visible = false;
+            }
+        }
+
+        // Validates and saves the updated question title, content, tags and video URL
+        protected void btnSaveEditQuestion_Click(object sender, EventArgs e)
+        {
+            string title = txtEditQuestionTitle.Text.Trim();
+            string content = txtEditQuestionContent.Text.Trim();
+            string tags = txtEditQuestionTags.Text.Trim();
+            string videoUrl = txtEditQuestionVideoUrl.Text.Trim();
+
+            if (title.Length < 3 || title.Length > 150)
+            {
+                ShowMsg(lblEditQuestionMsg, "Title must be 3–150 characters.", false);
+                return;
+            }
+            if (content.Length < 10 || content.Length > 2000)
+            {
+                ShowMsg(lblEditQuestionMsg, "Content must be 10–2000 characters.", false);
+                return;
+            }
+            if (!string.IsNullOrEmpty(videoUrl))
+            {
+                Uri u;
+                if (!Uri.TryCreate(videoUrl, UriKind.Absolute, out u))
+                {
+                    ShowMsg(lblEditQuestionMsg, "Invalid video URL.", false);
+                    return;
+                }
+            }
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    // WHERE userid=@uid enforces ownership at the DB level — not just in C#
+                    SqlCommand cmd = new SqlCommand(@"
+                        UPDATE ForumPost
+                        SET title=@title, content=@content, tags=@tags, videourl=@videourl
+                        WHERE postid=@pid AND userid=@uid AND deletiontime IS NULL", con);
+                    cmd.Parameters.Add("@title", SqlDbType.NVarChar, 150).Value = Server.HtmlEncode(title);
+                    cmd.Parameters.Add("@content", SqlDbType.NVarChar, 2000).Value = Server.HtmlEncode(content);
+                    cmd.Parameters.Add("@tags", SqlDbType.NVarChar, 200).Value =
+                        string.IsNullOrEmpty(tags) ? (object)DBNull.Value : Server.HtmlEncode(tags);
+                    cmd.Parameters.Add("@videourl", SqlDbType.NVarChar, 300).Value =
+                        string.IsNullOrEmpty(videoUrl) ? (object)DBNull.Value : videoUrl;
+                    cmd.Parameters.Add("@pid", SqlDbType.Int).Value = EditPostId;
+                    cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+                    con.Open();
+                    int rows = cmd.ExecuteNonQuery();
+
+                    if (rows == 0)
+                    {
+                        ShowMsg(lblEditQuestionMsg, "Unauthorized or question not found.", false);
+                        return;
+                    }
+                    LearnSphere_WAPP.Syslog.action(userId, "Updated Question (PostID: " + EditPostId + ")");
+                }
+
+                ShowPanel("forum");
+                LoadViewForum(CurrentCourseId);
+            }
+            catch
+            {
+                ShowMsg(lblEditQuestionMsg, "An error occurred while saving. Please try again.", false);
+            }
+        }
+
+        // Discards question edits and returns to the forum view
+        protected void btnCancelEditQuestion_Click(object sender, EventArgs e)
+        {
+            ShowPanel("forum");
+            LoadViewForum(CurrentCourseId);
+        }
+
+        // Verifies the post exists within a forum before showing the detail view
         private bool CanAccessPost(int postId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -605,7 +801,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Matches original ForumDetail.aspx.cs LoadQuestion exactly
+        // Loads the full question, its vote counts, and all answers — shows Edit button only to the question's author
         private void LoadForumDetail(int postId)
         {
             try
@@ -638,10 +834,11 @@ namespace LearnSphere_WAPP.Lecturer
                         litTags.Text = FormatTags(dr["tags"]);
                         likeCount.InnerText = dr["upvotes"].ToString();
                         dislikeCount.InnerText = dr["downvotes"].ToString();
-
-                        // Also set the answer form preview labels
                         lblAnswerPreviewTitle.Text = Server.HtmlEncode(dr["title"].ToString());
                         lblAnswerPreviewContent.Text = Server.HtmlEncode(dr["content"].ToString());
+
+                        // Only the question's author sees the Edit Question button in the detail view
+                        btnEditDetailQuestion.Visible = (Convert.ToInt32(dr["userid"]) == userId);
                     }
                     else
                     {
@@ -651,7 +848,7 @@ namespace LearnSphere_WAPP.Lecturer
                     }
                     dr.Close();
 
-                    // Load answers — parentid, deletiontime IS NULL, ForumVote
+                    // Answers are posts where parentid = this question's postid
                     SqlCommand aCmd = new SqlCommand(@"
                         SELECT p.postid, p.content, p.creationtime, p.userid,
                                u.uname, u.ProfileImage,
@@ -691,8 +888,23 @@ namespace LearnSphere_WAPP.Lecturer
             LoadForumDetail(CurrentPostId);
         }
 
+        // "Edit Question" button inside the detail view — navigates to the edit question panel
+        protected void btnEditDetailQuestion_Click(object sender, EventArgs e)
+        {
+            if (!IsPostOwner(CurrentPostId))
+            {
+                ShowMsg(lblDetailMessage, "You can only edit your own questions.", false);
+                return;
+            }
+            EditPostId = CurrentPostId;
+            LoadQuestionForEdit(CurrentPostId);
+            ShowPanel("editquestion");
+        }
+
+        // Toggles the add-answer form and closes the edit-answer form if it was open
         protected void btnAnswer_Click(object sender, EventArgs e)
         {
+            pnlEditAnswer.Visible = false;
             pnlAddAnswer.Visible = !pnlAddAnswer.Visible;
             txtAnswerContent.Text = "";
             txtAnswerVideoUrl.Text = "";
@@ -704,8 +916,7 @@ namespace LearnSphere_WAPP.Lecturer
             pnlAddAnswer.Visible = false;
         }
 
-        // Matches original answer.aspx.cs:
-        // XSS on content, video URL validation, file to ~/Uploads/Documents/, image to ~/Uploads/Images/
+        // Validates and saves the answer, optionally with a document and image attachment
         protected void btnSubmitAnswer_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
@@ -724,7 +935,6 @@ namespace LearnSphere_WAPP.Lecturer
                 return;
             }
 
-            // XSS protection — matches answer.aspx.cs
             content = Server.HtmlEncode(content);
 
             if (!string.IsNullOrEmpty(videoUrl))
@@ -737,7 +947,7 @@ namespace LearnSphere_WAPP.Lecturer
                 }
             }
 
-            // Get forumid from parent post
+            // Look up the forum ID from the parent question so the answer is linked correctly
             int forumId = 0;
             using (SqlConnection con = new SqlConnection(connStr))
             {
@@ -752,15 +962,11 @@ namespace LearnSphere_WAPP.Lecturer
 
             try
             {
-                string savedFileUrl = null;
-                string savedImageUrl = null;
-
-                // Document upload — matches answer.aspx.cs paths: ~/Uploads/Documents/
                 if (fileUploadAFile.HasFile)
                 {
                     string ext = Path.GetExtension(fileUploadAFile.FileName).ToLower();
-                    string[] allowed = { ".pdf", ".docx", ".zip" };
-                    if (Array.IndexOf(allowed, ext) < 0)
+                    string[] allow = { ".pdf", ".docx", ".zip" };
+                    if (Array.IndexOf(allow, ext) < 0)
                     {
                         ShowMsg(lblAnswerFormMsg, "Invalid document type.", false);
                         return;
@@ -774,15 +980,13 @@ namespace LearnSphere_WAPP.Lecturer
                     string path = Server.MapPath("~/Uploads/Documents/");
                     if (!Directory.Exists(path)) Directory.CreateDirectory(path);
                     fileUploadAFile.SaveAs(Path.Combine(path, newName));
-                    savedFileUrl = "~/Uploads/Documents/" + newName;
                 }
 
-                // Image upload — matches answer.aspx.cs paths: ~/Uploads/Images/
                 if (fileUploadAImage.HasFile)
                 {
                     string ext = Path.GetExtension(fileUploadAImage.FileName).ToLower();
-                    string[] allowedImg = { ".jpg", ".jpeg", ".png" };
-                    if (Array.IndexOf(allowedImg, ext) < 0)
+                    string[] allow = { ".jpg", ".jpeg", ".png" };
+                    if (Array.IndexOf(allow, ext) < 0)
                     {
                         ShowMsg(lblAnswerFormMsg, "Invalid image type.", false);
                         return;
@@ -796,12 +1000,11 @@ namespace LearnSphere_WAPP.Lecturer
                     string path = Server.MapPath("~/Uploads/Images/");
                     if (!Directory.Exists(path)) Directory.CreateDirectory(path);
                     fileUploadAImage.SaveAs(Path.Combine(path, newName));
-                    savedImageUrl = "~/Uploads/Images/" + newName;
                 }
 
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
-                    // Matches answer.aspx.cs INSERT exactly: parentid, title=NULL, videourl
+                    // title is NULL for answers — only questions have titles
                     SqlCommand cmd = new SqlCommand(@"
                         INSERT INTO ForumPost
                         (forumid, userid, parentid, title, content, videourl)
@@ -827,6 +1030,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
+        // Handles Like, Dislike, Delete and Edit commands on each answer card
         protected void rptAnswers_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
             if (!int.TryParse(e.CommandArgument.ToString(), out int postId)) return;
@@ -846,13 +1050,112 @@ namespace LearnSphere_WAPP.Lecturer
                 SoftDeletePost(postId);
                 LoadForumDetail(CurrentPostId);
             }
+            else if (e.CommandName == "EditAnswer")
+            {
+                // Only the answer's author can edit it
+                if (!IsPostOwner(postId))
+                {
+                    ShowMsg(lblDetailMessage, "You can only edit your own answers.", false);
+                    return;
+                }
+                pnlAddAnswer.Visible = false;
+                EditPostId = postId;
+                ShowEditAnswer(postId);
+            }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // SHARED HELPERS
-        // ══════════════════════════════════════════════════════════════════════
+        // Loads the answer's current content into the inline edit panel and shows it
+        private void ShowEditAnswer(int postId)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand(@"
+                    SELECT content, videourl
+                    FROM ForumPost
+                    WHERE postid=@pid AND userid=@uid AND deletiontime IS NULL", con);
+                cmd.Parameters.Add("@pid", SqlDbType.Int).Value = postId;
+                cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    txtEditAnswerContent.Text = reader["content"].ToString();
+                    txtEditAnswerVideoUrl.Text = reader["videourl"] != DBNull.Value
+                                                ? reader["videourl"].ToString() : "";
+                }
+            }
+            lblEditAnswerMsg.Visible = false;
+            pnlEditAnswer.Visible = true;
+        }
 
-        // Toggle vote — matches both original .cs files exactly
+        // Validates and saves the updated answer content and video URL
+        protected void btnSaveEditAnswer_Click(object sender, EventArgs e)
+        {
+            string content = txtEditAnswerContent.Text.Trim();
+            string videoUrl = txtEditAnswerVideoUrl.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                ShowMsg(lblEditAnswerMsg, "Answer cannot be empty.", false);
+                return;
+            }
+            if (content.Length > 2000)
+            {
+                ShowMsg(lblEditAnswerMsg, "Answer is too long (max 2000 chars).", false);
+                return;
+            }
+            if (!string.IsNullOrEmpty(videoUrl))
+            {
+                Uri u;
+                if (!Uri.TryCreate(videoUrl, UriKind.Absolute, out u))
+                {
+                    ShowMsg(lblEditAnswerMsg, "Invalid video URL.", false);
+                    return;
+                }
+            }
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    // WHERE userid=@uid enforces ownership at the DB level — not just in C#
+                    SqlCommand cmd = new SqlCommand(@"
+                        UPDATE ForumPost
+                        SET content=@content, videourl=@videourl
+                        WHERE postid=@pid AND userid=@uid AND deletiontime IS NULL", con);
+                    cmd.Parameters.Add("@content", SqlDbType.NVarChar, 2000).Value = Server.HtmlEncode(content);
+                    cmd.Parameters.Add("@videourl", SqlDbType.NVarChar).Value =
+                        string.IsNullOrEmpty(videoUrl) ? (object)DBNull.Value : videoUrl;
+                    cmd.Parameters.Add("@pid", SqlDbType.Int).Value = EditPostId;
+                    cmd.Parameters.Add("@uid", SqlDbType.Int).Value = userId;
+                    con.Open();
+                    int rows = cmd.ExecuteNonQuery();
+
+                    if (rows == 0)
+                    {
+                        ShowMsg(lblEditAnswerMsg, "Unauthorized or answer not found.", false);
+                        return;
+                    }
+                    LearnSphere_WAPP.Syslog.action(userId, "Updated Answer (PostID: " + EditPostId + ")");
+                }
+
+                pnlEditAnswer.Visible = false;
+                LoadForumDetail(CurrentPostId);
+            }
+            catch
+            {
+                ShowMsg(lblEditAnswerMsg, "An error occurred while saving. Please try again.", false);
+            }
+        }
+
+        // Closes the inline edit answer panel without saving
+        protected void btnCancelEditAnswer_Click(object sender, EventArgs e)
+        {
+            pnlEditAnswer.Visible = false;
+            LoadForumDetail(CurrentPostId);
+        }
+
+        // Toggles a vote — same vote removes it, different vote switches it, no vote adds it
         private void HandleVote(int postId, int voteType)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -869,7 +1172,6 @@ namespace LearnSphere_WAPP.Lecturer
                     int current = Convert.ToInt32(existing);
                     if (current == voteType)
                     {
-                        // Same → remove
                         new SqlCommand(
                             "DELETE FROM ForumVote WHERE postid=@pid AND userid=@uid", conn)
                         { Parameters = { new SqlParameter("@pid", postId), new SqlParameter("@uid", userId) } }
@@ -877,7 +1179,6 @@ namespace LearnSphere_WAPP.Lecturer
                     }
                     else
                     {
-                        // Different → switch
                         new SqlCommand(
                             "UPDATE ForumVote SET votetype=@type WHERE postid=@pid AND userid=@uid", conn)
                         {
@@ -892,7 +1193,6 @@ namespace LearnSphere_WAPP.Lecturer
                 }
                 else
                 {
-                    // Insert new vote
                     new SqlCommand(
                         "INSERT INTO ForumVote(postid,userid,votetype) VALUES(@pid,@uid,@type)", conn)
                     {
@@ -907,7 +1207,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Soft-delete — matches ForumDetail.aspx.cs: only own posts, sets deletiontime
+        // Only lets users delete their own posts — the WHERE userid=@uid ensures this at the DB level
         private void SoftDeletePost(int postId)
         {
             try
@@ -933,13 +1233,14 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // IsOwner — only own userid (matches ForumDetail.aspx.cs)
+        // Returns true if the post belongs to the currently logged-in user — used to show/hide Edit and Delete buttons
         protected bool IsOwner(object postUserIdObj)
         {
             if (postUserIdObj == null || postUserIdObj == DBNull.Value) return false;
             return Convert.ToInt32(postUserIdObj) == userId;
         }
 
+        // Returns a resolved URL for a profile picture, falling back to the default avatar if empty
         protected string GetProfileImage(object profileImage)
         {
             if (profileImage == null || profileImage == DBNull.Value)
@@ -950,6 +1251,7 @@ namespace LearnSphere_WAPP.Lecturer
             return ResolveUrl("~/" + path);
         }
 
+        // Converts a comma-separated tag string into styled pill HTML spans
         protected string FormatTags(object tagObj)
         {
             if (tagObj == null || tagObj == DBNull.Value) return "";
@@ -965,6 +1267,7 @@ namespace LearnSphere_WAPP.Lecturer
             return sb.ToString();
         }
 
+        // Sets a label's text, style and visibility in one call
         private void ShowMsg(Label lbl, string msg, bool success)
         {
             lbl.Text = msg;
@@ -972,9 +1275,7 @@ namespace LearnSphere_WAPP.Lecturer
             lbl.Visible = true;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // LOGOUT
-        // ══════════════════════════════════════════════════════════════════════
+        // Clears the session and sends the lecturer back to the login page
         protected void btnLogout_Click(object sender, EventArgs e)
         {
             LearnSphere_WAPP.Syslog.action(userId, "Logout System");

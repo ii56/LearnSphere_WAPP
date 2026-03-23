@@ -161,18 +161,11 @@
             background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
         }
 
-        /* validators */
         .validation-error { font-size: 0.75rem; color: #dc2626; margin-top: 4px; display: block; }
         .validation-summary {
             background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.2);
             color: #dc2626; border-radius: var(--radius-sm);
             padding: 14px 18px; font-size: 0.83rem; margin-bottom: 20px;
-        }
-
-        /* ═══ DIVIDER ═══ */
-        .divider {
-            border: none; border-top: 1px solid var(--border);
-            margin: 24px 0;
         }
 
         /* ═══ BUTTONS ═══ */
@@ -214,13 +207,18 @@
         }
         .questions-header {
             padding: 16px 24px; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
         }
-        .questions-title { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .questions-title { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .q-count {
             background: var(--bg); border: 1px solid var(--border);
             font-size: 0.72rem; font-family: 'Space Mono', monospace;
             padding: 3px 10px; border-radius: 20px; color: var(--text-muted);
+        }
+        .q-points {
+            background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
+            font-size: 0.72rem; font-family: 'Space Mono', monospace;
+            padding: 3px 10px; border-radius: 20px; color: var(--accent-orange); font-weight: 700;
         }
 
         .questions-section table { width: 100%; border-collapse: collapse; }
@@ -249,6 +247,19 @@
             font-family: 'Space Mono', monospace;
         }
         .empty-state { text-align: center; padding: 36px; color: var(--text-muted); font-size: 0.88rem; }
+
+        /* ═══ TOTAL POINTS SUMMARY ═══ */
+        .points-summary {
+            display: flex; align-items: center; gap: 18px;
+            background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.22);
+            border-radius: var(--radius-sm); padding: 16px 22px; margin-bottom: 20px;
+        }
+        .points-summary-icon { font-size: 2rem; line-height: 1; }
+        .points-summary-label { font-size: 0.78rem; color: var(--text-secondary); font-weight: 500; margin-bottom: 4px; }
+        .points-summary-value {
+            font-size: 1.5rem; font-weight: 700; color: var(--accent-orange);
+            font-family: 'Space Mono', monospace;
+        }
 
         /* ═══ ALERTS ═══ */
         .alert { padding: 10px 16px; border-radius: var(--radius-sm); font-size: 0.83rem; font-weight: 500; display: inline-block; margin-top: 8px; }
@@ -311,7 +322,7 @@
         <div class="page-banner">
             <div class="banner-label">Course Management</div>
             <div class="banner-title"><asp:Label ID="lblBannerTitle" runat="server" Text="Create Exam" /></div>
-            <div class="banner-sub">Build a multiple-choice exam with questions and answer options.</div>
+            <div class="banner-sub">Assign marks per question — total exam points are calculated automatically.</div>
         </div>
 
         <a href="ViewCourses.aspx" class="btn-back">← Back to Courses</a>
@@ -369,7 +380,7 @@
             <div class="form-card-title">
                 <span class="title-dot dot-blue"></span> Add Question
             </div>
-            <div class="form-card-sub">Fill in the question, four answer options, the correct answer, and marks.</div>
+            <div class="form-card-sub">Fill in the question, four answer options, the correct answer, and the marks for this question. Each question can carry a different mark value — the total is summed automatically.</div>
 
             <div class="form-group">
                 <label class="form-label">Question *</label>
@@ -381,7 +392,6 @@
                     ValidationGroup="QuestionGroup" runat="server" Display="Dynamic" />
             </div>
 
-            <!-- 4 options in a row -->
             <div class="form-row-4">
                 <div class="form-group" style="margin-bottom:0;">
                     <label class="form-label">Option A *</label>
@@ -428,7 +438,9 @@
                         ValidationGroup="QuestionGroup" runat="server" Display="Dynamic" />
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
-                    <label class="form-label">Marks *</label>
+                    <label class="form-label">Marks for this Question *
+                        <span style="color:var(--text-muted);font-weight:400;text-transform:none;">(1–100)</span>
+                    </label>
                     <asp:TextBox ID="txtMarks" runat="server" CssClass="form-input"
                         Text="1" TextMode="Number" />
                     <asp:RequiredFieldValidator ControlToValidate="txtMarks"
@@ -455,7 +467,12 @@
             <div class="questions-header">
                 <div class="questions-title">
                     <span class="title-dot dot-orange"></span> Questions Added
-                    <span class="q-count"><asp:Label ID="lblQCount" runat="server" Text="0" /> questions</span>
+                    <span class="q-count">
+                        <asp:Label ID="lblQCount" runat="server" Text="0" /> questions
+                    </span>
+                    <span class="q-points">
+                        ⚡ <asp:Label ID="lblTotalPoints" runat="server" Text="0" /> total pts
+                    </span>
                 </div>
                 <div>
                     <asp:DropDownList ID="ddlQuestionFilter" runat="server" CssClass="form-input"
@@ -470,7 +487,9 @@
             <asp:GridView ID="gvQuestions" runat="server"
                 AutoGenerateColumns="false"
                 Width="100%" BorderStyle="None" GridLines="None"
-                EmptyDataText="">
+                EmptyDataText=""
+                OnSelectedIndexChanged="gvQuestions_SelectedIndexChanged">
+                <SelectedRowStyle BackColor="#EFF6FF" />
                 <Columns>
                     <asp:BoundField DataField="Question" HeaderText="Question" />
                     <asp:BoundField DataField="A"        HeaderText="A" />
@@ -487,7 +506,7 @@
                             <span class="marks-badge"><%# Eval("Marks") %> pts</span>
                         </ItemTemplate>
                     </asp:TemplateField>
-                    <asp:CommandField ShowSelectButton="true" SelectText="Select" />
+                    <asp:CommandField ShowSelectButton="true" SelectText="✏️ Edit" />
                 </Columns>
             </asp:GridView>
 
@@ -501,7 +520,21 @@
             <div class="form-card-title">
                 <span class="title-dot dot-green"></span> Finalise Exam
             </div>
-            <div class="form-card-sub">Publish the exam to make it available, or save as a draft to continue later.</div>
+            <div class="form-card-sub">
+                Total exam points are the sum of all per-question marks and are saved automatically.
+                Publish to make the exam available, or save as a draft to continue later.
+            </div>
+
+            <!-- Running total summary -->
+            <div class="points-summary">
+                <span class="points-summary-icon">⚡</span>
+                <div>
+                    <div class="points-summary-label">Total Exam Points (sum of all question marks)</div>
+                    <div class="points-summary-value">
+                        <asp:Label ID="lblFinalTotalPoints" runat="server" Text="0" /> pts
+                    </div>
+                </div>
+            </div>
 
             <div class="btn-row">
                 <asp:Button ID="btnPublish" runat="server" Text="🚀 Publish Exam"

@@ -14,9 +14,7 @@ namespace LearnSphere_WAPP.Lecturer
             .ConnectionStrings["LearnSphereDB"]
             .ConnectionString;
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PAGE LOAD
-        // ══════════════════════════════════════════════════════════════════════
+        // Validates the course ID and published status, then loads the correct view based on the query string
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -28,6 +26,7 @@ namespace LearnSphere_WAPP.Lecturer
                     return;
                 }
 
+                // Only published courses can be previewed — redirect drafts back to the list
                 if (!IsPublished(courseId))
                 {
                     Response.Redirect("ViewCourses.aspx");
@@ -39,6 +38,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                 if (Request.QueryString["lessonid"] == null)
                 {
+                    // No lesson selected yet — show the course overview landing screen
                     LoadCourseOverview(courseId);
                     RenderProgress(0, GetAllLessonIds(courseId).Count);
                 }
@@ -53,9 +53,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // AUTH: course must be published — matches original exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Returns true only if the course is active and not soft-deleted
         private bool IsPublished(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -69,9 +67,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // COURSE HEADER — sets sidebar title
-        // ══════════════════════════════════════════════════════════════════════
+        // Fetches the course name and sets it in the sidebar header label
         private void LoadCourseHeader(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -86,9 +82,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // SIDEBAR: modules + nested lessons — matches original exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Builds the sidebar module/lesson tree by fetching modules then calling GetLessons for each one
         private void LoadSidebar(int courseId)
         {
             var modules = new List<dynamic>();
@@ -119,7 +113,7 @@ namespace LearnSphere_WAPP.Lecturer
             rptModules.DataBind();
         }
 
-        // Matches original GetLessons exactly
+        // Returns the ordered list of lessons for a single module, used to populate the sidebar
         private List<dynamic> GetLessons(int moduleId)
         {
             var lessons = new List<dynamic>();
@@ -142,9 +136,7 @@ namespace LearnSphere_WAPP.Lecturer
             return lessons;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // PROGRESS BAR — renders into sidebar litProgressFill + litProgressText
-        // ══════════════════════════════════════════════════════════════════════
+        // Renders the progress bar fill and lesson counter in the sidebar, and stores the values in session
         private void RenderProgress(int current, int total)
         {
             int percent = total == 0 ? 0 : (int)(((double)current / total) * 100);
@@ -152,14 +144,11 @@ namespace LearnSphere_WAPP.Lecturer
             litProgressFill.Text = $"<div class='progress-fill' style='width:{percent}%'></div>";
             litProgressText.Text = $"{current} / {total} lessons";
 
-            // Also keep session values for page-to-page tracking
             Session["PreviewLessonIndex"] = current;
             Session["PreviewTotalLessons"] = total;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // COURSE OVERVIEW — shown when no lessonid param
-        // ══════════════════════════════════════════════════════════════════════
+        // Shows the course landing card with the course title and a "Start Course" button pointing to the first lesson
         private void LoadCourseOverview(int courseId)
         {
             phOverview.Visible = true;
@@ -188,7 +177,7 @@ namespace LearnSphere_WAPP.Lecturer
             });
         }
 
-        // Matches original GetFirstLesson exactly
+        // Returns the lesson ID with the lowest module and lesson order — used as the "Start Course" target
         private int GetFirstLesson(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -206,9 +195,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // LESSON VIEW — matches original LoadLesson exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Loads the lesson title, description, video and documents, then renders the prev/next navigation
         private void LoadLesson(int courseId, int lessonId)
         {
             phOverview.Visible = false;
@@ -224,7 +211,6 @@ namespace LearnSphere_WAPP.Lecturer
             {
                 con.Open();
 
-                // Load lesson details
                 SqlCommand lessonCmd = new SqlCommand(@"
                     SELECT lessontitle, lessondescription
                     FROM Lesson WHERE lessonid=@id", con);
@@ -237,7 +223,7 @@ namespace LearnSphere_WAPP.Lecturer
                 }
                 reader.Close();
 
-                // Load video URL
+                // A lesson can have at most one video URL stored in the Material table
                 SqlCommand videoCmd = new SqlCommand(@"
                     SELECT videourl FROM Material
                     WHERE lessonid=@lessonid AND videourl IS NOT NULL", con);
@@ -247,7 +233,6 @@ namespace LearnSphere_WAPP.Lecturer
                     videoUrl = ConvertToEmbed(videoResult.ToString());
             }
 
-            // Lesson heading + description
             phLesson.Controls.Add(new Literal
             {
                 Text = $@"
@@ -256,7 +241,6 @@ namespace LearnSphere_WAPP.Lecturer
                     <p>{Server.HtmlEncode(description)}</p>"
             });
 
-            // Video
             if (!string.IsNullOrEmpty(videoUrl))
             {
                 phLesson.Controls.Add(new Literal
@@ -268,16 +252,13 @@ namespace LearnSphere_WAPP.Lecturer
                 });
             }
 
-            // Documents
             LoadMaterials(lessonId);
-
-            // Prev / Next navigation + close the lesson-card div
             RenderNavigation(courseId, lessonId);
 
             phLesson.Controls.Add(new Literal { Text = "</div>" });
         }
 
-        // Matches original LoadMaterials exactly — styled links
+        // Renders download links for any documents attached to the lesson
         private void LoadMaterials(int lessonId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -308,20 +289,17 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // NAVIGATION — Prev / Next, matches original RenderNavigation exactly
-        // ══════════════════════════════════════════════════════════════════════
+        // Builds the Previous/Next buttons based on the lesson's position in the full ordered list
+        // If this is the last lesson, shows the completion screen instead of a Next button
         private void RenderNavigation(int courseId, int lessonId)
         {
             List<int> lessonIds = GetAllLessonIds(courseId);
             int index = lessonIds.IndexOf(lessonId);
 
-            // Update progress (current = 1-based position)
             RenderProgress(index + 1, lessonIds.Count);
 
             if (index >= lessonIds.Count - 1)
             {
-                // Last lesson → show completion instead of Next
                 ShowCompletion();
                 return;
             }
@@ -329,13 +307,9 @@ namespace LearnSphere_WAPP.Lecturer
             string navHtml = "<div class='lesson-nav'>";
 
             if (index > 0)
-            {
                 navHtml += $"<a class='nav-btn' href='Preview.aspx?courseid={courseId}&lessonid={lessonIds[index - 1]}'>← Previous</a>";
-            }
             else
-            {
-                navHtml += "<span></span>"; // spacer so Next stays right-aligned
-            }
+                navHtml += "<span></span>"; // keeps Next right-aligned on the first lesson
 
             navHtml += $"<a class='nav-btn next' href='Preview.aspx?courseid={courseId}&lessonid={lessonIds[index + 1]}'>Next →</a>";
             navHtml += "</div>";
@@ -343,7 +317,7 @@ namespace LearnSphere_WAPP.Lecturer
             phLesson.Controls.Add(new Literal { Text = navHtml });
         }
 
-        // Matches original GetAllLessonIds exactly
+        // Returns all lesson IDs for a course in module and lesson order — used for prev/next navigation
         private List<int> GetAllLessonIds(int courseId)
         {
             var ids = new List<int>();
@@ -364,9 +338,7 @@ namespace LearnSphere_WAPP.Lecturer
             return ids;
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // COMPLETION SCREEN — matches original ShowCompletion
-        // ══════════════════════════════════════════════════════════════════════
+        // Shows the end-of-course congratulations card
         private void ShowCompletion()
         {
             phOverview.Visible = false;
@@ -389,11 +361,7 @@ namespace LearnSphere_WAPP.Lecturer
             });
         }
 
-        // ══════════════════════════════════════════════════════════════════════
-        // HELPERS — match originals exactly
-        // ══════════════════════════════════════════════════════════════════════
-
-        // Converts YouTube watch URL to embed URL
+        // Converts a standard YouTube watch URL into an embeddable iframe URL
         private string ConvertToEmbed(string url)
         {
             if (url.Contains("watch?v="))
@@ -404,6 +372,7 @@ namespace LearnSphere_WAPP.Lecturer
             return url;
         }
 
+        // Returns to the courses list
         protected void btnBack_Click(object sender, EventArgs e)
         {
             Response.Redirect("ViewCourses.aspx");
