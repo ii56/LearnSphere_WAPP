@@ -24,6 +24,15 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
+        /// imgAdminProfile control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlImage imgAdminProfile;
+
+        /// <summary>
         /// btnBack control.
         /// </summary>
         /// <remarks>
@@ -51,15 +60,6 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.TextBox txtQuestion;
 
         /// <summary>
-        /// rfvQuestion control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvQuestion;
-
-        /// <summary>
         /// txtAnswer control.
         /// </summary>
         /// <remarks>
@@ -69,15 +69,6 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.TextBox txtAnswer;
 
         /// <summary>
-        /// rfvAnswer control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAnswer;
-
-        /// <summary>
         /// txtCategory control.
         /// </summary>
         /// <remarks>
@@ -85,15 +76,6 @@ namespace LearnSphere_WAPP.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtCategory;
-
-        /// <summary>
-        /// rfvCategory control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvCategory;
 
         /// <summary>
         /// btnSaveKnowledge control.
@@ -132,15 +114,6 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.TextBox txtRuleName;
 
         /// <summary>
-        /// rfvRuleName control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvRuleName;
-
-        /// <summary>
         /// txtRuleDescription control.
         /// </summary>
         /// <remarks>
@@ -150,15 +123,6 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.TextBox txtRuleDescription;
 
         /// <summary>
-        /// rfvRuleDescription control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvRuleDescription;
-
-        /// <summary>
         /// txtRuleContent control.
         /// </summary>
         /// <remarks>
@@ -166,15 +130,6 @@ namespace LearnSphere_WAPP.Admin
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtRuleContent;
-
-        /// <summary>
-        /// rfvRuleContent control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvRuleContent;
 
         /// <summary>
         /// btnSaveRule control.

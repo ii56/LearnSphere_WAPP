@@ -36,7 +36,7 @@
                 <a href="AdminEditProfile.aspx" class="active">Edit Profile</a>
                 <a href="AdminSyslog.aspx" >Syslog</a>
                 <a href="AdminMessage.aspx">
-                    <span>✉️</span> Messaging
+                    Messaging
                     <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
                         <span class="nav-badge"><%= Session["unreadCount"] %></span>
                     <% } %>
