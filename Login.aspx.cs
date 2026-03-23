@@ -37,7 +37,7 @@ namespace LearnSphere_WAPP
 
                     string query = @"SELECT userid, uname, pwd, usertype 
 FROM [User] 
-WHERE LOWER(uname) = LOWER(@uname) AND status = 'Active'";
+WHERE LOWER(uname) = LOWER(@uname) ";
 
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
@@ -90,7 +90,6 @@ WHERE LOWER(uname) = LOWER(@uname) AND status = 'Active'";
                     break;
 
                 case "General":
-                    Syslog.action(Convert.ToInt32(Session["userid"]), "Log In");
                     Response.Redirect("~/GeneralUser/GeneralDashboard.aspx");
                     break;
 

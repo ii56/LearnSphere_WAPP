@@ -162,7 +162,7 @@ namespace LearnSphere_WAPP
                     cmd.Parameters.Add("@creationtime", SqlDbType.DateTime).Value = DateTime.Now;
 
                     // 🔥 DEFAULT ROLE
-                    cmd.Parameters.Add("@usertype", SqlDbType.NVarChar, 20).Value = "Public";
+                    cmd.Parameters.Add("@usertype", SqlDbType.NVarChar, 20).Value = "General";
 
                     cmd.Parameters.Add("@status", SqlDbType.NVarChar, 20).Value = "Active";
 

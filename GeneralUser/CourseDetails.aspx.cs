@@ -187,7 +187,7 @@ namespace LearnSphere_WAPP.GeneralUser
                     }
 
                     // 3. AUTO-UPGRADE LOGIC (General -> Student)
-                    if (currentRole == "General" || currentRole == "General User")
+                    if (amount > 0)
                     {
                         // A. Update the User table
                         using (SqlCommand roleCmd = new SqlCommand("UPDATE [User] SET usertype = 'Student' WHERE userid = @uid", con))
