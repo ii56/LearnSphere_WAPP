@@ -12,8 +12,7 @@ namespace LearnSphere_WAPP.GeneralUser
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            Session["userid"] = 9;
-            Session["usertype"] = "General";
+            
             // Security check - Must be logged in and must be a General User
             if (Session["userid"] == null || Session["usertype"] == null || Session["usertype"].ToString() != "General")
             {
