@@ -3,10 +3,11 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 
 namespace LearnSphere_WAPP.GeneralUser
 {
-    public partial class CourseDetails : System.Web.UI.Page
+    public partial class BrowseCourses : System.Web.UI.Page
     {
         private readonly string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
 
@@ -21,7 +22,7 @@ namespace LearnSphere_WAPP.GeneralUser
             if (!IsPostBack)
             {
                 LoadSidebarProfile();
-                LoadCourseDetails();
+                LoadCourses();
             }
         }
 
@@ -62,141 +63,114 @@ namespace LearnSphere_WAPP.GeneralUser
             }
         }
 
-        private void LoadCourseDetails()
+        private void LoadCourses()
         {
-            if (Request.QueryString["courseid"] == null || !int.TryParse(Request.QueryString["courseid"], out int courseId))
-            {
-                Response.Redirect("BrowseCourses.aspx");
-                return;
-            }
-
-            int currentUserId = Convert.ToInt32(Session["userid"]);
-
-            try
-            {
-                using (SqlConnection con = new SqlConnection(connStr))
-                {
-                    string query = @"
-                        SELECT c.coursename, c.description, c.category, c.price, 
-                               u.fname + ' ' + u.lname AS InstructorName, u.ProfileImage,
-                               CASE WHEN e.enrollmentid IS NOT NULL THEN 1 ELSE 0 END AS IsEnrolled
-                        FROM Course c
-                        INNER JOIN [User] u ON c.ownerid = u.userid
-                        LEFT JOIN Enrollment e ON c.courseid = e.courseid AND e.userid = @UserId AND e.isactive = 1
-                        WHERE c.courseid = @CourseId AND c.status = 'Active' AND c.deletiontime IS NULL";
-
-                    using (SqlCommand cmd = new SqlCommand(query, con))
-                    {
-                        cmd.Parameters.AddWithValue("@UserId", currentUserId);
-                        cmd.Parameters.AddWithValue("@CourseId", courseId);
-
-                        con.Open();
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                lblCourseName.Text = reader["coursename"].ToString();
-                                litDescription.Text = reader["description"].ToString().Replace("\n", "<br/><br/>");
-                                lblCategory.Text = reader["category"].ToString();
-                                lblInstructorName.Text = reader["InstructorName"].ToString();
-
-                                string instructorImg = reader["ProfileImage"] != DBNull.Value ? reader["ProfileImage"].ToString() : "";
-                                if (!string.IsNullOrEmpty(instructorImg))
-                                    imgInstructor.Src = ResolveUrl(instructorImg);
-
-                                decimal price = Convert.ToDecimal(reader["price"]);
-                                if (price == 0)
-                                {
-                                    lblPrice.Text = "FREE";
-                                    lblPrice.CssClass = "detail-price free";
-                                    lblPrice.Style["color"] = "var(--accent-green)";
-                                }
-                                else
-                                {
-                                    lblPrice.Text = "RM " + price.ToString("0.00");
-                                }
-
-                                bool isEnrolled = Convert.ToBoolean(reader["IsEnrolled"]);
-
-                                if (isEnrolled)
-                                {
-                                    btnEnroll.Text = "Go to Course →";
-                                    btnEnroll.CssClass = "btn-goto-large";
-                                }
-                                else
-                                {
-                                    btnEnroll.Text = price == 0 ? "Enroll Free" : "Buy Now";
-                                    btnEnroll.CssClass = "btn-enroll-large";
-                                }
-                            }
-                            else
-                            {
-                                Response.Redirect("BrowseCourses.aspx");
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Error loading course details: " + ex.Message);
-            }
-        }
-
-        protected void btnCourseAction_Click(object sender, EventArgs e)
-        {
-            if (Request.QueryString["courseid"] == null || !int.TryParse(Request.QueryString["courseid"], out int courseId))
-                return;
-
-            if (btnEnroll.Text.Contains("Go to Course"))
-            {
-                Response.Redirect($"LessonViewer.aspx?courseid={courseId}");
-                return;
-            }
-
-            string courseName = "";
-            decimal price = 0;
+            int userId = Convert.ToInt32(Session["userid"]);
 
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
-                using (SqlCommand cmd = new SqlCommand("SELECT coursename, price FROM Course WHERE courseid = @cid", con))
+
+                string query = @"
+                    SELECT c.courseid, c.coursename, c.description, c.category, c.price,
+                           u.fname + ' ' + u.lname AS lecturerName,
+                           CASE WHEN e.enrollmentid IS NOT NULL THEN 1 ELSE 0 END AS IsEnrolled
+                    FROM Course c
+                    INNER JOIN [User] u ON c.ownerid = u.userid
+                    LEFT JOIN Enrollment e 
+                        ON c.courseid = e.courseid 
+                        AND e.userid = @uid 
+                        AND e.isactive = 1
+                    WHERE c.status = 'Active' AND c.deletiontime IS NULL";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@cid", courseId);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    cmd.Parameters.AddWithValue("@uid", userId);
+
+                    // Apply Filters
+                    if (!string.IsNullOrEmpty(txtSearch.Text))
                     {
-                        if (reader.Read())
+                        query += " AND c.coursename LIKE @search";
+                        cmd.Parameters.AddWithValue("@search", "%" + txtSearch.Text.Trim() + "%");
+                    }
+                    if (!string.IsNullOrEmpty(ddlCategory.SelectedValue))
+                    {
+                        query += " AND c.category = @cat";
+                        cmd.Parameters.AddWithValue("@cat", ddlCategory.SelectedValue);
+                    }
+
+                    query += " ORDER BY c.creationtime DESC";
+                    cmd.CommandText = query;
+
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        da.Fill(dt);
+
+                        if (dt.Rows.Count > 0)
                         {
-                            courseName = reader["coursename"].ToString();
-                            price = Convert.ToDecimal(reader["price"]);
+                            rptCourses.DataSource = dt;
+                            rptCourses.DataBind();
+                            pnlEmpty.Visible = false;
+                        }
+                        else
+                        {
+                            rptCourses.DataSource = null;
+                            rptCourses.DataBind();
+                            pnlEmpty.Visible = true;
                         }
                     }
                 }
             }
+        }
 
-            if (price == 0)
+        protected void btnFilter_Click(object sender, EventArgs e)
+        {
+            LoadCourses();
+        }
+
+        protected void rptCourses_ItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+            if (e.CommandName == "ViewDetails")
             {
-                // Free course bypasses payment modal
-                ProcessEnrollment(courseId, price, courseName);
+                Response.Redirect("CourseDetails.aspx?courseid=" + e.CommandArgument);
+                return;
             }
-            else
+
+            string[] args = e.CommandArgument.ToString().Split('|');
+            if (args.Length < 3) return;
+
+            int courseId = Convert.ToInt32(args[0]);
+            string courseName = args[1];
+            decimal price = Convert.ToDecimal(args[2]);
+
+            if (e.CommandName == "EnrollFree")
             {
-                // Trigger Payment Modal via HiddenField and re-bind
-                hfCourseData.Value = courseId + "|" + courseName + "|" + price;
-                LoadCourseDetails();
+                // Free courses instantly enroll without upgrading the user
+                ProcessEnrollment(courseId, 0, courseName);
+            }
+            else if (e.CommandName == "OpenPayment")
+            {
+                // Trigger the JS Payment Modal via HiddenField
+                hfCourseId.Value = courseId + "|" + courseName + "|" + price;
+                LoadCourses(); // Rebind to ensure page renders properly for JS to catch the HiddenField
             }
         }
 
         protected void btnConfirmPayment_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(hfCourseData.Value)) return;
+            string courseData = hfCourseId.Value;
+            if (string.IsNullOrEmpty(courseData)) return;
 
-            string[] parts = hfCourseData.Value.Split('|');
+            string[] parts = courseData.Split('|');
             int courseId = Convert.ToInt32(parts[0]);
             string courseName = parts[1];
             decimal amount = Convert.ToDecimal(parts[2]);
 
-            hfCourseData.Value = ""; // Clear modal data
+            // Clear hidden field so modal doesn't re-open
+            hfCourseId.Value = "";
+
+            // Paid courses trigger the auto-upgrade
             ProcessEnrollment(courseId, amount, courseName);
         }
 
@@ -264,9 +238,9 @@ namespace LearnSphere_WAPP.GeneralUser
                     }
                 }
 
-                // If free, show success and update the button to "Go to Course"
-                ShowMsg($"Successfully enrolled in {courseName}! You can now access the course materials.", true);
-                LoadCourseDetails();
+                // If it was a free course, stay on the page
+                ShowMsg($"Successfully enrolled in {courseName}! You can access it in My Learning.", true);
+                LoadCourses();
             }
             catch (Exception ex)
             {

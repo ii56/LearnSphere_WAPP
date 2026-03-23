@@ -11,7 +11,7 @@ namespace LearnSphere_WAPP.GeneralUser
 {
 
 
-    public partial class question
+    public partial class Gamification
     {
 
         /// <summary>
@@ -24,13 +24,31 @@ namespace LearnSphere_WAPP.GeneralUser
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
-        /// imgSidebarProfile control.
+        /// imgAvatar control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlImage imgSidebarProfile;
+        protected global::System.Web.UI.WebControls.Image imgAvatar;
+
+        /// <summary>
+        /// lblAvatarInitial control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblAvatarInitial;
+
+        /// <summary>
+        /// lblHeaderName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblHeaderName;
 
         /// <summary>
         /// btnLogout control.
@@ -42,84 +60,111 @@ namespace LearnSphere_WAPP.GeneralUser
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
-        /// txtTitle control.
+        /// lblBadgeEmoji control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTitle;
+        protected global::System.Web.UI.WebControls.Label lblBadgeEmoji;
 
         /// <summary>
-        /// txtContent control.
+        /// lblPoints control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtContent;
+        protected global::System.Web.UI.WebControls.Label lblPoints;
 
         /// <summary>
-        /// txtTags control.
+        /// lblBadgeName control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTags;
+        protected global::System.Web.UI.WebControls.Label lblBadgeName;
 
         /// <summary>
-        /// fileUploadFile control.
+        /// milestoneBronze control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fileUploadFile;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl milestoneBronze;
 
         /// <summary>
-        /// fileUploadImage control.
+        /// milestoneSilver control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fileUploadImage;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl milestoneSilver;
 
         /// <summary>
-        /// txtVideoUrl control.
+        /// milestoneGold control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtVideoUrl;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl milestoneGold;
 
         /// <summary>
-        /// btnPost control.
+        /// milestoneDiamond control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnPost;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl milestoneDiamond;
 
         /// <summary>
-        /// btnCancel control.
+        /// lblNextBadge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnCancel;
+        protected global::System.Web.UI.WebControls.Label lblNextBadge;
 
         /// <summary>
-        /// lblMessage control.
+        /// progressFill control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblMessage;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl progressFill;
+
+        /// <summary>
+        /// lblProgressPct control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblProgressPct;
+
+        /// <summary>
+        /// rptLeaderboard control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Repeater rptLeaderboard;
+
+        /// <summary>
+        /// pnlEmptyLeaderboard control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlEmptyLeaderboard;
     }
 }

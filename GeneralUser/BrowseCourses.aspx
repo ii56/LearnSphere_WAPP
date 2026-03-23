@@ -1,18 +1,16 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="CourseDetails.aspx.cs" Inherits="LearnSphere_WAPP.GeneralUser.CourseDetails" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="BrowseCourses.aspx.cs" Inherits="LearnSphere_WAPP.GeneralUser.BrowseCourses" %>
 <!DOCTYPE html>
 <html>
 <head runat="server">
-    <title>Course Details - LearnSphere</title>
+    <title>Browse Courses - LearnSphere</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #eef3f9;
             --bg-gradient: linear-gradient(135deg, #dbe9f9 0%, #e8eef6 40%, #f0e8f5 100%);
             --surface: #ffffff;
-            --surface-hover: #f8fafd;
             --primary: #2563eb;
             --primary-bg: rgba(37,99,235,0.08);
-            --primary-border: rgba(37,99,235,0.18);
             --accent-orange: #f59e0b;
             --accent-green: #10b981;
             --accent-purple: #8b5cf6;
@@ -33,18 +31,18 @@
             color: var(--text); min-height: 100vh;
         }
 
-        /* ═══ HEADER ═══ */
+        /* ═══ HEADER & NAV ═══ */
         .header {
             position: sticky; top: 0; z-index: 100;
             background: rgba(255,255,255,0.82); backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border); padding: 0 36px; height: 64px;
+            border-bottom: 1px solid var(--border);
+            padding: 0 36px; height: 64px;
             display: flex; align-items: center; justify-content: space-between;
         }
         .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
         .logo img { height: 38px; width: 38px; object-fit: contain; }
         .logo-text { font-size: 1.2rem; font-weight: 700; color: var(--text); }
         .logo-text span { color: var(--primary); }
-        
         .header-right { display: flex; align-items: center; gap: 14px; }
         .user-pill {
             display: flex; align-items: center; gap: 10px;
@@ -52,13 +50,13 @@
             border-radius: 50px; padding: 5px 16px 5px 5px;
         }
         .user-avatar {
-            width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent-purple));
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 13px; font-weight: 700; color: white; overflow: hidden; position: relative;
         }
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
         .user-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
-        
         .btn-logout {
             background: transparent; border: 1px solid var(--border);
             color: var(--text-secondary); padding: 7px 18px; border-radius: 8px;
@@ -67,7 +65,6 @@
         }
         .btn-logout:hover { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
 
-        /* ═══ NAV ═══ */
         .nav {
             background: var(--surface); border-bottom: 1px solid var(--border);
             padding: 0 36px; display: flex; gap: 2px;
@@ -80,17 +77,32 @@
         .nav a:hover { color: var(--text-secondary); }
         .nav a.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-        /* ═══ CONTAINER & LAYOUT ═══ */
-        .container { max-width: 1000px; margin: 0 auto; padding: 28px 36px; }
-        
-        .btn-back {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: var(--surface); border: 1px solid var(--border);
-            color: var(--text-secondary); padding: 8px 18px; border-radius: 8px;
-            font-family: 'DM Sans', sans-serif; font-size: 0.83rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s; margin-bottom: 24px; text-decoration: none;
+        .container { max-width: 1140px; margin: 0 auto; padding: 28px 36px; }
+
+        /* ═══ BANNERS & FILTERS ═══ */
+        .page-header { margin-bottom: 24px; animation: slideUp 0.4s ease both; }
+        .page-label {
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--primary); margin-bottom: 6px;
+            font-family: 'Space Mono', monospace;
         }
-        .btn-back:hover { border-color: var(--primary); color: var(--primary); }
+        .page-title { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 15px; }
+
+        .filter-bar {
+            display: flex; gap: 10px; margin-bottom: 24px; animation: slideUp 0.4s 0.1s ease both; flex-wrap: wrap;
+        }
+        .filter-input {
+            padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+            font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none; transition: 0.2s;
+            background: var(--surface); min-width: 180px; color: var(--text);
+        }
+        .filter-input:focus { border-color: var(--primary); }
+        .btn-filter {
+            background: var(--text); color: white; border: none; padding: 10px 20px;
+            border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif;
+            font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+        }
+        .btn-filter:hover { background: #0f172a; }
 
         .alert {
             padding: 14px 20px; border-radius: var(--radius-sm);
@@ -100,60 +112,47 @@
         .alert-success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #059669; }
         .alert-error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #dc2626; }
 
-        /* ═══ COURSE DETAIL CARD ═══ */
-        .detail-card {
+        /* ═══ COURSE GRID ═══ */
+        .course-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px;
+        }
+        .course-card {
             background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 40px;
-            box-shadow: var(--shadow-sm); animation: slideUp 0.4s ease both;
+            border-radius: var(--radius); padding: 24px;
+            display: flex; flex-direction: column;
+            box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s;
+            animation: slideUp 0.5s ease both;
         }
-        
-        .detail-header-layout { display: flex; justify-content: space-between; align-items: flex-start; gap: 30px; margin-bottom: 30px;}
-        .header-text-area { flex: 1; }
-        
-        .detail-category {
+        .course-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .course-category {
             display: inline-block; background: var(--primary-bg); color: var(--primary);
-            padding: 5px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+            padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; width: fit-content;
         }
-        .detail-title { font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 20px; line-height: 1.2; letter-spacing: -0.5px;}
+        .course-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+        .course-instructor { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 500; }
+        .course-desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; flex: 1; margin-bottom: 20px; }
         
-        .instructor-block { display: flex; align-items: center; gap: 14px; }
-        .instructor-avatar {
-            width: 45px; height: 45px; border-radius: 50%; object-fit: cover;
-            border: 2px solid var(--border-light); background: var(--bg);
-        }
-        .instructor-info { display: flex; flex-direction: column; }
-        .instructor-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .instructor-name { font-size: 0.95rem; font-weight: 700; color: var(--text); }
-
-        .header-action-area {
-            background: var(--border-light); padding: 28px; border-radius: var(--radius);
-            min-width: 260px; text-align: center; border: 1px solid var(--border);
-        }
-        .price-box { margin-bottom: 20px; }
-        .detail-price { font-size: 2.2rem; font-weight: 700; color: var(--text); font-family: 'Space Mono', monospace; }
+        .course-footer { display: flex; flex-direction: column; gap: 12px; margin-top: auto; border-top: 1px solid var(--border-light); padding-top: 16px; }
+        .course-price { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--text); }
+        .course-price.free { color: var(--accent-green); }
         
-        .btn-enroll-large {
-            width: 100%; background: var(--primary); color: white; border: none;
-            padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 700;
-            cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
-            font-family: 'DM Sans', sans-serif;
+        .btn-enroll {
+            background: var(--primary); color: white; border: none;
+            padding: 10px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.2s; flex: 1;
         }
-        .btn-enroll-large:hover { background: #1d4ed8; transform: translateY(-2px); }
-        
-        .btn-goto-large {
-            width: 100%; background: var(--accent-green); color: white; border: none;
-            padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 700;
-            cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
-            font-family: 'DM Sans', sans-serif;
+        .btn-enroll:hover { background: #1d4ed8; }
+        .btn-enroll:disabled {
+            background: var(--border-light); color: var(--text-muted);
+            cursor: not-allowed; border: 1px solid var(--border);
         }
-        .btn-goto-large:hover { background: #059669; transform: translateY(-2px); }
-
-        .divider { border: 0; height: 1px; background: var(--border); margin: 30px 0; }
-        
-        .detail-body h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-        .title-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); }
-        .description-text { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.8; }
+        .btn-secondary {
+            background: var(--border-light); color: var(--text); border: 1px solid var(--border);
+            padding: 10px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; flex: 1;
+        }
+        .btn-secondary:hover { background: var(--surface-hover); border-color: var(--primary-border); color: var(--primary); }
 
         /* ═══ PAYMENT MODAL ═══ */
         .modal-overlay {
@@ -193,7 +192,10 @@
             margin-bottom: 20px;
         }
         .modal-price-label { font-size: 0.82rem; color: var(--text-secondary); font-weight: 600;}
-        .modal-price-amount { font-family: 'Space Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--accent-orange); }
+        .modal-price-amount {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.4rem; font-weight: 700; color: var(--accent-orange);
+        }
         .form-group { margin-bottom: 14px; }
         .form-label {
             display: block; font-size: 0.78rem; font-weight: 600;
@@ -207,6 +209,7 @@
             font-size: 0.875rem; outline: none; transition: border-color 0.2s;
         }
         .form-input:focus { border-color: var(--primary); background: white; }
+        .form-input::placeholder { color: var(--text-muted); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .card-icons { display: flex; gap: 8px; margin-bottom: 18px; }
         .card-icon {
@@ -221,13 +224,19 @@
             cursor: pointer; transition: background 0.2s;
         }
         .btn-pay:hover { background: #1d4ed8; }
-        .modal-secure { text-align: center; margin-top: 14px; font-size: 0.72rem; color: var(--text-muted); }
+        .modal-secure {
+            text-align: center; margin-top: 14px;
+            font-size: 0.72rem; color: var(--text-muted);
+        }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-        
-        @media (max-width: 800px) {
-            .detail-header-layout { flex-direction: column; }
-            .header-action-area { width: 100%; box-sizing: border-box; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 900px) {
+            .container { padding: 20px; }
+            .header, .nav { padding: 0 20px; }
+            .modal { margin: 20px; }
         }
     </style>
 </head>
@@ -242,7 +251,7 @@
                 <div class="user-pill">
                     <div class="user-avatar">
                         <asp:Image ID="imgAvatar" runat="server" Visible="false" />
-                        <asp:Label ID="lblAvatarInitial" runat="server" Text="G" />
+                        <asp:Label ID="lblAvatarInitial" runat="server" Text="U" />
                     </div>
                     <span class="user-name"><asp:Label ID="lblHeaderName" runat="server" /></span>
                 </div>
@@ -261,46 +270,66 @@
         </div>
 
         <div class="container">
-            <a href="BrowseCourses.aspx" class="btn-back">← Back to Courses</a>
-
-            <asp:Label ID="lblMessage" runat="server" Visible="false" />
-
-            <div class="detail-card">
-                <div class="detail-header-layout">
-                    <div class="header-text-area">
-                        <asp:Label ID="lblCategory" runat="server" CssClass="detail-category"></asp:Label>
-                        <h2 class="detail-title"><asp:Label ID="lblCourseName" runat="server"></asp:Label></h2>
-                        
-                        <div class="instructor-block">
-                            <img src="../images/default-user.png" class="instructor-avatar" id="imgInstructor" runat="server" />
-                            <div class="instructor-info">
-                                <span class="instructor-label">Instructor</span>
-                                <asp:Label ID="lblInstructorName" runat="server" CssClass="instructor-name"></asp:Label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="header-action-area">
-                        <div class="price-box">
-                            <asp:Label ID="lblPrice" runat="server" CssClass="detail-price"></asp:Label>
-                        </div>
-                        
-                        <asp:Button ID="btnEnroll" runat="server" CssClass="btn-enroll-large" OnClick="btnCourseAction_Click" />
-                    </div>
-                </div>
-
-                <hr class="divider" />
-
-                <div class="detail-body">
-                    <h3><span class="title-dot"></span> About This Course</h3>
-                    <div class="description-text">
-                        <asp:Literal ID="litDescription" runat="server"></asp:Literal>
-                    </div>
+            <div class="page-header">
+                <div class="page-label">Catalogue</div>
+                <div class="page-title">Browse Courses</div>
+                <div class="filter-bar">
+                    <asp:TextBox ID="txtSearch" runat="server" CssClass="filter-input" placeholder="Search by name..." />
+                    <asp:DropDownList ID="ddlCategory" runat="server" CssClass="filter-input">
+                        <asp:ListItem Value="">All Categories</asp:ListItem>
+                        <asp:ListItem>AI</asp:ListItem>
+                        <asp:ListItem>Programming</asp:ListItem>
+                        <asp:ListItem>Machine Learning</asp:ListItem>
+                        <asp:ListItem>Data Science</asp:ListItem>
+                        <asp:ListItem>Web Development</asp:ListItem>
+                    </asp:DropDownList>
+                    <asp:Button ID="btnFilter" runat="server" Text="Filter" CssClass="btn-filter" OnClick="btnFilter_Click" />
                 </div>
             </div>
-        </div>
 
-        <asp:HiddenField ID="hfCourseData" runat="server" />
+            <asp:Label ID="lblMessage" runat="server" Visible="false" />
+            
+            <asp:HiddenField ID="hfCourseId" runat="server" />
+
+            <div class="course-grid">
+                <asp:Repeater ID="rptCourses" runat="server" OnItemCommand="rptCourses_ItemCommand">
+                    <ItemTemplate>
+                        <div class="course-card">
+                            <span class="course-category"><%# Eval("category") %></span>
+                            <div class="course-name"><%# Eval("coursename") %></div>
+                            <div class="course-instructor">by <%# Eval("lecturerName") %></div>
+                            
+                            <div class="course-desc">
+                                <%# Eval("description").ToString().Length > 90 
+                                    ? Eval("description").ToString().Substring(0, 90) + "..." 
+                                    : Eval("description") %>
+                            </div>
+
+                            <div class="course-footer">
+                                <div class='<%# Convert.ToDecimal(Eval("price")) == 0 ? "course-price free" : "course-price" %>'>
+                                    <%# Convert.ToDecimal(Eval("price")) == 0 ? "FREE" : "RM " + string.Format("{0:F2}", Eval("price")) %>
+                                </div>
+                                <div style="display:flex; gap:10px; width:100%;">
+                                    <asp:Button ID="btnViewDetails" runat="server" Text="View Details" CssClass="btn-secondary" 
+                                        CommandName="ViewDetails" CommandArgument='<%# Eval("courseid") %>' />
+                                    
+                                    <asp:Button ID="btnEnroll" runat="server"
+                                        Text='<%# Convert.ToBoolean(Eval("IsEnrolled")) ? "✓ Enrolled" : Convert.ToDecimal(Eval("price")) == 0 ? "Enroll Free" : "Buy Now" %>'
+                                        CommandName='<%# Convert.ToDecimal(Eval("price")) == 0 ? "EnrollFree" : "OpenPayment" %>'
+                                        CommandArgument='<%# Eval("courseid") + "|" + Eval("coursename") + "|" + Eval("price") %>'
+                                        CssClass="btn-enroll"
+                                        Enabled='<%# !Convert.ToBoolean(Eval("IsEnrolled")) %>' />
+                                </div>
+                            </div>
+                        </div>
+                    </ItemTemplate>
+                </asp:Repeater>
+            </div>
+            
+            <asp:Panel ID="pnlEmpty" runat="server" Visible="false" style="text-align:center; padding: 40px; color: var(--text-muted);">
+                No courses match your criteria. Try adjusting your search or filters.
+            </asp:Panel>
+        </div>
 
         <div class="modal-overlay" id="paymentModal">
             <div class="modal">
@@ -340,12 +369,13 @@
                 <div class="modal-secure">Payments are simulated for demo purposes</div>
             </div>
         </div>
+
     </form>
 
     <script>
-        // Auto-detect if modal needs to open
+        // 1. Auto-detect if modal needs to open after a GridView/Repeater postback
         document.addEventListener("DOMContentLoaded", function () {
-            var hf = document.getElementById('<%= hfCourseData.ClientID %>');
+            var hf = document.getElementById('<%= hfCourseId.ClientID %>');
             if (hf && hf.value !== '') {
                 var parts = hf.value.split('|');
                 if (parts.length >= 3) {
@@ -362,7 +392,7 @@
 
         function closeModal() {
             document.getElementById('paymentModal').classList.remove('open');
-            document.getElementById('<%= hfCourseData.ClientID %>').value = '';
+            document.getElementById('<%= hfCourseId.ClientID %>').value = '';
             document.getElementById('cardName').value = '';
             document.getElementById('cardNumber').value = '';
             document.getElementById('cardExpiry').value = '';
@@ -385,8 +415,9 @@
             var number = document.getElementById('cardNumber').value.replace(/\s/g, '');
             var expiry = document.getElementById('cardExpiry').value.trim();
             var cvv = document.getElementById('cardCvv').value.trim();
-            
-            if(document.getElementById('modalPrice').innerText === 'FREE') return true;
+
+            // Bypass validation for Free
+            if (document.getElementById('modalPrice').innerText === 'FREE') return true;
 
             if (!name) { alert('Please enter cardholder name.'); return false; }
             if (number.length !== 16) { alert('Please enter a valid 16-digit card number.'); return false; }
@@ -395,6 +426,7 @@
             return true;
         }
 
+        // Close modal if user clicks outside of it
         document.getElementById('paymentModal').addEventListener('click', function (e) {
             if (e.target === this) closeModal();
         });

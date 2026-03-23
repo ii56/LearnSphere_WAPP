@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.IO;
-using System.Diagnostics;
-using System.Web.UI.WebControls;
+using System.Text.RegularExpressions;
+using System.Web.UI;
+using BCrypt.Net;
 
 namespace LearnSphere_WAPP.GeneralUser
 {
@@ -13,7 +15,7 @@ namespace LearnSphere_WAPP.GeneralUser
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["userid"] == null)
+            if (Session["userid"] == null || Session["usertype"] == null || Session["usertype"].ToString() != "General")
             {
                 Response.Redirect("~/Login.aspx");
                 return;
@@ -21,53 +23,170 @@ namespace LearnSphere_WAPP.GeneralUser
 
             if (!IsPostBack)
             {
-                LoadProfileData();
+                LoadProfile();
+                LoadVerificationHistory();
             }
         }
 
-        private void LoadProfileData()
+        private void LoadProfile()
         {
             int userId = Convert.ToInt32(Session["userid"]);
 
-            try
+            using (SqlConnection con = new SqlConnection(connStr))
             {
-                using (SqlConnection con = new SqlConnection(connStr))
+                con.Open();
+
+                using (SqlCommand cmd = new SqlCommand(@"
+                    SELECT uname, email, fname, lname, age, gender, creationtime, ProfileImage, Description 
+                    FROM [User] WHERE userid = @uid", con))
                 {
-                    string query = "SELECT uname, fname, lname, email, age, gender, description, ProfileImage FROM [User] WHERE userid = @id";
-                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    cmd.Parameters.AddWithValue("@uid", userId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("@id", userId);
-                        con.Open();
-
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        if (reader.Read())
                         {
-                            if (reader.Read())
-                            {
-                                txtUsername.Text = reader["uname"].ToString();
-                                txtFirstName.Text = reader["fname"].ToString();
-                                txtLastName.Text = reader["lname"].ToString();
-                                txtEmail.Text = reader["email"].ToString();
-                                txtAge.Text = reader["age"].ToString();
-                                ddlGender.SelectedValue = reader["gender"].ToString();
-                                txtDescription.Text = reader["description"]?.ToString();
+                            string fname = reader["fname"].ToString();
+                            string lname = reader["lname"].ToString();
+                            string email = reader["email"].ToString();
+                            string uname = reader["uname"].ToString();
+                            string gender = reader["gender"] != DBNull.Value ? reader["gender"].ToString().Trim() : "";
+                            string desc = reader["Description"] != DBNull.Value ? reader["Description"].ToString() : "";
+                            int age = Convert.ToInt32(reader["age"]);
+                            DateTime joined = Convert.ToDateTime(reader["creationtime"]);
+                            string profileImg = reader["ProfileImage"] != DBNull.Value ? reader["ProfileImage"].ToString() : "";
 
-                                string imgPath = reader["ProfileImage"] != DBNull.Value ? reader["ProfileImage"].ToString() : "~/images/default-user.png";
-                                imgSidebarProfile.Src = ResolveUrl(imgPath);
-                                imgLargePreview.Src = ResolveUrl(imgPath);
-                                Session["profileImage"] = imgPath;
+                            // Header
+                            lblHeaderName.Text = fname;
+                            lblAvatarInitial.Text = fname.Substring(0, 1).ToUpper();
+                            Session["fname"] = fname;
+
+                            // Hero
+                            lblFullName.Text = fname + " " + lname;
+                            lblEmail.Text = email;
+                            lblHeroInitial.Text = fname.Substring(0, 1).ToUpper();
+
+                            // View Panel
+                            lblFname.Text = fname;
+                            lblLname.Text = lname;
+                            lblEmailView.Text = email;
+                            lblAge.Text = age.ToString();
+                            lblGender.Text = string.IsNullOrEmpty(gender) ? "Not Specified" : gender;
+                            lblBio.Text = string.IsNullOrEmpty(desc) ? "No description provided." : desc;
+                            lblUsername.Text = uname;
+                            lblJoined.Text = joined.ToString("MMMM dd, yyyy");
+
+                            // Edit Panel
+                            txtFname.Text = fname;
+                            txtLname.Text = lname;
+                            txtEmail.Text = email;
+                            txtAge.Text = age.ToString();
+                            txtDescription.Text = desc;
+                            if (ddlGender.Items.FindByValue(gender) != null) ddlGender.SelectedValue = gender;
+
+                            // Profile Picture Elements
+                            lblUploadInitial.Text = fname.Substring(0, 1).ToUpper();
+                            if (!string.IsNullOrEmpty(profileImg))
+                            {
+                                string resolvedImg = ResolveUrl(profileImg);
+
+                                imgProfile.ImageUrl = resolvedImg;
+                                pnlProfilePic.Visible = true;
+                                pnlProfileInitial.Visible = false;
+
+                                imgUploadPreview.ImageUrl = resolvedImg;
+                                pnlUploadPreview.Visible = true;
+                                pnlUploadInitial.Visible = false;
+
+                                imgHeaderAvatar.ImageUrl = resolvedImg;
+                                imgHeaderAvatar.Visible = true;
+                                lblAvatarInitial.Visible = false;
+                            }
+                            else
+                            {
+                                pnlProfilePic.Visible = false;
+                                pnlProfileInitial.Visible = true;
+                                pnlUploadPreview.Visible = false;
+                                pnlUploadInitial.Visible = true;
+                                imgHeaderAvatar.Visible = false;
+                                lblAvatarInitial.Visible = true;
                             }
                         }
                     }
                 }
             }
-            catch (Exception ex)
+        }
+
+        private void LoadVerificationHistory()
+        {
+            int userId = Convert.ToInt32(Session["userid"]);
+            using (SqlConnection con = new SqlConnection(connStr))
             {
-                Debug.WriteLine("Error loading profile: " + ex.Message);
+                SqlCommand cmd = new SqlCommand(@"
+                    SELECT requestedrole, status, requesttime, remarks 
+                    FROM VerificationRequest 
+                    WHERE userid=@uid 
+                    ORDER BY requesttime DESC", con);
+                cmd.Parameters.AddWithValue("@uid", userId);
+                con.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    DataTable dt = new DataTable();
+                    dt.Load(reader);
+
+                    if (dt.Rows.Count > 0)
+                    {
+                        rptVerificationHistory.DataSource = dt;
+                        rptVerificationHistory.DataBind();
+                        lblNoHistory.Visible = false;
+                    }
+                    else
+                    {
+                        rptVerificationHistory.DataSource = null;
+                        rptVerificationHistory.DataBind();
+                        lblNoHistory.Visible = true;
+                    }
+                }
             }
+        }
+
+        protected void btnEdit_Click(object sender, EventArgs e)
+        {
+            pnlView.Visible = false;
+            pnlEdit.Visible = true;
+            lblMessage.Visible = false;
+        }
+
+        protected void btnCancel_Click(object sender, EventArgs e)
+        {
+            pnlView.Visible = true;
+            pnlEdit.Visible = false;
+            lblMessage.Visible = false;
+            LoadProfile();
         }
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txtFname.Text) || string.IsNullOrWhiteSpace(txtLname.Text) ||
+                string.IsNullOrWhiteSpace(txtEmail.Text) || string.IsNullOrWhiteSpace(txtAge.Text))
+            {
+                ShowMessage("Please fill in all required fields.", false);
+                return;
+            }
+
+            int ageVal;
+            if (!int.TryParse(txtAge.Text, out ageVal) || ageVal < 13 || ageVal > 120)
+            {
+                ShowMessage("Please enter a valid age (13-120).", false);
+                return;
+            }
+
+            if (!Regex.IsMatch(txtEmail.Text.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            {
+                ShowMessage("Invalid email format.", false);
+                return;
+            }
+
             int userId = Convert.ToInt32(Session["userid"]);
 
             try
@@ -75,172 +194,243 @@ namespace LearnSphere_WAPP.GeneralUser
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
                     con.Open();
-                    string updateSql = @"UPDATE [User] SET fname=@fname, lname=@lname, email=@email, 
-                                        age=@age, gender=@gender, description=@desc";
-
-                    if (!string.IsNullOrEmpty(txtPassword.Text))
-                        updateSql += ", pwd=@pwd";
-
-                    updateSql += " WHERE userid=@id";
-
-                    using (SqlCommand cmd = new SqlCommand(updateSql, con))
+                    using (SqlCommand cmd = new SqlCommand(@"
+                        UPDATE [User] SET fname=@fname, lname=@lname, email=@email, age=@age, gender=@gender, Description=@desc
+                        WHERE userid=@uid", con))
                     {
-                        cmd.Parameters.AddWithValue("@fname", txtFirstName.Text);
-                        cmd.Parameters.AddWithValue("@lname", txtLastName.Text);
-                        cmd.Parameters.AddWithValue("@email", txtEmail.Text);
-
-                        // Handle empty age safely
-                        int age = 0;
-                        int.TryParse(txtAge.Text, out age);
-                        cmd.Parameters.AddWithValue("@age", age);
-
+                        cmd.Parameters.AddWithValue("@fname", Server.HtmlEncode(txtFname.Text.Trim()));
+                        cmd.Parameters.AddWithValue("@lname", Server.HtmlEncode(txtLname.Text.Trim()));
+                        cmd.Parameters.AddWithValue("@email", Server.HtmlEncode(txtEmail.Text.Trim()));
+                        cmd.Parameters.AddWithValue("@age", ageVal);
                         cmd.Parameters.AddWithValue("@gender", ddlGender.SelectedValue);
-                        cmd.Parameters.AddWithValue("@desc", txtDescription.Text);
-                        cmd.Parameters.AddWithValue("@id", userId);
-
-                        if (!string.IsNullOrEmpty(txtPassword.Text))
-                            cmd.Parameters.AddWithValue("@pwd", BCrypt.Net.BCrypt.HashPassword(txtPassword.Text));
-
+                        cmd.Parameters.AddWithValue("@desc", Server.HtmlEncode(txtDescription.Text.Trim()));
+                        cmd.Parameters.AddWithValue("@uid", userId);
                         cmd.ExecuteNonQuery();
-                    }
 
-                    if (fuProfileImage.HasFile)
-                    {
-                        SaveProfileImage(userId, con);
+                        LearnSphere_WAPP.Syslog.action(userId, "Updated Personal Information");
                     }
                 }
 
-                lblMessage.Text = "Profile updated successfully!";
-                lblMessage.ForeColor = System.Drawing.Color.Green;
-                LoadProfileData(); // Refresh UI images
+                Session["fname"] = txtFname.Text.Trim();
+
+                pnlView.Visible = true;
+                pnlEdit.Visible = false;
+                ShowMessage("Profile updated successfully!", true);
+                LoadProfile();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Profile Save Error: " + ex.Message);
-                lblMessage.Text = "Error updating profile. Please try again.";
-                lblMessage.ForeColor = System.Drawing.Color.Red;
+                ShowMessage("Error saving profile: " + ex.Message, false);
             }
         }
 
-        private void SaveProfileImage(int userId, SqlConnection con)
+        protected void btnUpload_Click(object sender, EventArgs e)
         {
-            string ext = Path.GetExtension(fuProfileImage.FileName).ToLower();
-            if (ext == ".jpg" || ext == ".jpeg" || ext == ".png")
+            if (!fuProfilePic.HasFile)
             {
+                ShowMessage("Please select an image file to upload.", false);
+                return;
+            }
+
+            string ext = Path.GetExtension(fuProfilePic.FileName).ToLower();
+            if (ext != ".jpg" && ext != ".jpeg" && ext != ".png")
+            {
+                ShowMessage("Only JPG and PNG files are allowed.", false);
+                return;
+            }
+
+            if (fuProfilePic.PostedFile.ContentLength > 3 * 1024 * 1024)
+            {
+                ShowMessage("File size must be less than 3MB.", false);
+                return;
+            }
+
+            try
+            {
+                // Verify it's a real image
+                using (var img = System.Drawing.Image.FromStream(fuProfilePic.PostedFile.InputStream)) { }
+
+                int userId = Convert.ToInt32(Session["userid"]);
+                string fileName = "profile_" + userId + "_" + DateTime.Now.Ticks + ext;
                 string folderPath = Server.MapPath("~/Profile_pictures/");
+
                 if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
-                string fileName = userId + ".jpeg";
-                string fullPath = Path.Combine(folderPath, fileName);
+                string filePath = Path.Combine(folderPath, fileName);
+                fuProfilePic.SaveAs(filePath);
 
-                using (MemoryStream ms = new MemoryStream())
+                string dbPath = "~/Profile_pictures/" + fileName;
+
+                using (SqlConnection con = new SqlConnection(connStr))
                 {
-                    fuProfileImage.PostedFile.InputStream.CopyTo(ms);
-                    ms.Position = 0;
-
-                    using (var img = System.Drawing.Image.FromStream(ms))
+                    con.Open();
+                    using (SqlCommand cmd = new SqlCommand("UPDATE [User] SET ProfileImage = @img WHERE userid = @uid", con))
                     {
-                        int max = 300;
-                        int w = img.Width, h = img.Height;
-                        if (w > max || h > max)
-                        {
-                            float ratio = Math.Min((float)max / w, (float)max / h);
-                            w = (int)(w * ratio); h = (int)(h * ratio);
-                        }
-                        using (var bmp = new System.Drawing.Bitmap(w, h))
-                        using (var g = System.Drawing.Graphics.FromImage(bmp))
-                        {
-                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                            g.DrawImage(img, 0, 0, w, h);
-                            bmp.Save(fullPath, System.Drawing.Imaging.ImageFormat.Jpeg);
-                        }
+                        cmd.Parameters.AddWithValue("@img", dbPath);
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        cmd.ExecuteNonQuery();
                     }
                 }
 
-                string relativePath = "~/Profile_pictures/" + fileName;
-                using (SqlCommand cmd = new SqlCommand("UPDATE [User] SET ProfileImage=@path WHERE userid=@uid", con))
-                {
-                    cmd.Parameters.AddWithValue("@path", relativePath);
-                    cmd.Parameters.AddWithValue("@uid", userId);
-                    cmd.ExecuteNonQuery();
-                }
+                Session["profileImage"] = dbPath;
+                LearnSphere_WAPP.Syslog.action(userId, "Updated Profile Picture");
+
+                ShowMessage("Profile picture updated successfully!", true);
+                LoadProfile();
+            }
+            catch
+            {
+                ShowMessage("Invalid image file. Please try a different photo.", false);
             }
         }
 
-        // --- UPDATED LECTURER VERIFICATION REQUEST METHOD ---
-        protected void btnUploadVerification_Click(object sender, EventArgs e)
+        protected void btnChangePwd_Click(object sender, EventArgs e)
         {
-            int userId = Convert.ToInt32(Session["userid"]);
-            string currentRole = Session["usertype"] != null ? Session["usertype"].ToString() : "General";
-
-            if (fuVerificationDoc.HasFile && Path.GetExtension(fuVerificationDoc.FileName).ToLower() == ".pdf")
+            if (string.IsNullOrWhiteSpace(txtCurrentPwd.Text) || string.IsNullOrWhiteSpace(txtNewPwd.Text) || string.IsNullOrWhiteSpace(txtConfirmPwd.Text))
             {
-                try
+                ShowMessage("Please fill in all password fields.", false);
+                return;
+            }
+
+            if (txtNewPwd.Text != txtConfirmPwd.Text)
+            {
+                ShowMessage("New password and confirmation do not match.", false);
+                return;
+            }
+
+            if (txtNewPwd.Text.Length < 6)
+            {
+                ShowMessage("New password must be at least 6 characters.", false);
+                return;
+            }
+
+            int userId = Convert.ToInt32(Session["userid"]);
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connStr))
                 {
-                    using (SqlConnection con = new SqlConnection(connStr))
+                    con.Open();
+                    string storedHash = "";
+                    using (SqlCommand cmd = new SqlCommand("SELECT pwd FROM [User] WHERE userid = @uid", con))
                     {
-                        con.Open();
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        object res = cmd.ExecuteScalar();
+                        if (res != null) storedHash = res.ToString();
+                    }
 
-                        // 1. SAFETY CHECK: Prevent multiple pending requests
-                        using (SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM VerificationRequest WHERE userid = @uid AND status = 'Pending'", con))
-                        {
-                            checkCmd.Parameters.AddWithValue("@uid", userId);
-                            int pendingCount = (int)checkCmd.ExecuteScalar();
+                    if (!BCrypt.Net.BCrypt.Verify(txtCurrentPwd.Text, storedHash))
+                    {
+                        ShowMessage("Current password is incorrect.", false);
+                        return;
+                    }
 
-                            if (pendingCount > 0)
-                            {
-                                lblVerificationMsg.Text = "You already have a pending upgrade request under review.";
-                                lblVerificationMsg.ForeColor = System.Drawing.Color.DarkOrange;
-                                return;
-                            }
-                        }
-
-                        // 2. Save the PDF File to the Server
-                        string folder = Server.MapPath("~/Uploads/VerificationDocs/");
-                        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-
-                        // Use a unique file name to prevent overwriting
-                        string fileName = "LecturerReq_" + userId + "_" + Guid.NewGuid().ToString().Substring(0, 8) + ".pdf";
-                        string savePath = Path.Combine(folder, fileName);
-                        string relativePath = "~/Uploads/VerificationDocs/" + fileName;
-
-                        fuVerificationDoc.SaveAs(savePath);
-
-                        // 3. Insert the Request into the VerificationRequest Table
-                        string insertQuery = @"
-                            INSERT INTO VerificationRequest (userid, currentrole, requestedrole, documentpath, status, requesttime) 
-                            VALUES (@uid, @currentRole, 'Lecturer', @docPath, 'Pending', GETDATE())";
-
-                        using (SqlCommand cmd = new SqlCommand(insertQuery, con))
-                        {
-                            cmd.Parameters.AddWithValue("@uid", userId);
-                            cmd.Parameters.AddWithValue("@currentRole", currentRole);
-                            cmd.Parameters.AddWithValue("@docPath", relativePath);
-
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        // 4. Update UI
-                        lblVerificationMsg.Text = "Request sent successfully! Please wait for admin approval.";
-                        lblVerificationMsg.ForeColor = System.Drawing.Color.Green;
+                    string newHash = BCrypt.Net.BCrypt.HashPassword(txtNewPwd.Text);
+                    using (SqlCommand cmd = new SqlCommand("UPDATE [User] SET pwd = @pwd WHERE userid = @uid", con))
+                    {
+                        cmd.Parameters.AddWithValue("@pwd", newHash);
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        cmd.ExecuteNonQuery();
+                        LearnSphere_WAPP.Syslog.action(userId, "Changed Password");
                     }
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Verification Upload Error: " + ex.Message);
-                    lblVerificationMsg.Text = "An error occurred while sending your request. Please try again.";
-                    lblVerificationMsg.ForeColor = System.Drawing.Color.Red;
-                }
+
+                txtCurrentPwd.Text = "";
+                txtNewPwd.Text = "";
+                txtConfirmPwd.Text = "";
+
+                ShowMessage("Password changed successfully!", true);
             }
-            else
+            catch (Exception ex)
             {
-                lblVerificationMsg.Text = "Please upload a valid PDF document.";
-                lblVerificationMsg.ForeColor = System.Drawing.Color.Red;
+                ShowMessage("Error changing password: " + ex.Message, false);
             }
+        }
+
+        protected void btnSendVerification_Click(object sender, EventArgs e)
+        {
+            if (!fuVerificationDoc.HasFile)
+            {
+                lblVerificationMsg.Text = "Please upload a supporting document.";
+                lblVerificationMsg.CssClass = "alert alert-error";
+                return;
+            }
+
+            string ext = Path.GetExtension(fuVerificationDoc.FileName).ToLower();
+            if (ext != ".pdf")
+            {
+                lblVerificationMsg.Text = "Only PDF documents are allowed.";
+                lblVerificationMsg.CssClass = "alert alert-error";
+                return;
+            }
+
+            if (fuVerificationDoc.PostedFile.ContentLength > 5 * 1024 * 1024)
+            {
+                lblVerificationMsg.Text = "File size must be less than 5MB.";
+                lblVerificationMsg.CssClass = "alert alert-error";
+                return;
+            }
+
+            int userId = Convert.ToInt32(Session["userid"]);
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connStr))
+                {
+                    con.Open();
+
+                    // Check for existing pending request
+                    using (SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM VerificationRequest WHERE userid=@uid AND status='Pending'", con))
+                    {
+                        checkCmd.Parameters.AddWithValue("@uid", userId);
+                        if ((int)checkCmd.ExecuteScalar() > 0)
+                        {
+                            lblVerificationMsg.Text = "You already have a pending request under review.";
+                            lblVerificationMsg.CssClass = "alert alert-error";
+                            return;
+                        }
+                    }
+
+                    string folder = Server.MapPath("~/Uploads/VerificationDocs/");
+                    if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+                    string fileName = "LecturerReq_" + userId + "_" + Guid.NewGuid().ToString().Substring(0, 8) + ".pdf";
+                    fuVerificationDoc.SaveAs(Path.Combine(folder, fileName));
+                    string dbPath = "~/Uploads/VerificationDocs/" + fileName;
+
+                    using (SqlCommand cmd = new SqlCommand(@"
+                        INSERT INTO VerificationRequest (userid, currentrole, requestedrole, documentpath, status, requesttime) 
+                        VALUES (@uid, 'General', 'Lecturer', @doc, 'Pending', GETDATE())", con))
+                    {
+                        cmd.Parameters.AddWithValue("@uid", userId);
+                        cmd.Parameters.AddWithValue("@doc", dbPath);
+                        cmd.ExecuteNonQuery();
+
+                        LearnSphere_WAPP.Syslog.action(userId, "Submitted Request to become Lecturer");
+                    }
+                }
+
+                lblVerificationMsg.Text = "Your upgrade request has been submitted successfully!";
+                lblVerificationMsg.CssClass = "alert alert-success";
+                LoadVerificationHistory();
+            }
+            catch (Exception ex)
+            {
+                lblVerificationMsg.Text = "Error submitting request: " + ex.Message;
+                lblVerificationMsg.CssClass = "alert alert-error";
+            }
+        }
+
+        private void ShowMessage(string text, bool success)
+        {
+            lblMessage.Text = text;
+            lblMessage.CssClass = "alert " + (success ? "alert-success" : "alert-error");
+            lblMessage.Visible = true;
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
         {
+            LearnSphere_WAPP.Syslog.action(Convert.ToInt32(Session["userid"]), "Logout System");
             Session.Clear();
             Session.Abandon();
             Response.Redirect("~/Login.aspx");
