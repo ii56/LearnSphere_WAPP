@@ -143,8 +143,9 @@ namespace LearnSphere_WAPP.Admin
         {
             con.Open();
             string query = "Update [User] set pwd=@pwd where userid=@userid";
-            SqlCommand cmd = new SqlCommand(query, con);
-            cmd.Parameters.AddWithValue("@pwd", txtPassword.Text);
+            SqlCommand cmd = new SqlCommand(query, con); 
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(txtPassword.Text.Trim());
+            cmd.Parameters.AddWithValue("@pwd", hashedPassword);
             cmd.Parameters.AddWithValue("@userid", Session["userid"]);
             cmd.ExecuteNonQuery();
 
