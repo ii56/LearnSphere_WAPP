@@ -29,8 +29,6 @@ namespace LearnSphere_WAPP.Admin
             }
         }
 
-        
-
         protected void btnSave_Click(object sender, EventArgs e)
         {
             if (!Page.IsValid) return;
@@ -42,6 +40,7 @@ namespace LearnSphere_WAPP.Admin
             string gender = dropdownGender.SelectedValue;
 
             string pwd = txtPwd.Text.Trim();
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(pwd);
 
             string query = @"INSERT INTO [User]
     (uname, email, pwd, fname, lname, age, gender, creationtime, usertype, status)
@@ -54,7 +53,7 @@ namespace LearnSphere_WAPP.Admin
 
                 cmd.Parameters.AddWithValue("@uname", uname);
                 cmd.Parameters.AddWithValue("@email", email);
-                cmd.Parameters.AddWithValue("@pwd", pwd);
+                cmd.Parameters.AddWithValue("@pwd", hashedPassword);
                 cmd.Parameters.AddWithValue("@fname", fname);
                 cmd.Parameters.AddWithValue("@lname", lname);
                 cmd.Parameters.AddWithValue("@age", age);
