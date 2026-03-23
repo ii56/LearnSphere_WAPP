@@ -36,7 +36,7 @@ namespace LearnSphere_WAPP
             {
                 con.Open();
 
-                // Fetch the stored hash by username only (never pass the password to SQL)
+                // Fetch the stored hash by username only
                 string query = @"SELECT userid, uname, usertype, pwd
                                  FROM [User]
                                  WHERE LOWER(uname) = LOWER(@uname)

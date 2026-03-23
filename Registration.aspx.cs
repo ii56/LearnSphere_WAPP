@@ -141,7 +141,7 @@ namespace LearnSphere_WAPP
                     string plainPassword = ViewState["password"]?.ToString();
                     string emailValue = ViewState["email"]?.ToString();
 
-                    // HASH PASSWORD before storing
+                    // HASH PASSWORD before store
                     string hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
 
                     // INSERT USER
