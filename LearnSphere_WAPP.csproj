@@ -123,17 +123,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="About.aspx" />
+    <Content Include="Admin\AddUser.aspx" />
     <Content Include="Admin\AdminChangePassword.aspx" />
     <Content Include="Admin\AdminCSS.css" />
     <Content Include="Admin\AdminDashboard.aspx" />
     <Content Include="Admin\AdminEditProfile.aspx" />
-    <Content Include="Admin\AdminForumDetails.aspx" />
     <Content Include="Admin\AdminForums.aspx" />
     <Content Include="Admin\AdminMessage.aspx" />
-    <Content Include="Admin\AdminReply.aspx" />
     <Content Include="Admin\AdminVerifyUser.aspx" />
     <Content Include="Admin\AdminViewCourse.aspx" />
-    <Content Include="Admin\AdminViewForums.aspx" />
     <Content Include="Admin\CourseManagement.aspx" />
     <Content Include="Admin\Database.aspx" />
     <Content Include="Admin\EditUser.aspx" />
@@ -276,6 +274,13 @@
     <Content Include="Site.Mobile.Master" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin\AddUser.aspx.cs">
+      <DependentUpon>AddUser.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin\AddUser.aspx.designer.cs">
+      <DependentUpon>AddUser.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Admin\AdminChangePassword.aspx.cs">
       <DependentUpon>AdminChangePassword.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -297,13 +302,6 @@
     <Compile Include="Admin\AdminEditProfile.aspx.designer.cs">
       <DependentUpon>AdminEditProfile.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Admin\AdminForumDetails.aspx.cs">
-      <DependentUpon>AdminForumDetails.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Admin\AdminForumDetails.aspx.designer.cs">
-      <DependentUpon>AdminForumDetails.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Admin\AdminForums.aspx.cs">
       <DependentUpon>AdminForums.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -318,13 +316,6 @@
     <Compile Include="Admin\AdminMessage.aspx.designer.cs">
       <DependentUpon>AdminMessage.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Admin\AdminReply.aspx.cs">
-      <DependentUpon>AdminReply.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Admin\AdminReply.aspx.designer.cs">
-      <DependentUpon>AdminReply.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Admin\AdminVerifyUser.aspx.cs">
       <DependentUpon>AdminVerifyUser.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -338,13 +329,6 @@
     </Compile>
     <Compile Include="Admin\AdminViewCourse.aspx.designer.cs">
       <DependentUpon>AdminViewCourse.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Admin\AdminViewForums.aspx.cs">
-      <DependentUpon>AdminViewForums.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Admin\AdminViewForums.aspx.designer.cs">
-      <DependentUpon>AdminViewForums.aspx</DependentUpon>
     </Compile>
     <Compile Include="Admin\CourseManagement.aspx.cs">
       <DependentUpon>CourseManagement.aspx</DependentUpon>
@@ -693,6 +677,21 @@
     <None Include="packages.config" />
     <Content Include="Scripts\jquery-3.7.0.slim.min.map" />
     <Content Include="Scripts\jquery-3.7.0.min.map" />
+    <Content Include="Uploads\LessonMaterials\05d16dc9-eb44-4a27-9031-a11255da22b8.pdf" />
+    <Content Include="Uploads\LessonMaterials\1064255e-439b-4da5-9b92-f6b236ca5d7c.pdf" />
+    <Content Include="Uploads\LessonMaterials\2cb0ded2-e904-473b-afed-4008a3d2aee5.pdf" />
+    <Content Include="Uploads\LessonMaterials\3c61d5b9-37af-4e8c-8ed4-2b714e25edc9.docx" />
+    <Content Include="Uploads\LessonMaterials\3d06b510-4b9e-4137-99c2-330bb0f96d45.pdf" />
+    <Content Include="Uploads\LessonMaterials\4705c6da-185d-491e-a279-39af87e531f6.pdf" />
+    <Content Include="Uploads\LessonMaterials\58a20b90-561d-47af-bf4f-4caa01fd0c3d.pdf" />
+    <Content Include="Uploads\LessonMaterials\94fdb541-ba67-4d01-b777-50c400761f8c.pdf" />
+    <Content Include="Uploads\LessonMaterials\c0f751c2-0276-4533-9e0f-e577e00104e0.pdf" />
+    <Content Include="Uploads\LessonMaterials\c878ec57-53cc-49e0-84a3-73d7b4a01a46.pdf" />
+    <Content Include="Uploads\LessonMaterials\da7af36b-37a0-4507-98f9-7b6bb434e587.pdf" />
+    <Content Include="Uploads\VerificationDocs\55c91162-c527-4aae-8313-206a768ffa70.pdf" />
+    <Content Include="Uploads\VerificationDocs\67b51ab7-c79e-4c09-a4db-bc1a53dc1c9d.pdf" />
+    <Content Include="Uploads\VerificationDocs\LecturerReq_23_f147d24f.pdf" />
+    <Content Include="Uploads\VerificationDocs\LecturerReq_9_5d48c67b.pdf" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

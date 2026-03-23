@@ -42,15 +42,6 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Button btnLogout;
 
         /// <summary>
-        /// lblWelcome control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblWelcome;
-
-        /// <summary>
         /// lblRequestId control.
         /// </summary>
         /// <remarks>
@@ -105,13 +96,31 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.Label lblStatus;
 
         /// <summary>
-        /// lblRemarks control.
+        /// lblReviewTime control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblRemarks;
+        protected global::System.Web.UI.WebControls.Label lblReviewTime;
+
+        /// <summary>
+        /// lblReviewBy control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblReviewBy;
+
+        /// <summary>
+        /// txtRemarks control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtRemarks;
 
         /// <summary>
         /// btnApprove control.

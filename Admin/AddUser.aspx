@@ -1,14 +1,15 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="EditUser.aspx.cs" Inherits="LearnSphere_WAPP.Admin.EditUsers" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="AddUser.aspx.cs" Inherits="LearnSphere_WAPP.Admin.AddUser" %>
 
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title>Edit User</title>
+    <title>Add User</title>
     <link href="~/Admin/AdminCSS.css" rel="stylesheet" runat="server" />
 </head>
 <body>
     <form id="form1" runat="server">
+        <asp:ScriptManager runat="server" />
         <div class="header">
             <div class="logo">
                 <img src="~/LEARNSPHERE.png" runat="server" />
@@ -46,43 +47,32 @@
 
             <div class="container">
                 <div class="welcome-banner">
-                    <h2 class="welcome-label">Admin Portal</h2>
-                    <h2 class="welcome-name">Edit User</h2>
-                    <h3 class="welcome-sub">Edit and save the user details</h3>
+                    <h2 class="welcome-name">Add User</h2>
+                    <h3 class="welcome-sub">Add a new general user</h3>
                 </div>
 
                 <asp:Panel runat="server" DefaultButton="btnSave">
                 <div class="card">
                     <div class="card-title">
                         <span class="title-dot dot-green"></span>
-                        User Information
+                        Enter User Information
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
-                            <asp:Label ID="Label1" runat="server" Text="User Id:" CssClass="form-label"></asp:Label>
-                            <asp:TextBox ID="txtUserid" runat="server" CssClass="form-input" Enabled="false"></asp:TextBox>
-                        </div>
-
-                        <div class="form-group">
                             <asp:Label ID="Label2" runat="server" Text="Username:" CssClass="form-label"></asp:Label>
-                            <asp:TextBox ID="txtUname" runat="server" CssClass="form-input" Enabled="false"></asp:TextBox>
+                            <asp:TextBox ID="txtUname" runat="server" CssClass="form-input"></asp:TextBox>
+                            <asp:RequiredFieldValidator ValidationGroup="profileGroup" runat="server"
+                                ControlToValidate="txtUname"
+                                ErrorMessage="Username required"
+                                CssClass="validation-error"/>
+                            <asp:CustomValidator ID="cvUsername" ValidationGroup="profileGroup" runat="server"
+                                ControlToValidate="txtUname"
+                                ErrorMessage="Username already exists"
+                                CssClass="validation-error" 
+                                OnServerValidate="cvUsername_ServerValidate"/>
                         </div>
-
-                        <div class="form-group">
-                            <asp:Label ID="Label3" runat="server" Text="First Name:" CssClass="form-label"></asp:Label>
-                            <asp:TextBox ID="txtFname" runat="server" CssClass="form-input"></asp:TextBox>
-                            <asp:RequiredFieldValidator ControlToValidate="txtFName" ErrorMessage="First name required."
-                                CssClass="validation-error" ValidationGroup="profileGroup" runat="server" />
-                        </div>
-
-                        <div class="form-group">
-                            <asp:Label ID="Label4" runat="server" Text="Last Name:" CssClass="form-label"></asp:Label>
-                            <asp:TextBox ID="txtLname" runat="server" CssClass="form-input"></asp:TextBox>
-                            <asp:RequiredFieldValidator ControlToValidate="txtLName" ErrorMessage="Last name required."
-                                CssClass="validation-error" ValidationGroup="profileGroup" runat="server" />
-                        </div>
-
+                        
                         <div class="form-group">
                             <asp:Label ID="Label5" runat="server" Text="Email:" CssClass="form-label"></asp:Label>
                             <asp:TextBox ID="txtEmail" runat="server" CssClass="form-input"></asp:TextBox>
@@ -92,6 +82,20 @@
                                 ValidationExpression="^[^@\s]+@[^@\s]+\.[^@\s]+$"
                                 ErrorMessage="Invalid email format." CssClass="validation-error"
                                 ValidationGroup="profileGroup" runat="server" />
+                        </div>
+
+                        <div class="form-group">
+                            <asp:Label ID="Label3" runat="server" Text="First Name:" CssClass="form-label"></asp:Label>
+                            <asp:TextBox ID="txtFname" runat="server" CssClass="form-input"></asp:TextBox>
+                            <asp:RequiredFieldValidator ControlToValidate="txtFname" ErrorMessage="First name required."
+                                CssClass="validation-error" ValidationGroup="profileGroup" runat="server" />
+                        </div>
+
+                        <div class="form-group">
+                            <asp:Label ID="Label4" runat="server" Text="Last Name:" CssClass="form-label"></asp:Label>
+                            <asp:TextBox ID="txtLname" runat="server" CssClass="form-input"></asp:TextBox>
+                            <asp:RequiredFieldValidator ControlToValidate="txtLname" ErrorMessage="Last name required."
+                                CssClass="validation-error" ValidationGroup="profileGroup" runat="server" />
                         </div>
 
                         <div class="form-group">
@@ -113,14 +117,35 @@
                         </div>
 
                         <div class="form-group">
-                            <asp:Label ID="Label8" runat="server" Text="User Type:" CssClass="form-label"></asp:Label>
-                            <asp:TextBox ID="txtUsertype" runat="server" Text="" CssClass="form-input" Enabled="false"></asp:TextBox>
+                            <asp:Label ID="Label8" runat="server" Text="Password:" CssClass="form-label"></asp:Label>
+                            <asp:TextBox ID="txtPwd" runat="server" Text="" CssClass="form-input" TextMode="Password"></asp:TextBox>
+                            <asp:RequiredFieldValidator ControlToValidate="txtPwd" ErrorMessage="Password is required."
+                                CssClass="validation-error" ValidationGroup="profileGroup" runat="server" />
                         </div>
+
+                        <div class="form-group">
+                            <asp:Label ID="Label9" runat="server" Text="Confirmation Password:" CssClass="form-label"></asp:Label>
+                            <asp:TextBox ID="txtVer" runat="server" Text="" CssClass="form-input" TextMode="Password"></asp:TextBox>
+                            <asp:RequiredFieldValidator 
+                                ID="rfvVer" 
+                                runat="server"
+                                ControlToValidate="txtVer"
+                                ErrorMessage="Confirmation password is required."
+                                ValidationGroup="profileGroup"
+                                CssClass="validation-error" />
+                            <asp:CompareValidator ID="CompareValidator1" runat="server" ControlToCompare="txtPwd" ValidationGroup="profileGroup" ControlToValidate="txtVer" ErrorMessage="Password not match." CssClass="validation-error"></asp:CompareValidator>
+                        </div>
+
                         <div class="btn-row">
-                            <asp:Button ID="btnSave" runat="server" Text="Save Changes" CssClass="btn-primary"
+                            <asp:Button ID="btnSave" runat="server" Text="Add User" CssClass="btn-primary"
                                 ValidationGroup="profileGroup" OnClick="btnSave_Click" />
                             <asp:Label ID="lblMessage" runat="server" />
                         </div>
+
+                        <asp:ValidationSummary 
+                            runat="server" 
+                            ValidationGroup="profileGroup"
+                            CssClass="validation-error" />
                     </div>
                 </div>
                 </asp:Panel>

@@ -9,101 +9,102 @@
 </head>
 <body>
     <form id="form1" runat="server">
-        <div class="layout">
-            <div class="sidebar">
-                <div>
-                    <div class="sidebar-title">LearnSphere</div>
-                    <a href="AdminDashboard.aspx" class="nav-item active">Dashboard</a>
-                    <a href="UserManagement.aspx" class="nav-item">User Management</a>
-                    <a href="CourseManagement.aspx" class="nav-item">Course Management</a>
-                    <a href="Database.aspx" class="nav-item">Database</a>
-                    <a href="AdminForums.aspx" class="nav-item">Forums</a>
-                    <a href="AdminEditProfile.aspx" class="nav-item">Edit Profile</a>
-                    <a href="AdminSyslog.aspx" class="nav-item">Syslog</a>
-                </div>
+        <div class="header">
+            <div class="logo">
+                <img src="~/LEARNSPHERE.png" runat="server" />
+                <div class="logo-text">Learn<span>Sphere</span></div>
+            </div>
+            <div class="header-right">
+                <span class="verified-badge">Administrator</span>
 
-                <div class="sidebar-profile">
-                    <div class="profile-box admin">
-                        <div class="profile-img-wrapper">
-                            <img id="sidebarImg" runat="server" class="profile-img" />
-                            <div class="verification-badge">✔</div>
+                <div class="user-pill">
+                        <div class="user-avatar">
+                            <img id="sidebarImg" runat="server" />
                         </div>
-
-                        <div class="profile-info">
-                            <div class="profile-name"><%= Session["uname"] %></div>
-                            <div class="profile-status">
-                                administrator
-                            </div>
-                        </div>
+                        <span class="user-name"><%= Session["uname"] %></span>
                     </div>
-
-                    <a href="AdminMessage.aspx" class="nav-item message-link">
-                        Messaging
-                        <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
-                            <span class="message-badge"><%= Session["unreadCount"] %></span>
-                    <% } %>
-                    </a>
-
-                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="btn-logout" OnClick="btnLogout_Click" />
                 </div>
             </div>
 
+            <div class="nav">
+                <a href="AdminDashboard.aspx" class="active">Dashboard</a>
+                <a href="UserManagement.aspx" >User Management</a>
+                <a href="CourseManagement.aspx" >Course Management</a>
+                <a href="Database.aspx" >Database</a>
+                <a href="AdminForums.aspx" >Forums</a>
+                <a href="AdminEditProfile.aspx" >Edit Profile</a>
+                <a href="AdminSyslog.aspx" >Syslog</a>
+                <a href="AdminMessage.aspx">
+                    <span>✉️</span> Messaging
+                    <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
+                        <span class="nav-badge"><%= Session["unreadCount"] %></span>
+                    <% } %>
+                </a>
+                <a href="../Chatbot/AdminChatbotKnowledge.aspx" >Chatbot</a>
+            </div>
 
-            <div class="main-content">
-                <div class="dashboard-header">
-                    <h2>Dashboard Overview</h2>
-                    <asp:Label ID="lblWelcome" runat="server" CssClass="welcome-text" />
+            <div class="container">
+                <div class="welcome-banner">
+                    <h2 class="welcome-label">Dashboard Overview</h2>
+                    <asp:Label ID="lblWelcome" runat="server" CssClass="welcome-name" />
+                    <h3 class="welcome-sub">Here's an overview of the admin system</h3>
                 </div>
                 
                 <h2>System Overview</h2>
                 <div class="stats-grid">
 
-                    <div class="stat-card blue">
-                        <div class="stat-title">Total Users</div>
-                        <asp:Label ID="lblTotalUsers" runat="server" CssClass="stat-number" />
+                    <div class="stat-card">
+                        <h3 class="stat-label">Total Users</h3>
+                        <asp:Label ID="lblTotalUsers" runat="server" CssClass="stat-value" />
                     </div>
 
-                    <div class="stat-card purple">
-                        <div class="stat-title">Total Students</div>
-                        <asp:Label ID="lblTotalStudents" runat="server" CssClass="stat-number" />
+                    <div class="stat-card">
+                        <h3 class="stat-label">Total Students</h3>
+                        <asp:Label ID="lblTotalStudents" runat="server" CssClass="stat-value" />
                     </div>
 
-                    <div class="stat-card pink">
-                        <div class="stat-title">Total Lecturers</div>
-                        <asp:Label ID="lblTotalLecturers" runat="server" CssClass="stat-number" />
+                    <div class="stat-card">
+                        <h3 class="stat-label">Total Lecturers</h3>
+                        <asp:Label ID="lblTotalLecturers" runat="server" CssClass="stat-value" />
                     </div>
 
-                    <div class="stat-card orange">
-                        <div class="stat-title">Total Courses</div>
-                        <asp:Label ID="lblTotalCourses" runat="server" CssClass="stat-number" />
+                    <div class="stat-card">
+                        <h3 class="stat-label">Total Courses</h3>
+                        <asp:Label ID="lblTotalCourses" runat="server" CssClass="stat-value" />
                     </div>
 
-                    <div class="stat-card green">
-                        <div class="stat-title">Total Forums</div>
-                        <asp:Label ID="lblTotalForums" runat="server" CssClass="stat-number" />
+                    <div class="stat-card">
+                        <h3 class="stat-label">Total Forums</h3>
+                        <asp:Label ID="lblTotalForums" runat="server" CssClass="stat-value" />
                     </div>
 
                 </div>
 
                 <h2>Pending Request</h2>
                 <div class="stats-grid">
-                    <div class="stat-card blue">
-                        <div class="stat-title">Lecturers Validation</div>
-                        <asp:Label ID="lecturersVal" runat="server" CssClass="stat-number" />
+                    <div class="stat-card">
+                        <h3 class="stat-label">Lecturers Validation</h3>
+                        <asp:Label ID="lecturersVal" runat="server" CssClass="stat-value" />
                     </div>
-                    <div class="stat-card purple">
-                        <div class="stat-title">Students Validation</div>
-                        <asp:Label ID="studentsVal" runat="server" CssClass="stat-number" />
+                    <div class="stat-card">
+                        <h3 class="stat-label">Students Validation</h3>
+                        <asp:Label ID="studentsVal" runat="server" CssClass="stat-value" />
                     </div>
-                    <div class="stat-card pink">
-                        <div class="stat-title">Courses Validation</div>
-                        <asp:Label ID="coursesVal" runat="server" CssClass="stat-number" />
+                    <div class="stat-card">
+                        <h3 class="stat-label">Courses Validation</h3>
+                        <asp:Label ID="coursesVal" runat="server" CssClass="stat-value" />
                     </div>
                 </div>
 
-                <div class="quick-actions-section">
-                    <h3>Quick Actions</h3>
-                    <div class="quick-card-grid">
+                <div class="section section-actions">
+                    <div class="section-header section-title">
+                        <div class="section-title">
+                            <span class="section-title-dot dot-purple"></span>
+                            Quick Actions
+                        </div>
+                    </div>
+                    <div class="quick-grid">
                         <a href="UserManagement.aspx" class="quick-card">
                             <div class="quick-card-title">Manage User</div>
                             <div class="quick-card-desc">create/delete/modify users account.</div>

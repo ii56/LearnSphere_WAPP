@@ -27,7 +27,6 @@ namespace LearnSphere_WAPP.Admin
 
             if (!IsPostBack)
             {
-                lblWelcome.Text = "Welcome " + Session["uname"];
                 LoadVerificationRequest();
                 LoadSidebarProfileImage();
             }
@@ -54,7 +53,7 @@ namespace LearnSphere_WAPP.Admin
 
         private void LoadVerificationRequest()
         {
-            string query = @"SELECT requestid, userid, currentrole, requestedrole, documentpath, status, requesttime, remarks 
+            string query = @"SELECT requestid, userid, currentrole, requestedrole, documentpath, status, requesttime, reviewedtime, reviewedby, remarks 
                              FROM VerificationRequest 
                              WHERE userid = @userid";
 
@@ -71,12 +70,28 @@ namespace LearnSphere_WAPP.Admin
                 lblRequestedRole.Text = dr["requestedrole"].ToString();
                 lblRequestTime.Text = Convert.ToDateTime(dr["requesttime"]).ToString("yyyy-MM-dd HH:mm");
                 lblStatus.Text = dr["status"].ToString();
-                lblRemarks.Text = dr["remarks"].ToString();
+                if (lblStatus.Text != "Pending")
+                {
+                    lblReviewTime.Text = Convert.ToDateTime(dr["reviewedtime"]).ToString("yyyy-MM-dd HH:mm");
+                    lblReviewBy.Text = dr["reviewedby"].ToString();
+                }
+                else
+                {
+                    lblReviewTime.Text = "None";
+                    lblReviewBy.Text = "None";
+                }
+
+                txtRemarks.Text = dr["remarks"].ToString();
 
                 string docPath = dr["documentpath"].ToString();
-                if (File.Exists(Server.MapPath(docPath)))
+                string fullPath = Server.MapPath(docPath);
+                if (File.Exists(fullPath))
                 {
                     docFrame.Src = ResolveUrl(docPath);
+                }
+                else
+                {
+                    docFrame.Src = "";
                 }
             }
             dr.Close();
@@ -91,19 +106,20 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnDecline_Click(object sender, EventArgs e)
         {
-            UpdateStatus("Declined");
+            UpdateStatus("Rejected");
             LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Declined request for user (UserID: " + userId + ")");
         }
 
         private void UpdateStatus(string newStatus)
         {
             string query = @"UPDATE VerificationRequest 
-                             SET status=@status, reviewedtime=GETDATE(), reviewedby=@adminId 
+                             SET status=@status, reviewedtime=GETDATE(), reviewedby=@adminId, remarks=@remarks 
                              WHERE userid=@userid";
 
             SqlCommand cmd = new SqlCommand(query, con);
             cmd.Parameters.AddWithValue("@status", newStatus);
             cmd.Parameters.AddWithValue("@adminId", Session["userid"]);
+            cmd.Parameters.AddWithValue("@remarks", txtRemarks.Text);
             cmd.Parameters.AddWithValue("@userid", userId);
 
             con.Open();

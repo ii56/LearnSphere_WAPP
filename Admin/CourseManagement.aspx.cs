@@ -22,7 +22,6 @@ namespace LearnSphere_WAPP.Admin
             }
             if (!IsPostBack)
             {
-                lblWelcome.Text = "Welcome " + Session["uname"];
                 loadCourse();
                 LoadSidebarProfileImage();
             }
@@ -168,11 +167,13 @@ namespace LearnSphere_WAPP.Admin
                 cmd.ExecuteNonQuery();
 
                 LearnSphere_WAPP.Syslog.action((int)Session["userid"], "Deleted Course (CourseID:" + courseId + ")");
+                
+                con.Close();
+                loadCourse();
+                
                 Response.Write("<script>alert('Course Deleted'); window.history.back();</script>");
 
-                con.Close();
-
-                loadCourse();
+                
             }
         }
 
