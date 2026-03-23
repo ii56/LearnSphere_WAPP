@@ -2,7 +2,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    /* 🔥 LIGHT BLUE GRADIENT */
+    /*LIGHT BLUE GRADIENT */
     background: linear-gradient(135deg, #dbeafe, #bfdbfe, #93c5fd);
     margin: 0;
     padding: 0;
@@ -70,10 +70,10 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* 🔥 SOLID WHITE (MATCH LOGO) */
+    /* SOLID WHITE (MATCH LOGO) */
     background: #ffffff;
     border-radius: 18px;
-    /* 🔥 CLEAN SHADOW */
+    /* CLEAN SHADOW */
     box-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06);
     animation: fadeIn 0.4s ease-in-out;
     z-index: 1;
@@ -110,7 +110,7 @@ body {
         padding: 12px 14px;
         border-radius: 10px;
         border: 1px solid #e5e7eb;
-        background: #f9fafb; /* 🔥 light gray instead of transparent */
+        background: #f9fafb; /* light gray instead of transparent */
 
         font-size: 14px;
         transition: all 0.25s ease;
@@ -191,7 +191,7 @@ body {
     height: auto;
     display: block;
     margin: 0 auto;
-    /* 🔥 subtle polish */
+    /* subtle polish */
     filter: drop-shadow(0 5px 10px rgba(0,0,0,0.15));
 }
 

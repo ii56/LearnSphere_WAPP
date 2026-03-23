@@ -22,8 +22,7 @@ namespace LearnSphere_WAPP
                 ShowStep(1);
             }
         }
-
-        // ================= STEP CONTROL =================
+        // method to show/hide panels based on current step
         private void ShowStep(int step)
         {
             pnlStep1.Visible = step == 1;
@@ -33,7 +32,7 @@ namespace LearnSphere_WAPP
             lblStep.Text = step.ToString();
         }
 
-        // ================= USERNAME VALIDATION =================
+        // username validation
         protected void cvUsername_ServerValidate(object source, ServerValidateEventArgs args)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -50,7 +49,7 @@ namespace LearnSphere_WAPP
             }
         }
 
-        // ================= STEP 1 → STEP 2 =================
+        // step 1 to step 2
         protected void btnNext1_Click(object sender, EventArgs e)
         {
             Page.Validate("Step1");
@@ -61,7 +60,7 @@ namespace LearnSphere_WAPP
             ShowStep(2);
         }
 
-        // ================= STEP 2 → STEP 3 =================
+        // step 2 to step 3
         protected void btnNext2_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(email.Text))
@@ -89,7 +88,7 @@ namespace LearnSphere_WAPP
             ShowStep(3);
         }
 
-        // ================= BACK BUTTONS =================
+        // back buttons
         protected void btnBack1_Click(object sender, EventArgs e)
         {
             ShowStep(1);
@@ -100,7 +99,7 @@ namespace LearnSphere_WAPP
             ShowStep(2);
         }
 
-        // ================= REGISTER =================
+        // registration button logic
         protected void btnRegister_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(fname.Text) ||

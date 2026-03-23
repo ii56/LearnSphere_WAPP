@@ -35,7 +35,7 @@
             color: var(--text); min-height: 100vh;
         }
 
-        /* ═══ HEADER ═══ */
+        /* HEADER */
         .header {
             position: sticky; top: 0; z-index: 100;
             background: rgba(255,255,255,0.82); backdrop-filter: blur(20px);
@@ -75,7 +75,7 @@
         }
         .btn-logout:hover { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
 
-        /* ═══ NAV ═══ */
+        /* NAV */
         .nav {
             background: var(--surface); border-bottom: 1px solid var(--border);
             padding: 0 36px; display: flex; gap: 2px;
@@ -92,10 +92,10 @@
             padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center;
         }
 
-        /* ═══ CONTAINER ═══ */
+        /* CONTAINER */
         .container { max-width: 1140px; margin: 0 auto; padding: 28px 36px; }
 
-        /* ═══ BANNERS ═══ */
+        /* BANNERS */
         .page-banner {
             border-radius: var(--radius); padding: 28px 36px;
             margin-bottom: 24px; position: relative; overflow: hidden;
@@ -103,8 +103,10 @@
         }
         .banner-forums { background: linear-gradient(135deg,#059669,#10b981 55%,#34d399); box-shadow:0 8px 30px rgba(16,185,129,0.28); }
         .banner-create  { background: linear-gradient(135deg,#f59e0b,#fbbf24 55%,#fcd34d); box-shadow:0 8px 30px rgba(245,158,11,0.28); }
+        .banner-edit-f  { background: linear-gradient(135deg,#d97706,#f59e0b 55%,#fbbf24); box-shadow:0 8px 30px rgba(217,119,6,0.28); }
         .banner-view    { background: linear-gradient(135deg,#2563eb,#3b82f6 55%,#60a5fa); box-shadow:0 8px 30px rgba(37,99,235,0.25); }
         .banner-detail  { background: linear-gradient(135deg,#7c3aed,#8b5cf6 55%,#a78bfa); box-shadow:0 8px 30px rgba(139,92,246,0.25); }
+        .banner-edit-q  { background: linear-gradient(135deg,#0891b2,#06b6d4 55%,#67e8f9); box-shadow:0 8px 30px rgba(8,145,178,0.28); }
         .page-banner::before {
             content:''; position:absolute; top:-40%; right:-10%; width:280px; height:280px;
             background:radial-gradient(circle,rgba(255,255,255,0.12),transparent 65%);
@@ -114,7 +116,7 @@
         .banner-title { font-size:1.5rem; font-weight:700; color:white; margin-bottom:4px; }
         .banner-sub   { color:rgba(255,255,255,0.75); font-size:0.85rem; }
 
-        /* ═══ BACK BUTTON ═══ */
+        /* BACK BUTTON */
         .btn-back {
             display:inline-flex; align-items:center; gap:8px;
             background:var(--surface); border:1px solid var(--border);
@@ -124,7 +126,7 @@
         }
         .btn-back:hover { border-color:var(--primary); color:var(--primary); }
 
-        /* ═══ FILTER BAR ═══ */
+        /* FILTER BAR */
         .filter-bar {
             display:flex; gap:10px; flex-wrap:wrap;
             background:var(--surface); border:1px solid var(--border);
@@ -139,7 +141,7 @@
         }
         .filter-input:focus { border-color:var(--primary); background:white; }
 
-        /* ═══ SECTION CARD ═══ */
+        /* SECTION CARD */
         .section {
             background:var(--surface); border:1px solid var(--border);
             border-radius:var(--radius); box-shadow:var(--shadow-sm);
@@ -151,13 +153,14 @@
             display:flex; align-items:center; justify-content:space-between;
         }
         .section-title { font-size:0.95rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:10px; }
-        .title-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+        .title-dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
         .dot-green  { background:var(--accent-green); }
         .dot-blue   { background:var(--primary); }
         .dot-purple { background:var(--accent-purple); }
         .dot-orange { background:var(--accent-orange); }
+        .dot-cyan   { background:#0891b2; }
 
-        /* ═══ TABLE ═══ */
+        /* TABLE */
         .section table { width:100%; border-collapse:collapse; }
         .section table th {
             background:var(--border-light); padding:11px 24px; text-align:left;
@@ -171,7 +174,7 @@
         .section table tr:last-child td { border-bottom:none; }
         .section table tr:hover td { background:var(--surface-hover); }
 
-        /* ═══ BUTTONS ═══ */
+        /* BUTTONS */
         .btn-primary {
             background:var(--primary); color:white; border:none;
             padding:9px 20px; border-radius:8px;
@@ -186,6 +189,7 @@
             cursor:pointer; transition:all 0.2s;
         }
         .btn-secondary:hover { border-color:var(--primary); color:var(--primary); }
+        .btn-sm { padding:5px 13px; font-size:0.77rem; border-radius:7px; }
         .btn-view {
             background:var(--primary-bg); color:var(--primary);
             border:1px solid var(--primary-border); padding:8px 18px; border-radius:8px;
@@ -207,9 +211,16 @@
             cursor:pointer; transition:all 0.2s;
         }
         .btn-delete:hover { background:var(--accent-red); color:white; }
+        .btn-edit-sm {
+            background:rgba(37,99,235,0.08); color:var(--primary);
+            border:1px solid var(--primary-border); padding:5px 14px; border-radius:8px;
+            font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:600;
+            cursor:pointer; transition:all 0.2s;
+        }
+        .btn-edit-sm:hover { background:var(--primary); color:white; }
         .btn-actions { display:flex; gap:8px; flex-wrap:wrap; }
 
-        /* ═══ FORM CARD (Create Forum / Ask Question / Answer) ═══ */
+        /* FORM CARD */
         .form-card {
             background:var(--surface); border:1px solid var(--border);
             border-radius:var(--radius); padding:32px;
@@ -241,14 +252,16 @@
             color:#dc2626; border-radius:var(--radius-sm);
             padding:14px 18px; font-size:0.83rem; margin-bottom:20px;
         }
-        .form-btn-row { display:flex; gap:10px; margin-top:24px; }
+        .form-btn-row { display:flex; gap:10px; margin-top:24px; flex-wrap:wrap; }
 
-        /* ═══ FORUM HEADER INFO ═══ */
+        /* FORUM HEADER INFO */
         .forum-info-card {
             background:var(--surface); border:1px solid var(--border);
             border-radius:var(--radius); padding:22px 28px;
             margin-bottom:16px; box-shadow:var(--shadow-sm);
         }
+        .forum-info-card h3 { font-size:1rem; font-weight:700; margin-bottom:8px; }
+        .forum-info-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
         .tags-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
         .tag-label { font-size:0.72rem; color:var(--text-muted); font-weight:600; }
         .tag-pill {
@@ -256,9 +269,9 @@
             border:1px solid var(--primary-border);
             padding:3px 12px; border-radius:20px; font-size:0.72rem; font-weight:600;
         }
-        .forum-actions-row { display:flex; justify-content:flex-end; margin-bottom:20px; }
+        .forum-actions-row { display:flex; justify-content:flex-end; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
 
-        /* ═══ INLINE FORM PANEL ═══ */
+        /* INLINE FORM PANEL */
         .inline-form {
             background:var(--border-light); border:1px solid var(--border);
             border-radius:var(--radius); padding:22px 24px; margin-bottom:20px;
@@ -268,7 +281,7 @@
             color:var(--text); display:flex; align-items:center; gap:8px;
         }
 
-        /* ═══ QUESTION CARDS ═══ */
+        /* QUESTION CARDS */
         .question-card {
             background:var(--surface); border:1px solid var(--border);
             border-radius:var(--radius); padding:22px 24px;
@@ -297,6 +310,7 @@
         }
         .vote-btn.like-btn:hover    { background:rgba(16,185,129,0.1); color:var(--accent-green); border-color:rgba(16,185,129,0.3); }
         .vote-btn.dislike-btn:hover { background:rgba(239,68,68,0.08); color:var(--accent-red);   border-color:rgba(239,68,68,0.25); }
+        .card-action-group { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
         .btn-comment {
             background:var(--primary-bg); color:var(--primary);
             border:1px solid var(--primary-border); padding:6px 16px; border-radius:8px;
@@ -305,7 +319,7 @@
         }
         .btn-comment:hover { background:var(--primary); color:white; }
 
-        /* ═══ DETAIL CARD ═══ */
+        /* DETAIL CARD */
         .detail-card {
             background:var(--surface); border:1px solid var(--border);
             border-radius:var(--radius); padding:28px;
@@ -320,7 +334,7 @@
         .question-title-preview { display:block; font-weight:700; font-size:0.95rem; margin-bottom:6px; }
         .question-content-preview { display:block; font-size:0.85rem; color:var(--text-secondary); line-height:1.5; }
 
-        /* ═══ ANSWER CARDS ═══ */
+        /* ANSWER CARDS */
         .answer-card {
             background:var(--surface); border:1px solid var(--border);
             border-radius:var(--radius); padding:20px 24px;
@@ -331,16 +345,15 @@
             display:flex; align-items:center; gap:8px; color:var(--text);
         }
 
-        /* ═══ ALERTS ═══ */
+        /* ALERTS */
         .alert { padding:12px 18px; border-radius:var(--radius-sm); font-size:0.83rem; font-weight:500; margin:10px 0; display:block; }
         .alert-success { background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); color:#059669; }
         .alert-error   { background:rgba(239,68,68,0.07); border:1px solid rgba(239,68,68,0.2); color:#dc2626; }
         .empty-message { display:block; text-align:center; padding:40px; color:var(--text-muted); font-size:0.88rem; }
 
-        /* ═══ FILE INPUT ═══ */
         input[type="file"].form-input { padding:8px 14px; cursor:pointer; }
 
-        /* ═══ ANIMATIONS ═══ */
+        /* ANIMATIONS */
         @keyframes slideDown { from{opacity:0;transform:translateY(-12px);}to{opacity:1;transform:translateY(0);} }
         @keyframes slideUp   { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
 
@@ -354,7 +367,7 @@
 <body>
 <form id="form1" runat="server" enctype="multipart/form-data">
 
-    <!-- ═══ HEADER ═══ -->
+    <!-- HEADER -->
     <div class="header">
         <div class="logo">
             <img src="~/LEARNSPHERE.png" runat="server" />
@@ -374,7 +387,7 @@
         </div>
     </div>
 
-    <!-- ═══ NAV ═══ -->
+    <!-- NAV -->
     <div class="nav">
         <a href="LecturerDashboard.aspx"><span>📊</span> Dashboard</a>
         <a href="CreateCourse.aspx"><span>➕</span> Create Course</a>
@@ -391,9 +404,7 @@
 
     <div class="container">
 
-        <!-- ════════════════════════════════════════════
-             PANEL 1 — FORUM LIST
-             ════════════════════════════════════════════ -->
+        <!-- list forums -->
         <asp:Panel ID="pnlForumsList" runat="server">
             <div class="page-banner banner-forums">
                 <div class="banner-label">Lecturer Portal</div>
@@ -452,14 +463,14 @@
             <asp:Label ID="lblListMessage" runat="server" CssClass="alert" Visible="false" />
         </asp:Panel>
 
-        <!-- ════════════════════════════════════════════
-             PANEL 2 — CREATE FORUM
-             ════════════════════════════════════════════ -->
+        <!-- create and edit forum panel -->
         <asp:Panel ID="pnlCreateForum" runat="server" Visible="false">
             <div class="page-banner banner-create">
                 <div class="banner-label">Forums</div>
-                <div class="banner-title">Create a New Forum</div>
-                <div class="banner-sub">Set up a discussion forum for your course.</div>
+                <div class="banner-title">
+                    <asp:Label ID="lblCreateForumTitle" runat="server" Text="Create a New Forum" />
+                </div>
+                <div class="banner-sub">Fill in the details below to set up the forum for your course.</div>
             </div>
 
             <asp:Button ID="btnBackFromCreate" runat="server" Text="← Back to Forums"
@@ -497,7 +508,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Allowed Tags (comma-separated)</label>
+                    <label class="form-label">Tags (comma-separated)</label>
                     <asp:TextBox ID="txtForumTags" runat="server" CssClass="form-input" MaxLength="200"
                         placeholder="e.g. python, AI, loops" />
                     <asp:RegularExpressionValidator ControlToValidate="txtForumTags" runat="server"
@@ -518,9 +529,7 @@
             </div>
         </asp:Panel>
 
-        <!-- ════════════════════════════════════════════
-             PANEL 3 — VIEW FORUM (questions list)
-             ════════════════════════════════════════════ -->
+        <!-- view forums panel -->
         <asp:Panel ID="pnlViewForum" runat="server" Visible="false">
             <div class="page-banner banner-view">
                 <div class="banner-label">Course Forum</div>
@@ -531,11 +540,18 @@
             <asp:Button ID="btnBackToList" runat="server" Text="← Back to Forums"
                 CssClass="btn-back" OnClick="btnBackToList_Click" CausesValidation="false" />
 
+            <!-- Forum meta: tags + Edit Forum button (only visible to the creator) -->
             <div class="forum-info-card">
-                <div class="tags-row">
-                    <span class="tag-label">Allowed Tags:</span>
-                    <asp:Label ID="lblTags" runat="server" />
+                <div class="forum-info-row">
+                    <div class="tags-row">
+                        <span class="tag-label">Tags:</span>
+                        <asp:Label ID="lblTags" runat="server" />
+                    </div>
+                    <asp:Button ID="btnEditForum" runat="server" Text="✏️ Edit Forum"
+                        CssClass="btn-secondary btn-sm" OnClick="btnEditForum_Click"
+                        CausesValidation="false" Visible="false" />
                 </div>
+                <asp:Label ID="lblForumMsg" runat="server" CssClass="alert" Visible="false" />
             </div>
 
             <div class="forum-actions-row">
@@ -543,7 +559,7 @@
                     CssClass="btn-primary" OnClick="btnAskQuestion_Click" CausesValidation="false" />
             </div>
 
-            <!-- Inline Ask Question form -->
+            <!-- Inline: Ask Question form -->
             <asp:Panel ID="pnlAskQuestion" runat="server" Visible="false">
                 <div class="inline-form">
                     <div class="inline-form-title">✏️ Post a New Question</div>
@@ -560,7 +576,7 @@
                             ValidationGroup="questionForm" Display="Dynamic" />
                         <asp:RegularExpressionValidator ControlToValidate="txtQuestionTitle" runat="server"
                             ValidationExpression="^[a-zA-Z0-9\s\-\?\!\.,]{3,150}$"
-                            ErrorMessage="Invalid title format (3–150 chars, letters/numbers/punctuation)."
+                            ErrorMessage="Invalid title format (3–150 chars)."
                             CssClass="validation-error" ValidationGroup="questionForm" Display="Dynamic" />
                     </div>
                     <div class="form-group">
@@ -615,7 +631,7 @@
                 </div>
             </asp:Panel>
 
-            <!-- Questions list -->
+            <!-- Questions repeater -->
             <asp:Repeater ID="rptQuestions" runat="server" OnItemCommand="rptQuestions_ItemCommand">
                 <ItemTemplate>
                     <div class="question-card">
@@ -648,11 +664,20 @@
                                     👎 <%# Eval("downvotes") %>
                                 </asp:LinkButton>
                             </div>
-                            <asp:LinkButton runat="server" CommandName="ViewDetail"
-                                CommandArgument='<%# Eval("postid") %>'
-                                CssClass="btn-comment" CausesValidation="false">
-                                View &amp; Answer →
-                            </asp:LinkButton>
+                            <div class="card-action-group">
+                                <%-- Edit button — only visible to the question's author --%>
+                                <asp:LinkButton runat="server" CommandName="EditQuestion"
+                                    CommandArgument='<%# Eval("postid") %>'
+                                    CssClass="btn-edit-sm" CausesValidation="false"
+                                    Visible='<%# IsOwner(Eval("userid")) %>'>
+                                    ✏️ Edit
+                                </asp:LinkButton>
+                                <asp:LinkButton runat="server" CommandName="ViewDetail"
+                                    CommandArgument='<%# Eval("postid") %>'
+                                    CssClass="btn-comment" CausesValidation="false">
+                                    View &amp; Answer →
+                                </asp:LinkButton>
+                            </div>
                         </div>
                     </div>
                 </ItemTemplate>
@@ -663,9 +688,53 @@
             <asp:Label ID="lblViewForumMsg" runat="server" CssClass="alert alert-error" Visible="false" />
         </asp:Panel>
 
-        <!-- ════════════════════════════════════════════
-             PANEL 4 — FORUM DETAIL (question + answers)
-             ════════════════════════════════════════════ -->
+        <!-- Edit questions panel -->
+        <asp:Panel ID="pnlEditQuestion" runat="server" Visible="false">
+            <div class="page-banner banner-edit-q">
+                <div class="banner-label">Forums</div>
+                <div class="banner-title">Edit Question</div>
+                <div class="banner-sub">Update your question's title, content, tags or video link.</div>
+            </div>
+
+            <asp:Button ID="btnCancelEditQuestion" runat="server" Text="← Cancel"
+                CssClass="btn-back" OnClick="btnCancelEditQuestion_Click" CausesValidation="false" />
+
+            <div class="form-card">
+                <div class="form-card-title">
+                    <span class="title-dot dot-cyan"></span> Edit Question
+                </div>
+
+                <asp:Label ID="lblEditQuestionMsg" runat="server" CssClass="alert" Visible="false" />
+
+                <div class="form-group">
+                    <label class="form-label">Title *</label>
+                    <asp:TextBox ID="txtEditQuestionTitle" runat="server" CssClass="form-input" MaxLength="150" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Content *</label>
+                    <asp:TextBox ID="txtEditQuestionContent" runat="server" CssClass="form-input"
+                        TextMode="MultiLine" Rows="7" MaxLength="2000" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tags <span style="font-weight:400;text-transform:none;">(comma-separated)</span></label>
+                    <asp:TextBox ID="txtEditQuestionTags" runat="server" CssClass="form-input" MaxLength="200" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Video URL</label>
+                    <asp:TextBox ID="txtEditQuestionVideoUrl" runat="server" CssClass="form-input"
+                        MaxLength="300" placeholder="https://..." />
+                </div>
+
+                <div class="form-btn-row">
+                    <asp:Button ID="btnSaveEditQuestion" runat="server" Text="Save Changes"
+                        CssClass="btn-primary" OnClick="btnSaveEditQuestion_Click" CausesValidation="false" />
+                    <asp:Button runat="server" Text="Cancel"
+                        CssClass="btn-secondary" OnClick="btnCancelEditQuestion_Click" CausesValidation="false" />
+                </div>
+            </div>
+        </asp:Panel>
+
+        <!-- Forum details panel -->
         <asp:Panel ID="pnlForumDetail" runat="server" Visible="false">
             <div class="page-banner banner-detail">
                 <div class="banner-label">Forum Discussion</div>
@@ -702,18 +771,23 @@
                             👎 <span id="dislikeCount" runat="server"></span>
                         </asp:LinkButton>
                     </div>
-                    <asp:Button ID="btnAnswer" runat="server" Text="+ Add Answer"
-                        CssClass="btn-primary" OnClick="btnAnswer_Click" CausesValidation="false" />
+                    <div class="card-action-group">
+                        <%-- Edit Question button — only visible to the question's author --%>
+                        <asp:Button ID="btnEditDetailQuestion" runat="server" Text="✏️ Edit Question"
+                            CssClass="btn-edit-sm" OnClick="btnEditDetailQuestion_Click"
+                            CausesValidation="false" Visible="false" />
+                        <asp:Button ID="btnAnswer" runat="server" Text="+ Add Answer"
+                            CssClass="btn-primary" OnClick="btnAnswer_Click" CausesValidation="false" />
+                    </div>
                 </div>
             </div>
 
-            <!-- Inline Add Answer form -->
+            <!-- Inline: Add Answer form -->
             <asp:Panel ID="pnlAddAnswer" runat="server" Visible="false">
                 <div class="inline-form">
                     <div class="inline-form-title">💬 Write Your Answer</div>
 
-                    <!-- Question preview (matches answer.aspx) -->
-                    <div class="question-preview-box" style="margin-bottom:16px;">
+                    <div class="question-preview-box">
                         <asp:Label ID="lblAnswerPreviewTitle"   runat="server" CssClass="question-title-preview" />
                         <asp:Label ID="lblAnswerPreviewContent" runat="server" CssClass="question-content-preview" />
                     </div>
@@ -765,6 +839,32 @@
                 </div>
             </asp:Panel>
 
+            <!-- Inline: Edit Answer form (shown below the answer being edited) -->
+            <asp:Panel ID="pnlEditAnswer" runat="server" Visible="false">
+                <div class="inline-form" style="border-color:rgba(37,99,235,0.25);background:rgba(37,99,235,0.03);">
+                    <div class="inline-form-title">✏️ Edit Answer</div>
+
+                    <asp:Label ID="lblEditAnswerMsg" runat="server" CssClass="alert" Visible="false" />
+
+                    <div class="form-group">
+                        <label class="form-label">Answer *</label>
+                        <asp:TextBox ID="txtEditAnswerContent" runat="server" CssClass="form-input"
+                            TextMode="MultiLine" Rows="5" MaxLength="2000" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Video URL</label>
+                        <asp:TextBox ID="txtEditAnswerVideoUrl" runat="server" CssClass="form-input"
+                            MaxLength="300" placeholder="https://..." />
+                    </div>
+                    <div class="form-btn-row">
+                        <asp:Button ID="btnSaveEditAnswer" runat="server" Text="Save Changes"
+                            CssClass="btn-primary" OnClick="btnSaveEditAnswer_Click" CausesValidation="false" />
+                        <asp:Button ID="btnCancelEditAnswer" runat="server" Text="Cancel"
+                            CssClass="btn-secondary" OnClick="btnCancelEditAnswer_Click" CausesValidation="false" />
+                    </div>
+                </div>
+            </asp:Panel>
+
             <!-- Answers list -->
             <div class="answers-heading">
                 <span class="title-dot dot-blue"></span> Answers
@@ -796,12 +896,21 @@
                                     👎 <%# Eval("downvotes") %>
                                 </asp:LinkButton>
                             </div>
-                            <asp:Button ID="btnDeleteAnswer" runat="server"
-                                Text="Delete" CssClass="btn-delete"
-                                CommandName="DeletePost"
-                                CommandArgument='<%# Eval("postid") %>'
-                                Visible='<%# IsOwner(Eval("userid")) %>'
-                                OnClientClick="return confirm('Delete this answer?');" />
+                            <div class="card-action-group">
+                                <%-- Edit button — only visible to the answer's author --%>
+                                <asp:LinkButton runat="server" CommandName="EditAnswer"
+                                    CommandArgument='<%# Eval("postid") %>'
+                                    CssClass="btn-edit-sm" CausesValidation="false"
+                                    Visible='<%# IsOwner(Eval("userid")) %>'>
+                                    ✏️ Edit
+                                </asp:LinkButton>
+                                <asp:Button ID="btnDeleteAnswer" runat="server"
+                                    Text="Delete" CssClass="btn-delete"
+                                    CommandName="DeletePost"
+                                    CommandArgument='<%# Eval("postid") %>'
+                                    Visible='<%# IsOwner(Eval("userid")) %>'
+                                    OnClientClick="return confirm('Delete this answer?');" />
+                            </div>
                         </div>
                     </div>
                 </ItemTemplate>
@@ -809,7 +918,7 @@
 
             <asp:Label ID="lblNoAnswers" runat="server" CssClass="empty-message"
                 Text="No answers yet. Be the first to answer!" Visible="false" />
-            <asp:Label ID="lblDetailMessage" runat="server" CssClass="alert alert-error" Visible="false" />
+            <asp:Label ID="lblDetailMessage" runat="server" CssClass="alert" Visible="false" />
         </asp:Panel>
 
     </div>

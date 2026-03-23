@@ -200,6 +200,7 @@
     <Content Include="Login.aspx" />
     <Content Include="GeneralUser\GeneralDashboard.aspx" />
     <Content Include="GeneralUser\GeneralDashboard.css" />
+    <Content Include="images\default-user.png" />
     <Content Include="Registration.aspx" />
     <Content Include="registration.css" />
     <Content Include="Scripts\bootstrap.bundle.js" />

@@ -393,9 +393,7 @@
             </div>
         </div>
 
-        <!-- ════════════════════════════════════════════
-             PANEL 1 — COURSE DETAILS  (CreateCourse.aspx)
-             ════════════════════════════════════════════ -->
+        <!-- Course details -->
         <asp:Panel ID="pnlCourseDetails" runat="server">
             <div class="form-card">
                 <div class="form-card-title">
@@ -470,9 +468,7 @@
             </div>
         </asp:Panel>
 
-        <!-- ════════════════════════════════════════════
-             PANEL 2 — ADD MODULES  (AddModules.aspx)
-             ════════════════════════════════════════════ -->
+        <!-- Add modules-->
         <asp:Panel ID="pnlAddModules" runat="server" Visible="false">
             <div class="form-card">
                 <div class="form-card-title">
@@ -543,9 +539,7 @@
             </div>
         </asp:Panel>
 
-        <!-- ════════════════════════════════════════════
-             PANEL 3 — ADD LESSONS  (AddLessons.aspx)
-             ════════════════════════════════════════════ -->
+        <!-- Add lessons-->
         <asp:Panel ID="pnlAddLessons" runat="server" Visible="false">
             <div class="form-card">
                 <div class="form-card-title">
@@ -650,9 +644,7 @@
             </div>
         </asp:Panel>
 
-        <!-- ════════════════════════════════════════════
-             PANEL 4 — REVIEW & PUBLISH  (ReviewPublish.aspx)
-             ════════════════════════════════════════════ -->
+        <!-- Review and Publish-->
         <asp:Panel ID="pnlReviewPublish" runat="server" Visible="false">
 
             <div class="publish-banner">
@@ -674,7 +666,7 @@
                     <div class="review-info-value"><asp:Label ID="lblCoursePrice" runat="server" /></div>
                 </div>
 
-                <!-- Modules + Lessons nested repeater — matches ReviewPublish.aspx exactly -->
+                <!-- Modules + Lessons nested repeaters -->
                 <div class="form-card-title" style="margin-top:20px;">
                     <span class="title-dot dot-green"></span> Modules &amp; Lessons
                 </div>
