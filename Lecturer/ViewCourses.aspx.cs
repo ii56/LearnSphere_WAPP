@@ -12,6 +12,8 @@ using System.Web.UI.WebControls;
 
 namespace LearnSphere_WAPP.Lecturer
 {
+    // Typed classes used by the review repeater — strongly typed so the nested
+    // repeater in the .aspx can data-bind without casting to dynamic
     public class ModuleView
     {
         public int moduleid { get; set; }
@@ -617,9 +619,9 @@ namespace LearnSphere_WAPP.Lecturer
                 LoadModules(EditCourseId);
                 ShowView("edit");
             }
-            catch
+            catch (Exception ex)
             {
-                ShowMsg(lblModMsg, "An error occurred. Please try again.", false);
+                ShowMsg(lblModMsg, "Save failed: " + ex.Message, false);
             }
         }
 
@@ -666,7 +668,9 @@ namespace LearnSphere_WAPP.Lecturer
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 SqlCommand cmd = new SqlCommand(@"
-                    SELECT l.lessontitle, l.description, l.duration, l.lessonpoints,
+                    SELECT l.lessontitle,
+                           ISNULL(l.lessondescription, l.description) AS lessonDesc,
+                           l.duration, l.lessonpoints,
                            m.modulename, l.moduleid
                     FROM Lesson l
                     INNER JOIN Module m ON l.moduleid = m.moduleid
@@ -677,7 +681,7 @@ namespace LearnSphere_WAPP.Lecturer
                 if (reader.Read())
                 {
                     txtLsnTitle.Text = Server.HtmlEncode(reader["lessontitle"].ToString());
-                    txtLsnDesc.Text = Server.HtmlEncode(reader["description"].ToString());
+                    txtLsnDesc.Text = Server.HtmlEncode(reader["lessonDesc"].ToString());
                     txtLsnDuration.Text = reader["duration"].ToString();
                     txtLsnPoints.Text = reader["lessonpoints"] != DBNull.Value
                                             ? reader["lessonpoints"].ToString() : "";
@@ -734,9 +738,15 @@ namespace LearnSphere_WAPP.Lecturer
                     if (EditLessonId > 0)
                     {
                         // The WHERE clause includes a subquery to confirm the lesson belongs to this course
+                        // Write to both columns so LessonViewer (lessondescription) and any legacy
+                        // code (description) can both read the same value
                         SqlCommand cmd = new SqlCommand(@"
                             UPDATE Lesson
-                            SET lessontitle=@title, description=@desc, duration=@duration, lessonpoints=@pts
+                            SET lessontitle=@title,
+                                description=@desc,
+                                lessondescription=@desc,
+                                duration=@duration,
+                                lessonpoints=@pts
                             WHERE lessonid=@id AND moduleid IN
                                 (SELECT moduleid FROM Module WHERE courseid=@cid)", con);
                         cmd.Parameters.Add("@title", SqlDbType.NVarChar, 100).Value = title;
@@ -752,12 +762,14 @@ namespace LearnSphere_WAPP.Lecturer
                     else
                     {
                         // Order number computed from the DB so there are no gaps or conflicts
+                        // Write to both columns so LessonViewer (lessondescription) and any legacy
+                        // code (description) can both read the same value
                         SqlCommand cmd = new SqlCommand(@"
                             INSERT INTO Lesson
-                            (moduleid, lessontitle, description, duration, lessonpoints, ordernumber, creationtime)
+                            (moduleid, lessontitle, description, lessondescription, duration, lessonpoints, ordernumber, creationtime)
                             OUTPUT INSERTED.lessonid
                             VALUES
-                            (@moduleid, @title, @desc, @duration, @pts,
+                            (@moduleid, @title, @desc, @desc, @duration, @pts,
                              (SELECT ISNULL(MAX(ordernumber),0)+1 FROM Lesson WHERE moduleid=@moduleid AND deletiontime IS NULL),
                              GETDATE())", con);
                         cmd.Parameters.Add("@moduleid", SqlDbType.Int).Value = LessonModuleId;
@@ -798,9 +810,9 @@ namespace LearnSphere_WAPP.Lecturer
                 LoadModules(EditCourseId);
                 ShowView("edit");
             }
-            catch
+            catch (Exception ex)
             {
-                ShowMsg(lblLsnMsg, "An error occurred. Please try again.", false);
+                ShowMsg(lblLsnMsg, "Save failed: " + ex.Message, false);
             }
         }
 
@@ -825,7 +837,7 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Loads only active, verified students who are enrolled in the course
+        // Loads only active, verified students who are enrolled in the course, with their invoice/payment details
         private void LoadStudents(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
@@ -833,15 +845,26 @@ namespace LearnSphere_WAPP.Lecturer
                 SqlCommand cmd = new SqlCommand(@"
                     SELECT DISTINCT
                         u.userid, u.uname, u.fname, u.lname, u.email, u.age, u.gender,
-                        e.enrolldate AS EnrolledOn
+                        e.enrolldate                                AS EnrolledOn,
+                        ISNULL(i.amount, 0)                        AS AmountPaid,
+                        ISNULL(i.overdue, 0)                       AS Overdue,
+                        i.creationtime                             AS InvoiceDate,
+                        i.deadline                                 AS PaymentDeadline,
+                        CASE
+                            WHEN c.price = 0          THEN 'Free'
+                            WHEN i.invid  IS NOT NULL THEN 'Paid'
+                            ELSE 'Unpaid'
+                        END AS PaymentStatus
                     FROM Enrollment e
                     INNER JOIN Course c  ON e.courseid = c.courseid
                     INNER JOIN [User] u  ON e.userid   = u.userid
-                    WHERE e.courseid=@courseId
-                      AND e.isactive=1
-                      AND u.usertype='Student'
+                    LEFT  JOIN Invoice i ON e.userid   = i.userid AND e.courseid = i.courseid
+                    WHERE e.courseid    = @courseId
+                      AND e.isactive   = 1
+                      AND u.usertype   IN ('Student', 'General')
                       AND u.deletiontime IS NULL
-                      AND u.status='Active'", con);
+                      AND u.status     = 'Active'
+                    ORDER BY e.enrolldate DESC", con);
                 cmd.Parameters.AddWithValue("@courseId", courseId);
 
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
@@ -855,10 +878,10 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Handles Remove and View Receipt commands from the students grid
+        // Handles Remove, View Receipt and View Exam Results commands from the students grid
         protected void gvStudents_RowCommand(object sender, GridViewCommandEventArgs e)
         {
-            if (e.CommandName != "DeleteStudent" && e.CommandName != "ViewReceipt") return;
+            if (e.CommandName != "DeleteStudent" && e.CommandName != "ViewReceipt" && e.CommandName != "ViewExamResults") return;
             int index = Convert.ToInt32(e.CommandArgument);
             int userId = Convert.ToInt32(gvStudents.DataKeys[index].Value);
             int courseId = StudentsForCourseId;
@@ -872,6 +895,58 @@ namespace LearnSphere_WAPP.Lecturer
             else if (e.CommandName == "ViewReceipt")
             {
                 GenerateReceipt(userId, courseId);
+            }
+            else if (e.CommandName == "ViewExamResults")
+            {
+                // Redirect to a popup-style view — show results inline via a JS alert for simplicity,
+                // or show in the message label as a formatted string
+                ShowExamResultsForStudent(userId, courseId);
+            }
+        }
+
+        // Builds a summary of all exam results for one student across all exams in the course
+        private void ShowExamResultsForStudent(int userId, int courseId)
+        {
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand(@"
+                    SELECT e.examtitle,
+                           CASE WHEN e.moduleid IS NOT NULL THEN 'Module Exam' ELSE 'Course Exam' END AS examtype,
+                           e.totalmarks,
+                           er.score,
+                           er.attempttime,
+                           CASE WHEN e.totalmarks > 0 AND (er.score * 100 / e.totalmarks) >= 80 THEN 'Passed' ELSE 'Failed' END AS result
+                    FROM ExamResult er
+                    INNER JOIN Exam e ON er.examid = e.examid
+                    WHERE er.userid = @uid
+                      AND (e.courseid = @cid OR e.moduleid IN (SELECT moduleid FROM Module WHERE courseid = @cid))
+                    ORDER BY er.attempttime DESC", con);
+                cmd.Parameters.AddWithValue("@uid", userId);
+                cmd.Parameters.AddWithValue("@cid", courseId);
+                con.Open();
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                if (dt.Rows.Count == 0)
+                {
+                    ShowMsg(lblStudentsMsg, "This student has not attempted any exams yet.", false);
+                    return;
+                }
+
+                // Build a readable inline summary
+                var sb = new System.Text.StringBuilder();
+                sb.Append("📝 Exam Results: ");
+                foreach (DataRow row in dt.Rows)
+                {
+                    int score = row["score"] == DBNull.Value ? 0 : Convert.ToInt32(row["score"]);
+                    int total = Convert.ToInt32(row["totalmarks"]);
+                    int percent = total > 0 ? (score * 100 / total) : 0;
+                    string result = row["result"].ToString();
+                    sb.Append($"{row["examtitle"]} ({row["examtype"]}): {score}/{total} ({percent}%) — {result}  |  ");
+                }
+                ShowMsg(lblStudentsMsg, sb.ToString().TrimEnd(' ', '|', ' '), true);
             }
         }
 
@@ -1035,7 +1110,7 @@ namespace LearnSphere_WAPP.Lecturer
                     LEFT  JOIN Invoice i ON e.userid   = i.userid AND e.courseid = i.courseid
                     LEFT  JOIN Receipt r ON i.invid    = r.invid
                     WHERE e.courseid=@courseId AND e.isactive=1
-                      AND u.usertype='Student' AND u.deletiontime IS NULL AND u.status='Active'
+                      AND u.usertype IN ('Student', 'General') AND u.deletiontime IS NULL AND u.status='Active'
                       AND (c.price=0 OR (c.price>0 AND r.invid IS NOT NULL))", con);
                 cmd.Parameters.AddWithValue("@courseId", courseId);
 

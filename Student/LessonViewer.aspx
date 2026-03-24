@@ -11,15 +11,18 @@
             --surface: #ffffff;
             --primary: #2563eb;
             --primary-bg: rgba(37,99,235,0.08);
+            --primary-border: rgba(37,99,235,0.18);
             --accent-green: #10b981;
             --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
             --text: #1e293b;
             --text-secondary: #64748b;
             --text-muted: #94a3b8;
             --border: #e2e8f0;
             --border-light: #f1f5f9;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.03);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
             --radius: 14px;
             --radius-sm: 10px;
         }
@@ -30,6 +33,7 @@
             color: var(--text); min-height: 100vh;
         }
 
+        /* HEADER */
         .header {
             position: sticky; top: 0; z-index: 100;
             background: rgba(255,255,255,0.82); backdrop-filter: blur(20px);
@@ -62,6 +66,7 @@
         }
         .btn-logout:hover { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
 
+        /* NAV */
         .nav {
             background: var(--surface); border-bottom: 1px solid var(--border);
             padding: 0 36px; display: flex; gap: 2px;
@@ -74,17 +79,18 @@
         .nav a:hover { color: var(--text-secondary); }
         .nav a.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-        /* layout */
+        /* LAYOUT */
         .page-wrap {
-            max-width: 1140px; margin: 0 auto; padding: 28px 36px;
+            max-width: 1200px; margin: 0 auto; padding: 28px 36px;
             display: flex; gap: 22px;
         }
 
-        /* sidebar */
-        .sidebar { width: 270px; flex-shrink: 0; }
+        /* SIDEBAR */
+        .sidebar { width: 280px; flex-shrink: 0; }
         .sidebar-card {
             background: var(--surface); border: 1px solid var(--border);
             border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm);
+            position: sticky; top: 84px;
         }
         .sidebar-header { padding: 18px 20px; border-bottom: 1px solid var(--border); }
         .sidebar-course-label {
@@ -100,11 +106,14 @@
         }
         .back-link:hover { color: var(--primary); }
 
+        .sidebar-body { max-height: calc(100vh - 200px); overflow-y: auto; }
+
         .module-section { border-bottom: 1px solid var(--border); }
         .module-title {
-            padding: 12px 20px; font-size: 0.75rem; font-weight: 700;
+            padding: 12px 20px; font-size: 0.72rem; font-weight: 700;
             letter-spacing: 0.5px; text-transform: uppercase;
             color: var(--text-muted); background: var(--border-light);
+            display: flex; align-items: center; gap: 8px;
         }
         .lesson-item {
             padding: 11px 20px; font-size: 0.83rem; cursor: pointer;
@@ -113,13 +122,39 @@
         }
         .lesson-item:last-child { border-bottom: none; }
         .lesson-item:hover { background: var(--border-light); }
-        .lesson-item.active { background: var(--primary-bg); color: var(--primary); }
+        .lesson-item.active { background: var(--primary-bg); color: var(--primary); font-weight: 600; }
         .lesson-item.completed { color: var(--accent-green); }
         .lesson-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
         .lesson-item.completed .lesson-dot { background: var(--accent-green); }
         .lesson-item.active .lesson-dot { background: var(--primary); }
 
-        /* content */
+        /* EXAM LINKS IN SIDEBAR */
+        .exam-link {
+            padding: 10px 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 10px; transition: background 0.2s;
+            border-bottom: 1px solid var(--border-light); text-decoration: none;
+        }
+        .exam-link.module-exam {
+            color: var(--accent-orange);
+            background: rgba(245,158,11,0.04);
+        }
+        .exam-link.module-exam:hover { background: rgba(245,158,11,0.1); }
+        .exam-link.course-exam {
+            color: var(--accent-purple);
+            background: rgba(139,92,246,0.04);
+        }
+        .exam-link.course-exam:hover { background: rgba(139,92,246,0.1); }
+        .exam-link.active { font-weight: 700; }
+        .exam-link.passed { color: var(--accent-green); }
+        .exam-badge {
+            font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+            font-family: 'Space Mono', monospace; margin-left: auto;
+        }
+        .badge-passed { background: rgba(16,185,129,0.12); color: #059669; }
+        .badge-failed { background: rgba(239,68,68,0.1); color: var(--accent-red); }
+        .badge-new    { background: rgba(245,158,11,0.1); color: var(--accent-orange); }
+
+        /* CONTENT */
         .content { flex: 1; min-width: 0; }
         .content-card {
             background: var(--surface); border: 1px solid var(--border);
@@ -129,14 +164,16 @@
         .lesson-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; }
         .lesson-desc { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.7; margin-bottom: 24px; }
 
+        /* VIDEO */
         .video-box {
-            background: var(--border-light); border-radius: 12px; height: 320px;
+            background: var(--border-light); border-radius: 12px; height: 340px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             margin-bottom: 24px; border: 1px solid var(--border); position: relative; overflow: hidden;
         }
         .video-icon { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.3; }
         .video-text { color: var(--text-muted); font-size: 0.85rem; }
 
+        /* FILES */
         .files-section { margin-bottom: 24px; }
         .files-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
         .file-item {
@@ -150,12 +187,13 @@
         .file-name { flex: 1; font-size: 0.85rem; font-weight: 500; }
         .file-arrow { color: var(--primary); font-weight: 700; }
 
+        /* COMPLETE BUTTON */
         .btn-complete {
             background: var(--accent-green); color: white; border: none;
             padding: 12px 28px; border-radius: var(--radius-sm);
             font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700;
             cursor: pointer; transition: background 0.2s;
-            display: flex; align-items: center; gap: 8px;
+            display: inline-flex; align-items: center; gap: 8px;
         }
         .btn-complete:hover { background: #059669; }
         .btn-complete:disabled {
@@ -163,12 +201,119 @@
             cursor: not-allowed; border: 1px solid var(--border);
         }
 
+        /* EXAM PANEL */
+        .exam-header {
+            margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+        }
+        .exam-tag {
+            display: inline-block; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase; padding: 3px 12px; border-radius: 20px; margin-bottom: 10px;
+            font-family: 'Space Mono', monospace;
+        }
+        .exam-tag.module { background: rgba(245,158,11,0.1); color: var(--accent-orange); }
+        .exam-tag.course { background: rgba(139,92,246,0.1); color: var(--accent-purple); }
+        .exam-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 6px; }
+        .exam-meta { font-size: 0.83rem; color: var(--text-muted); display: flex; gap: 20px; flex-wrap: wrap; }
+        .exam-meta span { display: flex; align-items: center; gap: 5px; }
+
+        .question-card {
+            background: var(--border-light); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 20px 24px; margin-bottom: 16px;
+        }
+        .question-number {
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 8px; font-family: 'Space Mono', monospace;
+        }
+        .question-text { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; line-height: 1.5; }
+        .question-marks {
+            font-size: 0.72rem; color: var(--accent-orange); font-weight: 600;
+            font-family: 'Space Mono', monospace; float: right;
+        }
+
+        /* Radio button options */
+        .options-list { display: flex; flex-direction: column; gap: 10px; }
+        .option-label {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--surface); border: 1.5px solid var(--border);
+            border-radius: 8px; padding: 11px 16px; cursor: pointer;
+            transition: all 0.15s; font-size: 0.88rem;
+        }
+        .option-label:hover { border-color: var(--primary); background: var(--primary-bg); }
+        .option-label input[type="radio"] { accent-color: var(--primary); width: 16px; height: 16px; flex-shrink: 0; }
+        .option-key {
+            font-size: 0.72rem; font-weight: 700; font-family: 'Space Mono', monospace;
+            color: var(--text-muted); min-width: 20px;
+        }
+
+        /* Override ASP.NET RadioButtonList rendering */
+        .options-list table { width: 100%; }
+        .options-list table td { padding: 4px 0; }
+
+        .btn-submit-exam {
+            background: var(--accent-purple); color: white; border: none;
+            padding: 13px 32px; border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; transition: background 0.2s; margin-top: 24px;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-submit-exam:hover { background: #7c3aed; }
+
+        /* EXAM RESULT */
+        .result-banner {
+            border-radius: var(--radius); padding: 28px 32px; margin-bottom: 24px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .result-banner.passed {
+            background: linear-gradient(135deg,#059669,#10b981 55%,#34d399);
+            box-shadow: 0 8px 30px rgba(16,185,129,0.28);
+        }
+        .result-banner.failed {
+            background: linear-gradient(135deg,#dc2626,#ef4444 55%,#f87171);
+            box-shadow: 0 8px 30px rgba(220,38,38,0.28);
+        }
+        .result-banner::before {
+            content:''; position:absolute; top:-40%; right:-10%; width:250px; height:250px;
+            background:radial-gradient(circle,rgba(255,255,255,0.12),transparent 65%);
+            border-radius:50%;
+        }
+        .result-icon { font-size: 2.8rem; margin-bottom: 12px; }
+        .result-title { font-size: 1.4rem; font-weight: 700; color: white; margin-bottom: 6px; }
+        .result-sub { color: rgba(255,255,255,0.8); font-size: 0.88rem; }
+        .result-score {
+            font-size: 2.2rem; font-weight: 700; color: white; margin: 12px 0 4px;
+            font-family: 'Space Mono', monospace;
+        }
+        .result-details {
+            display: flex; justify-content: center; gap: 30px; margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .result-stat {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 14px 22px; text-align: center;
+        }
+        .result-stat-value { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+        .result-stat-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+
+        .btn-retake-info {
+            background: var(--border-light); color: var(--text-secondary);
+            border: 1px solid var(--border); padding: 10px 22px; border-radius: 8px;
+            font-family: 'DM Sans', sans-serif; font-size: 0.83rem; font-weight: 600;
+            margin-top: 16px; display: inline-block; text-align: center;
+        }
+
+        /* ALERTS */
         .alert-success {
             background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
             color: #059669; padding: 12px 18px; border-radius: var(--radius-sm);
-            font-size: 0.85rem; font-weight: 500; margin-top: 14px;
+            font-size: 0.85rem; font-weight: 500; margin-top: 14px; display: block;
+        }
+        .alert-error {
+            background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2);
+            color: #dc2626; padding: 12px 18px; border-radius: var(--radius-sm);
+            font-size: 0.85rem; font-weight: 500; margin-top: 14px; display: block;
         }
 
+        /* SELECT STATE */
         .select-state { text-align: center; padding: 70px 20px; color: var(--text-muted); }
         .select-state-icon { font-size: 2.5rem; margin-bottom: 14px; opacity: 0.4; }
         .select-state h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
@@ -182,49 +327,58 @@
         }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 900px) { .page-wrap { flex-direction: column; padding: 20px; } .sidebar { width: 100%; } }
+        @media (max-width: 900px) { .page-wrap { flex-direction: column; padding: 20px; } .sidebar { width: 100%; } .sidebar-card { position: static; } }
     </style>
 </head>
 <body>
-    <form id="form1" runat="server">
-        <div class="header">
-            <div class="logo">
-                <img src="~/LEARNSPHERE.png" runat="server" />
-                <div class="logo-text">Learn<span>Sphere</span></div>
+<form id="form1" runat="server">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">
+            <img src="~/LEARNSPHERE.png" runat="server" />
+            <div class="logo-text">Learn<span>Sphere</span></div>
+        </div>
+        <div class="header-right">
+            <div class="user-pill">
+                <div class="user-avatar"><asp:Label ID="lblAvatarInitial" runat="server" Text="S" /></div>
+                <span class="user-name"><asp:Label ID="lblHeaderName" runat="server" /></span>
             </div>
-            <div class="header-right">
-                <div class="user-pill">
-                    <div class="user-avatar"><asp:Label ID="lblAvatarInitial" runat="server" Text="S" /></div>
-                    <span class="user-name"><asp:Label ID="lblHeaderName" runat="server" /></span>
+            <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="btn-logout" OnClick="btnLogout_Click" />
+        </div>
+    </div>
+
+    <!-- NAV -->
+    <div class="nav">
+        <a href="StudentDashboard.aspx"><span>📊</span> Dashboard</a>
+        <a href="BrowseCourses.aspx"><span>📚</span> Browse Courses</a>
+        <a href="MyCourses.aspx" class="active"><span>🎓</span> My Courses</a>
+        <a href="Gamification.aspx"><span>🏆</span> Achievements</a>
+        <a href="StudentProfile.aspx"><span>👤</span> Profile</a>
+        <a href="Forums.aspx"><span>💬</span> Forums</a>
+        <a href="Messaging.aspx"><span>✉️</span> Messages</a>
+    </div>
+
+    <div class="page-wrap">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    <div class="sidebar-course-label">Now Learning</div>
+                    <div class="sidebar-course-name"><asp:Label ID="lblCourseName" runat="server" Text="..." /></div>
+                    <a href="MyCourses.aspx" class="back-link">← Back to My Courses</a>
                 </div>
-                <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="btn-logout" OnClick="btnLogout_Click" />
-            </div>
-        </div>
 
-        <div class="nav">
-            <a href="StudentDashboard.aspx"><span>📊</span> Dashboard</a>
-            <a href="BrowseCourses.aspx"><span>📚</span> Browse Courses</a>
-            <a href="MyCourses.aspx" class="active"><span>🎓</span> My Courses</a>
-            <a href="Gamification.aspx"><span>🏆</span> Achievements</a>
-            <a href="StudentProfile.aspx"><span>👤</span> Profile</a>
-            <a href="Forums.aspx"><span>💬</span> Forums</a>
-            <a href="Messaging.aspx"><span>✉️</span> Messages</a>
-        </div>
-
-        <div class="page-wrap">
-            <div class="sidebar">
-                <div class="sidebar-card">
-                    <div class="sidebar-header">
-                        <div class="sidebar-course-label">Now Learning</div>
-                        <div class="sidebar-course-name"><asp:Label ID="lblCourseName" runat="server" Text="..." /></div>
-                        <a href="MyCourses.aspx" class="back-link">← Back to My Courses</a>
-                    </div>
-
+                <div class="sidebar-body">
                     <asp:Panel ID="pnlModules" runat="server">
                         <asp:Repeater ID="rptModules" runat="server">
                             <ItemTemplate>
                                 <div class="module-section">
-                                    <div class="module-title"><%# Eval("ModuleName") %></div>
+                                    <div class="module-title">
+                                        📦 <%# Eval("ModuleName") %>
+                                    </div>
+                                    <%-- Lessons --%>
                                     <asp:Repeater ID="rptLessons" runat="server" DataSource='<%# Eval("Lessons") %>'>
                                         <ItemTemplate>
                                             <a href='LessonViewer.aspx?courseid=<%# Request.QueryString["courseid"] %>&lessonId=<%# Eval("LessonId") %>'
@@ -234,9 +388,31 @@
                                             </a>
                                         </ItemTemplate>
                                     </asp:Repeater>
+                                    <%-- Module Exam link (only if exam exists for this module) --%>
+                                    <asp:Panel ID="pnlModuleExamLink" runat="server" Visible='<%# Convert.ToInt32(Eval("ExamId")) > 0 %>'>
+                                        <a href='LessonViewer.aspx?courseid=<%# Request.QueryString["courseid"] %>&examid=<%# Eval("ExamId") %>'
+                                           class='exam-link module-exam <%# Request.QueryString["examid"] == Eval("ExamId").ToString() ? "active" : "" %> <%# Convert.ToBoolean(Eval("ExamPassed")) ? "passed" : "" %>'>
+                                            📝 Module Exam
+                                            <span class='exam-badge <%# Convert.ToBoolean(Eval("ExamPassed")) ? "badge-passed" : Convert.ToBoolean(Eval("ExamAttempted")) ? "badge-failed" : "badge-new" %>'>
+                                                <%# Convert.ToBoolean(Eval("ExamPassed")) ? "Passed" : Convert.ToBoolean(Eval("ExamAttempted")) ? "Retry" : "New" %>
+                                            </span>
+                                        </a>
+                                    </asp:Panel>
                                 </div>
                             </ItemTemplate>
                         </asp:Repeater>
+
+                        <%-- Course Exam at the bottom of the sidebar --%>
+                        <asp:Panel ID="pnlCourseExamLink" runat="server" Visible="false">
+                            <div class="module-section">
+                                <div class="module-title">🎓 Final Assessment</div>
+                                <asp:HyperLink ID="hlCourseExam" runat="server" CssClass="exam-link course-exam">
+                                    📋 Course Exam
+                                    <asp:Label ID="lblCourseExamBadge" runat="server" />
+                                </asp:HyperLink>
+                            </div>
+                        </asp:Panel>
+
                     </asp:Panel>
 
                     <asp:Panel ID="pnlNoModules" runat="server" Visible="false">
@@ -248,64 +424,137 @@
                     </asp:Panel>
                 </div>
             </div>
+        </div>
 
-            <div class="content">
-                <asp:Panel ID="pnlLesson" runat="server" Visible="false">
-                    <div class="content-card">
-                        <div class="lesson-title"><asp:Label ID="lblLessonTitle" runat="server" /></div>
-                        <div class="lesson-desc"><asp:Label ID="lblLessonDesc" runat="server" /></div>
+        <!-- CONTENT -->
+        <div class="content">
 
-                        <asp:Panel ID="pnlVideo" runat="server" Visible="false">
-                            <div class="video-box">
-                                <iframe id="iframeVideo" runat="server"
-                                    style="width:100%;height:100%;border:none;border-radius:12px;"
-                                    allowfullscreen="allowfullscreen"></iframe>
-                            </div>
-                        </asp:Panel>
+            <%-- LESSON VIEW --%>
+            <asp:Panel ID="pnlLesson" runat="server" Visible="false">
+                <div class="content-card">
+                    <div class="lesson-title"><asp:Label ID="lblLessonTitle" runat="server" /></div>
+                    <div class="lesson-desc"><asp:Label ID="lblLessonDesc" runat="server" /></div>
 
-                        <asp:Panel ID="pnlNoVideo" runat="server" Visible="true">
-                            <div class="video-box">
-                                <div class="video-icon">▶</div>
-                                <div class="video-text">No video uploaded for this lesson yet</div>
-                            </div>
-                        </asp:Panel>
+                    <asp:Panel ID="pnlVideo" runat="server" Visible="false">
+                        <div class="video-box">
+                            <iframe id="iframeVideo" runat="server"
+                                style="width:100%;height:100%;border:none;border-radius:12px;"
+                                allowfullscreen="allowfullscreen"></iframe>
+                        </div>
+                    </asp:Panel>
 
-                        <asp:Panel ID="pnlFiles" runat="server" Visible="false">
-                            <div class="files-section">
-                                <div class="files-title">Lesson Materials</div>
-                                <asp:Repeater ID="rptMaterials" runat="server">
-                                    <ItemTemplate>
-                                        <a href='<%# Eval("fileurl") %>' target="_blank" class="file-item">
-                                            <span class="file-icon">
-                                                <%# Eval("filetype").ToString().ToLower() == "pdf" ? "📄" : 
-                                                    Eval("filetype").ToString().ToLower() == "ppt" ? "📊" : "📁" %>
-                                            </span>
-                                            <span class="file-name"><%# Eval("filetype") %> Document</span>
-                                            <span class="file-arrow">→</span>
-                                        </a>
-                                    </ItemTemplate>
-                                </asp:Repeater>
-                            </div>
-                        </asp:Panel>
+                    <asp:Panel ID="pnlNoVideo" runat="server" Visible="true">
+                        <div class="video-box">
+                            <div class="video-icon">▶</div>
+                            <div class="video-text">No video uploaded for this lesson yet</div>
+                        </div>
+                    </asp:Panel>
 
-                        <asp:Button ID="btnComplete" runat="server"
-                            Text="Mark as Completed (+10 Points)"
-                            CssClass="btn-complete" OnClick="btnComplete_Click" />
-                        <asp:Label ID="lblMessage" runat="server" Visible="false" CssClass="alert-success" />
-                    </div>
-                </asp:Panel>
+                    <asp:Panel ID="pnlFiles" runat="server" Visible="false">
+                        <div class="files-section">
+                            <div class="files-title">Lesson Materials</div>
+                            <asp:Repeater ID="rptMaterials" runat="server">
+                                <ItemTemplate>
+                                    <a href='<%# ResolveUrl(Eval("fileurl").ToString()) %>' target="_blank" class="file-item">
+                                        <span class="file-icon">
+                                            <%# Eval("filetype").ToString().ToLower() == "pdf" ? "📄" :
+                                                Eval("filetype").ToString().ToLower() == "ppt" || Eval("filetype").ToString().ToLower() == "pptx" ? "📊" : "📁" %>
+                                        </span>
+                                        <span class="file-name"><%# System.IO.Path.GetFileName(Eval("fileurl").ToString()) %></span>
+                                        <span class="file-arrow">→</span>
+                                    </a>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </div>
+                    </asp:Panel>
 
-                <asp:Panel ID="pnlSelectLesson" runat="server" Visible="true">
-                    <div class="content-card">
-                        <div class="select-state">
-                            <div class="select-state-icon">👈</div>
-                            <h3>Select a lesson to start</h3>
-                            <p>Choose a lesson from the sidebar to begin learning.</p>
+                    <asp:Button ID="btnComplete" runat="server"
+                        Text="✓ Mark as Completed"
+                        CssClass="btn-complete" OnClick="btnComplete_Click" />
+                    <asp:Label ID="lblMessage" runat="server" Visible="false" CssClass="alert-success" />
+                </div>
+            </asp:Panel>
+
+            <%-- EXAM VIEW — shown when ?examid= is in the URL and exam not yet submitted --%>
+            <asp:Panel ID="pnlExam" runat="server" Visible="false">
+                <div class="content-card">
+                    <div class="exam-header">
+                        <asp:Label ID="lblExamTag" runat="server" />
+                        <div class="exam-title"><asp:Label ID="lblExamTitle" runat="server" /></div>
+                        <div class="exam-meta">
+                            <span>📝 <asp:Label ID="lblQuestionCount" runat="server" /> questions</span>
+                            <span>⚡ <asp:Label ID="lblExamPoints" runat="server" /> points on pass</span>
+                            <span>🎯 Pass mark: 80%</span>
                         </div>
                     </div>
-                </asp:Panel>
-            </div>
+
+                    <asp:Repeater ID="rptQuestions" runat="server">
+                        <ItemTemplate>
+                            <div class="question-card">
+                                <div class="question-number">
+                                    Question <%# Container.ItemIndex + 1 %>
+                                    <span class="question-marks"><%# Eval("marks") %> mark<%# Convert.ToInt32(Eval("marks")) != 1 ? "s" : "" %></span>
+                                </div>
+                                <div class="question-text"><%# Server.HtmlEncode(Eval("questiontext").ToString()) %></div>
+                                <asp:HiddenField ID="hfQuestionId" runat="server" Value='<%# Eval("questionid") %>' />
+                                <div class="options-list">
+                                    <%# RenderOptions(Eval("questionid"), Eval("optionA"), Eval("optionB"), Eval("optionC"), Eval("optionD")) %>
+                                </div>
+                            </div>
+                        </ItemTemplate>
+                    </asp:Repeater>
+
+                    <asp:Label ID="lblExamError" runat="server" Visible="false" CssClass="alert-error" />
+
+                    <asp:Button ID="btnSubmitExam" runat="server"
+                        Text="📤 Submit Exam"
+                        CssClass="btn-submit-exam"
+                        OnClick="btnSubmitExam_Click"
+                        OnClientClick="return confirm('Submit this exam? You cannot change your answers after submitting.');" />
+                </div>
+            </asp:Panel>
+
+            <%-- EXAM RESULT VIEW — shown after submission or if already attempted --%>
+            <asp:Panel ID="pnlExamResult" runat="server" Visible="false">
+                <div class="content-card">
+                    <asp:Panel ID="pnlResultBanner" runat="server" />
+
+                    <div class="result-details">
+                        <div class="result-stat">
+                            <div class="result-stat-value"><asp:Label ID="lblResultScore" runat="server" /></div>
+                            <div class="result-stat-label">Your Score</div>
+                        </div>
+                        <div class="result-stat">
+                            <div class="result-stat-value"><asp:Label ID="lblResultTotal" runat="server" /></div>
+                            <div class="result-stat-label">Total Marks</div>
+                        </div>
+                        <div class="result-stat">
+                            <div class="result-stat-value"><asp:Label ID="lblResultPercent" runat="server" /></div>
+                            <div class="result-stat-label">Percentage</div>
+                        </div>
+                        <div class="result-stat">
+                            <div class="result-stat-value"><asp:Label ID="lblResultPoints" runat="server" /></div>
+                            <div class="result-stat-label">Points Earned</div>
+                        </div>
+                    </div>
+
+                    <asp:Label ID="lblResultMsg" runat="server" CssClass="alert-success" Visible="false" />
+                </div>
+            </asp:Panel>
+
+            <%-- DEFAULT STATE --%>
+            <asp:Panel ID="pnlSelectLesson" runat="server" Visible="true">
+                <div class="content-card">
+                    <div class="select-state">
+                        <div class="select-state-icon">👈</div>
+                        <h3>Select a lesson to start</h3>
+                        <p>Choose a lesson from the sidebar to begin learning, or take an exam when ready.</p>
+                    </div>
+                </div>
+            </asp:Panel>
+
         </div>
-    </form>
+    </div>
+</form>
 </body>
 </html>
