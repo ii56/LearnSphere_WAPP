@@ -70,6 +70,11 @@ namespace LearnSphere_WAPP.Admin
             }
 
             lblMessage.Text = "✅ User added successfully!";
+            txtUname.Text = "";
+            txtEmail.Text = "";
+            txtFname.Text = "";
+            txtLname.Text = "";
+            txtAge.Text = "";
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
