@@ -660,13 +660,15 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Fills the lesson form with the existing lesson's data including points
+        // Fills the lesson form with the existing lesson's data including points and video URL
         private void LoadLessonForEdit(int lessonId)
         {
             lblLsnModeTitle.Text = "Edit Lesson";
             btnSaveLesson.Text = "Update Lesson";
             using (SqlConnection con = new SqlConnection(connStr))
             {
+                con.Open();
+
                 SqlCommand cmd = new SqlCommand(@"
                     SELECT l.lessontitle,
                            ISNULL(l.lessondescription, l.description) AS lessonDesc,
@@ -676,7 +678,6 @@ namespace LearnSphere_WAPP.Lecturer
                     INNER JOIN Module m ON l.moduleid = m.moduleid
                     WHERE l.lessonid=@id AND l.deletiontime IS NULL", con);
                 cmd.Parameters.Add("@id", SqlDbType.Int).Value = lessonId;
-                con.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
@@ -688,6 +689,14 @@ namespace LearnSphere_WAPP.Lecturer
                     lblLsnModuleName.Text = "Module: " + Server.HtmlEncode(reader["modulename"].ToString());
                     LessonModuleId = Convert.ToInt32(reader["moduleid"]);
                 }
+                reader.Close();
+
+                // Load existing video URL from Material so the field pre-fills on edit
+                SqlCommand vCmd = new SqlCommand(
+                    "SELECT TOP 1 videourl FROM Material WHERE lessonid=@id AND videourl IS NOT NULL", con);
+                vCmd.Parameters.Add("@id", SqlDbType.Int).Value = lessonId;
+                object videoResult = vCmd.ExecuteScalar();
+                txtLsnVideoUrl.Text = videoResult != null ? videoResult.ToString() : "";
             }
         }
 
@@ -728,7 +737,7 @@ namespace LearnSphere_WAPP.Lecturer
 
                 title = Server.HtmlEncode(title);
                 desc = Server.HtmlEncode(desc);
-                videoUrl = Server.HtmlEncode(videoUrl);
+                // Do NOT HtmlEncode the URL — encoding breaks characters like ? = & in the query string
 
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
@@ -800,8 +809,47 @@ namespace LearnSphere_WAPP.Lecturer
                         string folder = Server.MapPath("~/Uploads/LessonMaterials/");
                         if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
                         string fileName = Guid.NewGuid().ToString() + ext;
-                        fuLsnFile.SaveAs(Path.Combine(folder, fileName));
+                        string savePath = Path.Combine(folder, fileName);
+                        fuLsnFile.SaveAs(savePath);
+
+                        // Record the file in Material so LessonViewer can find it
+                        string relativeUrl = "~/Uploads/LessonMaterials/" + fileName;
+                        SqlCommand matCmd = new SqlCommand(@"
+                            INSERT INTO Material (lessonid, filetype, fileurl, uploadtime)
+                            VALUES (@lid, @ftype, @furl, GETDATE())", con);
+                        matCmd.Parameters.Add("@lid", SqlDbType.Int).Value = currentLessonId;
+                        matCmd.Parameters.Add("@ftype", SqlDbType.NVarChar, 20).Value = ext.TrimStart('.');
+                        matCmd.Parameters.Add("@furl", SqlDbType.NVarChar).Value = relativeUrl;
+                        matCmd.ExecuteNonQuery();
                         LearnSphere_WAPP.Syslog.action(CurrentUserId, "Uploaded file for Lesson (LessonID: " + currentLessonId + ")");
+                    }
+
+                    // Save or update the video URL in Material
+                    // One video per lesson — update existing row if one exists, otherwise insert
+                    if (!string.IsNullOrWhiteSpace(videoUrl))
+                    {
+                        SqlCommand checkVid = new SqlCommand(
+                            "SELECT COUNT(*) FROM Material WHERE lessonid=@lid AND videourl IS NOT NULL", con);
+                        checkVid.Parameters.Add("@lid", SqlDbType.Int).Value = currentLessonId;
+                        int existingVideo = (int)checkVid.ExecuteScalar();
+
+                        if (existingVideo > 0)
+                        {
+                            SqlCommand updVid = new SqlCommand(
+                                "UPDATE Material SET videourl=@vurl WHERE lessonid=@lid AND videourl IS NOT NULL", con);
+                            updVid.Parameters.Add("@vurl", SqlDbType.NVarChar).Value = videoUrl;
+                            updVid.Parameters.Add("@lid", SqlDbType.Int).Value = currentLessonId;
+                            updVid.ExecuteNonQuery();
+                        }
+                        else
+                        {
+                            SqlCommand insVid = new SqlCommand(@"
+                                INSERT INTO Material (lessonid, filetype, videourl, uploadtime)
+                                VALUES (@lid, 'video', @vurl, GETDATE())", con);
+                            insVid.Parameters.Add("@lid", SqlDbType.Int).Value = currentLessonId;
+                            insVid.Parameters.Add("@vurl", SqlDbType.NVarChar).Value = videoUrl;
+                            insVid.ExecuteNonQuery();
+                        }
                     }
 
                     SetCourseToDraft(EditCourseId);
