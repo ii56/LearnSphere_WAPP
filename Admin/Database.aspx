@@ -195,8 +195,6 @@
                             <asp:BoundField DataField="lessonid" HeaderText="Lesson ID" />
                             <asp:BoundField DataField="clickcount" HeaderText="Click Count" />
                             <asp:BoundField DataField="filetype" HeaderText="File Type" />
-                            <asp:BoundField DataField="fileurl" HeaderText="File URL" />
-                            <asp:BoundField DataField="videourl" HeaderText="Video URL" />
                             <asp:BoundField DataField="uploadtime" HeaderText="Upload Time" DataFormatString="{0:yyyy-MM-dd HH:mm}" />
                             <asp:TemplateField HeaderText="Action">
                                 <ItemTemplate>
@@ -299,8 +297,6 @@
                     Module ID: <asp:TextBox ID="txtLModuleId" runat="server" /><br />
                     Lesson Title: <asp:TextBox ID="txtLTitle" runat="server" /><br />
                     Description: <asp:TextBox ID="txtLDescription" runat="server" /><br />
-                    Video URL: <asp:TextBox ID="txtLVideoUrl" runat="server" /><br />
-                    File URL: <asp:TextBox ID="txtLFileUrl" runat="server" /><br />
                     Creation Time: <asp:TextBox ID="txtLCreationTime" runat="server" /><br />
                     Order Number: <asp:TextBox ID="txtLOrderNumber" runat="server" /><br />
                     Deletion Time: <asp:TextBox ID="txtLDeletionTime" runat="server" /><br />

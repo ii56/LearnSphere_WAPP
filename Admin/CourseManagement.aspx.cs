@@ -128,7 +128,7 @@ namespace LearnSphere_WAPP.Admin
 
                 if (dt.Rows.Count == 0)
                 {
-                    lblResult.Text = "No user found";
+                    lblResult.Text = "No course found";
                 }
                 else
                 {

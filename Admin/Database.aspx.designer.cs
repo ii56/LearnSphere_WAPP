@@ -663,24 +663,6 @@ namespace LearnSphere_WAPP.Admin
         protected global::System.Web.UI.WebControls.TextBox txtLDescription;
 
         /// <summary>
-        /// txtLVideoUrl control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtLVideoUrl;
-
-        /// <summary>
-        /// txtLFileUrl control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtLFileUrl;
-
-        /// <summary>
         /// txtLCreationTime control.
         /// </summary>
         /// <remarks>

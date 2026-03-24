@@ -168,12 +168,12 @@ namespace LearnSphere_WAPP.Admin
                         gvModule.DataBind();
                         break;
                     case "Lesson":
-                        query = "SELECT lessonid, moduleid, lessontitle, description, videourl, fileurl, creationtime, ordernumber, deletiontime FROM Lesson";
+                        query = "SELECT lessonid, moduleid, lessontitle, description, creationtime, ordernumber, deletiontime FROM Lesson";
                         gvLesson.DataSource = new SqlDataAdapter(query, con).FillDataTable();
                         gvLesson.DataBind();
                         break;
                     case "Material":
-                        query = "SELECT materialid, lessonid, clickcount, filetype, fileurl, videourl, uploadtime FROM Material";
+                        query = "SELECT materialid, lessonid, clickcount, filetype, uploadtime FROM Material";
                         gvMaterial.DataSource = new SqlDataAdapter(query, con).FillDataTable();
                         gvMaterial.DataBind();
                         break;
@@ -195,17 +195,15 @@ namespace LearnSphere_WAPP.Admin
             pnlDetail.Style["display"] = "flex";
         }
 
-        protected void gvVerification_RowCommand(object sender, System.Web.UI.WebControls.GridViewCommandEventArgs e)
+        protected void gvVerification_RowCommand(object sender, GridViewCommandEventArgs e)
         {
             if (e.CommandName == "ViewVerification")
             {
                 int requestId = Convert.ToInt32(e.CommandArgument);
 
-                pnlDetail.Style["display"] = "flex";
-                pnlUserDetail.Visible = false;
-                pnlVerificationDetail.Visible = true;
-
                 hfRequestId.Value = requestId.ToString();
+
+                ShowPanel(pnlVerificationDetail);
 
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
@@ -233,11 +231,9 @@ namespace LearnSphere_WAPP.Admin
             {
                 int userId = Convert.ToInt32(e.CommandArgument);
 
-                pnlDetail.Style["display"] = "flex";
-                pnlUserDetail.Visible = true;
-                pnlVerificationDetail.Visible = false;
-
                 hfUserId.Value = userId.ToString();
+
+                ShowPanel(pnlUserDetail);
 
                 using (SqlConnection con = new SqlConnection(connStr))
                 {
@@ -360,8 +356,6 @@ namespace LearnSphere_WAPP.Admin
                         txtLModuleId.Text = dr["moduleid"].ToString();
                         txtLTitle.Text = dr["lessontitle"].ToString();
                         txtLDescription.Text = dr["description"].ToString();
-                        txtLVideoUrl.Text = dr["videourl"].ToString();
-                        txtLFileUrl.Text = dr["fileurl"].ToString();
                         txtLCreationTime.Text = dr["creationtime"].ToString();
                         txtLOrderNumber.Text = dr["ordernumber"].ToString();
                         txtLDeletionTime.Text = dr["deletiontime"].ToString();
@@ -523,13 +517,24 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnDeleteInvoice_Click(object sender, EventArgs e)
         {
+            int rowsAffected = 0;
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 SqlCommand cmd = new SqlCommand("DELETE FROM Invoice WHERE invid=@id", con);
                 cmd.Parameters.AddWithValue("@id", hfInvoiceId.Value);
-                con.Open(); cmd.ExecuteNonQuery();
+                con.Open();
+                rowsAffected = cmd.ExecuteNonQuery();
             }
             pnlDetail.Style["display"] = "none"; BindData();
+
+            if (rowsAffected > 0)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Deleted Successfully');", true);
+            }
+            else
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Failed to Deleted or Already Deleted');", true);
+            }
         }
 
         // -------- Receipt --------
@@ -552,13 +557,24 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnDeleteReceipt_Click(object sender, EventArgs e)
         {
+            int rowsAffected = 0;
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 SqlCommand cmd = new SqlCommand("DELETE FROM Receipt WHERE recid=@id", con);
                 cmd.Parameters.AddWithValue("@id", hfReceiptId.Value);
-                con.Open(); cmd.ExecuteNonQuery();
+                con.Open();
+                rowsAffected = cmd.ExecuteNonQuery();
             }
             pnlDetail.Style["display"] = "none"; BindData();
+
+            if (rowsAffected > 0)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Deleted Successfully');", true);
+            }
+            else
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Failed to Deleted or Already Deleted');", true);
+            }
         }
 
         // -------- Module --------
@@ -583,13 +599,24 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnDeleteModule_Click(object sender, EventArgs e)
         {
+            int rowsAffected = 0;
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 SqlCommand cmd = new SqlCommand("DELETE FROM Module WHERE moduleid=@id", con);
                 cmd.Parameters.AddWithValue("@id", hfModuleId.Value);
-                con.Open(); cmd.ExecuteNonQuery();
+                con.Open(); 
+                rowsAffected = cmd.ExecuteNonQuery();
             }
             pnlDetail.Style["display"] = "none"; BindData();
+
+            if (rowsAffected > 0)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Deleted Successfully');", true);
+            }
+            else
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Failed to Deleted or Already Deleted');", true);
+            }
         }
 
         // -------- Lesson --------
@@ -598,15 +625,13 @@ namespace LearnSphere_WAPP.Admin
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 string query = @"UPDATE Lesson 
-                         SET moduleid=@mid, lessontitle=@title, description=@desc, videourl=@vid, fileurl=@file, creationtime=@ct, ordernumber=@ord, deletiontime=@del 
+                         SET moduleid=@mid, lessontitle=@title, description=@desc, creationtime=@ct, ordernumber=@ord, deletiontime=@del 
                          WHERE lessonid=@id";
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@id", hfLessonId.Value);
                 cmd.Parameters.AddWithValue("@mid", txtLModuleId.Text);
                 cmd.Parameters.AddWithValue("@title", txtLTitle.Text);
                 cmd.Parameters.AddWithValue("@desc", txtLDescription.Text);
-                cmd.Parameters.AddWithValue("@vid", txtLVideoUrl.Text);
-                cmd.Parameters.AddWithValue("@file", txtLFileUrl.Text);
                 cmd.Parameters.AddWithValue("@ct", txtLCreationTime.Text);
                 cmd.Parameters.AddWithValue("@ord", txtLOrderNumber.Text);
                 cmd.Parameters.AddWithValue("@del", txtLDeletionTime.Text);
@@ -617,13 +642,24 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnDeleteLesson_Click(object sender, EventArgs e)
         {
+            int rowsAffected = 0;
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 SqlCommand cmd = new SqlCommand("DELETE FROM Lesson WHERE lessonid=@id", con);
                 cmd.Parameters.AddWithValue("@id", hfLessonId.Value);
-                con.Open(); cmd.ExecuteNonQuery();
+                con.Open(); 
+                rowsAffected = cmd.ExecuteNonQuery();
             }
             pnlDetail.Style["display"] = "none"; BindData();
+
+            if (rowsAffected > 0)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Deleted Successfully');", true);
+            }
+            else
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Failed to Deleted or Already Deleted');", true);
+            }
         }
 
         // -------- Material --------
@@ -649,13 +685,23 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnDeleteMaterial_Click(object sender, EventArgs e)
         {
+            int rowsAffected = 0;
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 SqlCommand cmd = new SqlCommand("DELETE FROM Material WHERE materialid=@id", con);
                 cmd.Parameters.AddWithValue("@id", hfMaterialId.Value);
-                con.Open(); cmd.ExecuteNonQuery();
+                con.Open(); 
+                rowsAffected = cmd.ExecuteNonQuery();
             }
             pnlDetail.Style["display"] = "none"; BindData();
+            if (rowsAffected > 0)
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Deleted Successfully');", true);
+            }
+            else
+            {
+                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Failed to Deleted or Already Deleted');", true);
+            }
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
