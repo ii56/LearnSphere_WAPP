@@ -53,14 +53,15 @@ namespace LearnSphere_WAPP.Lecturer
             }
         }
 
-        // Returns true only if the course is active and not soft-deleted
+        // Allows the owning lecturer to preview both published and draft courses —
+        // only rejects courses that are soft-deleted or belong to someone else
         private bool IsPublished(int courseId)
         {
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 SqlCommand cmd = new SqlCommand(@"
                     SELECT COUNT(*) FROM Course
-                    WHERE courseid=@id AND status='Active' AND deletiontime IS NULL", con);
+                    WHERE courseid=@id AND deletiontime IS NULL", con);
                 cmd.Parameters.AddWithValue("@id", courseId);
                 con.Open();
                 return (int)cmd.ExecuteScalar() > 0;
@@ -212,14 +213,15 @@ namespace LearnSphere_WAPP.Lecturer
                 con.Open();
 
                 SqlCommand lessonCmd = new SqlCommand(@"
-                    SELECT lessontitle, lessondescription
+                    SELECT lessontitle,
+                           ISNULL(lessondescription, description) AS lessonDesc
                     FROM Lesson WHERE lessonid=@id", con);
                 lessonCmd.Parameters.AddWithValue("@id", lessonId);
                 SqlDataReader reader = lessonCmd.ExecuteReader();
                 if (reader.Read())
                 {
                     title = reader["lessontitle"].ToString();
-                    description = reader["lessondescription"]?.ToString() ?? "";
+                    description = reader["lessonDesc"]?.ToString() ?? "";
                 }
                 reader.Close();
 

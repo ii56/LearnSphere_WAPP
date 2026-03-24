@@ -25,7 +25,7 @@ namespace LearnSphere_WAPP.Admin
 
             if (!IsPostBack)
             {
-
+                cbAdmin.Visible = Session["usertype"]?.ToString() == "SuperAdmin";
             }
         }
 
@@ -45,7 +45,11 @@ namespace LearnSphere_WAPP.Admin
             string query = @"INSERT INTO [User]
     (uname, email, pwd, fname, lname, age, gender, creationtime, usertype, status)
     VALUES
-    (@uname, @email, @pwd, @fname, @lname, @age, @gender, GETDATE(), 'General', 'Active')";
+    (@uname, @email, @pwd, @fname, @lname, @age, @gender, GETDATE(), @usertype, 'Active')";
+
+            string newusertype = "General";
+            if (cbAdmin.Checked)
+                newusertype = "Admin";
 
             using (SqlConnection con = new SqlConnection(connStr))
             {
@@ -58,6 +62,7 @@ namespace LearnSphere_WAPP.Admin
                 cmd.Parameters.AddWithValue("@lname", lname);
                 cmd.Parameters.AddWithValue("@age", age);
                 cmd.Parameters.AddWithValue("@gender", gender);
+                cmd.Parameters.AddWithValue("@usertype", newusertype);
 
                 con.Open();
                 cmd.ExecuteNonQuery();

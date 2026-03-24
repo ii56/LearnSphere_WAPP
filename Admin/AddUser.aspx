@@ -40,7 +40,7 @@
                     Messaging
                     <% if (Session["unreadCount"] != null && (int)Session["unreadCount"] > 0) { %>
                         <span class="nav-badge"><%= Session["unreadCount"] %></span>
-                    <% } %>
+                <% } %>
                 </a>
                 <a href="../Chatbot/AdminChatbotKnowledge.aspx" >Chatbot</a>
             </div>
@@ -134,6 +134,10 @@
                                 ValidationGroup="profileGroup"
                                 CssClass="validation-error" />
                             <asp:CompareValidator ID="CompareValidator1" runat="server" ControlToCompare="txtPwd" ValidationGroup="profileGroup" ControlToValidate="txtVer" ErrorMessage="Password not match." CssClass="validation-error"></asp:CompareValidator>
+                        </div>
+
+                        <div class="form-group full checkbox">
+                            <asp:CheckBox ID="cbAdmin" runat="server" Text="Admin" Visible="false" />
                         </div>
 
                         <div class="btn-row">

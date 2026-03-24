@@ -57,14 +57,14 @@ namespace LearnSphere_WAPP.Admin
                 con.Open();
                 string query;
 
-                if (Session["usertype"].ToString() == "Admin")
+                if (Session["usertype"].ToString() == "SuperAdmin")
+                    query = "SELECT u.userid, u.uname, u.email, u.fname, u.lname, u.age, u.gender, u.creationtime, u.usertype, u.status, " +
+                            "CASE WHEN EXISTS (SELECT 1 FROM VerificationRequest v WHERE v.userid = u.userid AND v.status = 'Pending') THEN 1 ELSE 0 END AS HasPending " +
+                            "FROM [User] u WHERE NOT u.usertype='SuperAdmin' AND NOT u.status='Deleted'";
+                else
                     query = "SELECT u.userid, u.uname, u.email, u.fname, u.lname, u.age, u.gender, u.creationtime, u.usertype, u.status, " +
                             "CASE WHEN EXISTS (SELECT 1 FROM VerificationRequest v WHERE v.userid = u.userid AND v.status = 'Pending') THEN 1 ELSE 0 END AS HasPending " +
                             "FROM [User] u WHERE NOT u.usertype='Admin' AND NOT u.usertype='SuperAdmin' AND NOT u.status='Deleted'";
-                else
-                    query = "SELECT u.userid, u.uname, u.email, u.fname, u.lname, u.age, u.gender, u.creationtime, u.usertype, u.status " +
-                            "CASE WHEN EXISTS (SELECT 1 FROM VerificationRequest v WHERE v.userid = u.userid AND v.status = 'Pending') THEN 1 ELSE 0 END AS HasPending " +
-                            "FROM [User] u WHERE NOT u.usertype='SuperAdmin' AND NOT u.status='Deleted'";
 
                 if (!string.IsNullOrEmpty(txtSearch.Text))
                 {

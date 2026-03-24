@@ -147,6 +147,33 @@
             overflow:hidden; margin-bottom:20px;
             animation:slideUp 0.5s ease both;
         }
+        /* Wide tables (e.g. students list) get horizontal scroll instead of truncating */
+        .section-wide {
+            background:var(--surface); border:1px solid var(--border);
+            border-radius:var(--radius); box-shadow:var(--shadow-sm);
+            margin-bottom:20px; animation:slideUp 0.5s ease both;
+        }
+        .section-wide .section-header {
+            padding:16px 24px; border-bottom:1px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .section-wide .table-scroll {
+            overflow-x:auto; width:100%;
+        }
+        .section-wide table { width:100%; border-collapse:collapse; min-width:900px; }
+        .section-wide table th {
+            background:var(--border-light); padding:10px 14px; text-align:left;
+            font-size:0.68rem; font-weight:700; letter-spacing:0.8px; text-transform:uppercase;
+            color:var(--text-muted); border-bottom:1px solid var(--border);
+            white-space:nowrap;
+        }
+        .section-wide table td {
+            padding:11px 14px; font-size:0.82rem; color:var(--text);
+            border-bottom:1px solid var(--border-light); vertical-align:middle;
+            white-space:nowrap;
+        }
+        .section-wide table tr:last-child td { border-bottom:none; }
+        .section-wide table tr:hover td { background:var(--surface-hover); }
         .section-header {
             padding:16px 24px; border-bottom:1px solid var(--border);
             display:flex; align-items:center; justify-content:space-between;
@@ -182,6 +209,7 @@
         .badge-published { background:rgba(16,185,129,0.1); color:#059669; border:1px solid rgba(16,185,129,0.25); }
         .badge-draft     { background:rgba(245,158,11,0.1); color:var(--accent-orange); border:1px solid rgba(245,158,11,0.25); }
         .badge-deleted   { background:rgba(239,68,68,0.08); color:var(--accent-red); border:1px solid rgba(239,68,68,0.2); }
+        .badge-free      { background:rgba(37,99,235,0.08); color:var(--primary); border:1px solid rgba(37,99,235,0.2); }
 
         /* ═══ BUTTONS ═══ */
         .btn-primary {
@@ -407,7 +435,9 @@
 
     <div class="container">
 
-        <!-- view course panel -->
+        <!-- ═══════════════════════════════════════
+             PANEL 1 — VIEW COURSES
+             ═══════════════════════════════════════ -->
         <asp:Panel ID="pnlViewCourses" runat="server">
             <div class="page-banner banner-courses">
                 <div class="banner-label">Lecturer Portal</div>
@@ -481,7 +511,9 @@
             <asp:Label ID="lblCoursesMsg" runat="server" CssClass="alert" Visible="false" />
         </asp:Panel>
 
-        <!-- edit course panel -->
+        <!-- ═══════════════════════════════════════
+             PANEL 2 — EDIT COURSE (modules + lessons)
+             ═══════════════════════════════════════ -->
         <asp:Panel ID="pnlEditCourse" runat="server" Visible="false">
             <div class="page-banner banner-edit">
                 <div class="banner-label">Course Editor</div>
@@ -570,7 +602,9 @@
             </asp:Repeater>
         </asp:Panel>
 
-        <!-- edit module panel -->
+        <!-- ═══════════════════════════════════════
+             PANEL 3 — EDIT MODULE (add / edit)
+             ═══════════════════════════════════════ -->
         <asp:Panel ID="pnlEditModule" runat="server" Visible="false">
             <div class="page-banner banner-module">
                 <div class="banner-label">Course Editor</div>
@@ -625,7 +659,9 @@
             </div>
         </asp:Panel>
 
-        <!-- edit lesson panel -->
+        <!-- ═══════════════════════════════════════
+             PANEL 4 — EDIT LESSON (add / edit) with lessonpoints
+             ═══════════════════════════════════════ -->
         <asp:Panel ID="pnlEditLesson" runat="server" Visible="false">
             <div class="page-banner banner-lesson">
                 <div class="banner-label">Course Editor</div>
@@ -711,7 +747,9 @@
             </div>
         </asp:Panel>
 
-        <!-- view students panel -->
+        <!-- ═══════════════════════════════════════
+             PANEL 5 — VIEW STUDENTS
+             ═══════════════════════════════════════ -->
         <asp:Panel ID="pnlViewStudents" runat="server" Visible="false">
             <div class="page-banner banner-students">
                 <div class="banner-label">Course Management</div>
@@ -727,10 +765,11 @@
                     CssClass="btn-success" OnClick="btnExport_Click" CausesValidation="false" />
             </div>
 
-            <div class="section">
+            <div class="section-wide">
                 <div class="section-header">
                     <div class="section-title"><span class="title-dot dot-cyan"></span> Student List</div>
                 </div>
+                <div class="table-scroll">
                 <asp:GridView ID="gvStudents" runat="server"
                     AutoGenerateColumns="False" Width="100%"
                     BorderStyle="None" GridLines="None"
@@ -747,6 +786,21 @@
                         <asp:BoundField DataField="gender"     HeaderText="Gender" />
                         <asp:BoundField DataField="EnrolledOn" HeaderText="Enrolled On"
                             DataFormatString="{0:dd MMM yyyy}" />
+                        <asp:TemplateField HeaderText="Payment">
+                            <ItemTemplate>
+                                <span class='badge <%# Eval("PaymentStatus").ToString() == "Paid" ? "badge-published" : (Eval("PaymentStatus").ToString() == "Free" ? "badge-free" : "badge-draft") %>'>
+                                    <%# Eval("PaymentStatus") %>
+                                </span>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:BoundField DataField="AmountPaid"     HeaderText="Amount (RM)"
+                            DataFormatString="{0:N2}" />
+                        <asp:BoundField DataField="Overdue"         HeaderText="Overdue (RM)"
+                            DataFormatString="{0:N2}" />
+                        <asp:BoundField DataField="InvoiceDate"     HeaderText="Invoice Date"
+                            DataFormatString="{0:dd MMM yyyy}" NullDisplayText="—" />
+                        <asp:BoundField DataField="PaymentDeadline" HeaderText="Deadline"
+                            DataFormatString="{0:dd MMM yyyy}" NullDisplayText="—" />
                         <asp:TemplateField HeaderText="Actions">
                             <ItemTemplate>
                                 <div class="btn-actions">
@@ -757,17 +811,23 @@
                                     <asp:LinkButton ID="btnViewReceipt" runat="server" Text="Receipt"
                                         CssClass="btn-secondary btn-sm" CommandName="ViewReceipt"
                                         CommandArgument="<%# Container.DataItemIndex %>" />
+                                    <asp:LinkButton ID="btnViewExamResults" runat="server" Text="📝 Exam Results"
+                                        CssClass="btn-secondary btn-sm" CommandName="ViewExamResults"
+                                        CommandArgument="<%# Container.DataItemIndex %>" />
                                 </div>
                             </ItemTemplate>
                         </asp:TemplateField>
                     </Columns>
                 </asp:GridView>
+                </div>
             </div>
 
             <asp:Label ID="lblStudentsMsg" runat="server" CssClass="alert" Visible="false" />
         </asp:Panel>
 
-        <!-- Review and publish panel -->
+        <!-- ═══════════════════════════════════════
+             PANEL 6 — REVIEW & PUBLISH
+             ═══════════════════════════════════════ -->
         <asp:Panel ID="pnlReviewPublish" runat="server" Visible="false">
             <div class="page-banner banner-review">
                 <div class="banner-label">Course Editor</div>
@@ -823,7 +883,7 @@
                     </ItemTemplate>
                 </asp:Repeater>
 
-                <!-- Course Exam-->
+                <!-- Course Exam (preserved from editPublish) -->
                 <asp:Panel ID="pnlCourseExam" runat="server" Visible="false">
                     <div class="form-card-title" style="margin-top:20px;">
                         <span class="title-dot dot-red"></span> Course Exam
