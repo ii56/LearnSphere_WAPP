@@ -76,10 +76,10 @@ namespace LearnSphere_WAPP.GeneralUser
         private void LoadCourseStructure()
         {
             int userId = Convert.ToInt32(Session["userid"]);
-            int courseId = 0;
+            int courseId=0;
 
             if (Request.QueryString["courseid"] != null)
-                courseId = Convert.ToInt32(Request.QueryString["courseid"]);
+                courseId = Convert.ToInt32(Session["courseid"]);
 
             using (SqlConnection con = new SqlConnection(connStr))
             {

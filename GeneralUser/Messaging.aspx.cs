@@ -140,53 +140,57 @@ namespace LearnSphere_WAPP.GeneralUser
                 {
                     con.Open();
 
-                    // Load Lecturer info for the Chat Header
+                    // FIXED: simpler validation
                     using (SqlCommand cmd = new SqlCommand(@"
-                        SELECT TOP 1 u.fname, u.lname, u.ProfileImage, c.coursename 
-                        FROM [User] u 
-                        INNER JOIN Course c ON c.ownerid = u.userid 
-                        INNER JOIN Enrollment e ON e.courseid = c.courseid 
-                        WHERE u.userid = @lid AND e.userid = @uid AND e.isactive = 1", con))
+                SELECT fname, lname, ProfileImage 
+                FROM [User]
+                WHERE userid = @lid", con))
                     {
                         cmd.Parameters.AddWithValue("@lid", lecturerId);
-                        cmd.Parameters.AddWithValue("@uid", userId);
+
                         using (SqlDataReader r = cmd.ExecuteReader())
                         {
                             if (r.Read())
                             {
-                                lblChatName.Text = r["fname"].ToString() + " " + r["lname"].ToString();
-                                lblChatCourse.Text = r["coursename"].ToString();
+                                lblChatName.Text = r["fname"] + " " + r["lname"];
                                 imgChatAvatar.ImageUrl = GetProfileImage(r["ProfileImage"]);
+                                lblChatCourse.Text = "";
                             }
                             else
                             {
-                                // Edge case: User manipulated URL with a lecturer they aren't enrolled with
                                 Response.Redirect("Messaging.aspx");
                                 return;
                             }
                         }
                     }
 
-                    // Find or create conversation thread between these two users
                     int convId = GetOrCreateConversation(con, userId, lecturerId);
 
-                    // Load all messages
                     string msgQuery = @"
-                        SELECT messageid, senderid, content, creationtime
-                        FROM ChatMessage
-                        WHERE conversationid = @cid
-                        ORDER BY creationtime ASC";
+                SELECT 
+                    m.messageid,
+                    m.SenderID,
+                    m.content,
+                    m.creationtime,
+                    u.ProfileImage,
+                    CASE WHEN m.SenderID = @uid THEN 1 ELSE 0 END AS IsMine
+                FROM ChatMessage m
+                INNER JOIN [User] u ON m.SenderID = u.userid
+                WHERE m.conversationid = @cid
+                ORDER BY m.creationtime ASC";
 
                     using (SqlDataAdapter da = new SqlDataAdapter(msgQuery, con))
                     {
                         da.SelectCommand.Parameters.AddWithValue("@cid", convId);
+                        da.SelectCommand.Parameters.AddWithValue("@uid", userId);
+
                         DataTable dt = new DataTable();
                         da.Fill(dt);
+
                         rptMessages.DataSource = dt;
                         rptMessages.DataBind();
                     }
 
-                    // Save IDs to ViewState for the Send button
                     ViewState["convId"] = convId;
                     ViewState["lecturerId"] = lecturerId;
                 }
@@ -194,9 +198,9 @@ namespace LearnSphere_WAPP.GeneralUser
                 pnlChatPlaceholder.Visible = false;
                 pnlChat.Visible = true;
             }
-            catch
+            catch (Exception ex)
             {
-                lblError.Text = "Could not load chat.";
+                lblError.Text = "Error: " + ex.Message;
                 lblError.Visible = true;
             }
         }
@@ -219,8 +223,8 @@ namespace LearnSphere_WAPP.GeneralUser
 
             // Create new conversation
             using (SqlCommand ins = new SqlCommand(@"
-                INSERT INTO ChatConversation (userid, SecondUserID, ConversationType, creationtime, status) 
-                VALUES (@uid, @lid, 'User', GETDATE(), 1); 
+                INSERT INTO ChatConversation (userid, SecondUserID, ConversationType, creationtime) 
+                VALUES (@uid, @lid, 'User', GETDATE()); 
                 SELECT SCOPE_IDENTITY();", con))
             {
                 ins.Parameters.AddWithValue("@uid", userId);

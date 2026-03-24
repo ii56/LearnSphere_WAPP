@@ -162,6 +162,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Default.aspx" />
     <Content Include="favicon.ico" />
+    <Content Include="GeneralUser\AttemptExam.aspx" />
     <Content Include="GeneralUser\BrowseCourses.aspx" />
     <Content Include="GeneralUser\CourseDetails.aspx" />
     <Content Include="GeneralUser\EditProfile.aspx" />
@@ -382,6 +383,13 @@
     </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GeneralUser\AttemptExam.aspx.cs">
+      <DependentUpon>AttemptExam.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GeneralUser\AttemptExam.aspx.designer.cs">
+      <DependentUpon>AttemptExam.aspx</DependentUpon>
     </Compile>
     <Compile Include="GeneralUser\BrowseCourses.aspx.cs">
       <DependentUpon>BrowseCourses.aspx</DependentUpon>
