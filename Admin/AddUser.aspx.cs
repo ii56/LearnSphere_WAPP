@@ -20,7 +20,7 @@ namespace LearnSphere_WAPP.Admin
         {
             if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
             {
-                Response.Redirect("../Login.aspx");
+                Response.Redirect("~/Login.aspx");
             }
 
             if (!IsPostBack)
@@ -70,6 +70,11 @@ namespace LearnSphere_WAPP.Admin
             }
 
             lblMessage.Text = "✅ User added successfully!";
+            txtUname.Text = "";
+            txtEmail.Text = "";
+            txtFname.Text = "";
+            txtLname.Text = "";
+            txtAge.Text = "";
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
@@ -77,7 +82,7 @@ namespace LearnSphere_WAPP.Admin
             LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Session.Abandon();
             Request.Cookies.Clear();
-            Response.Redirect("../Login.aspx");
+            Response.Redirect("~/Login.aspx");
         }
 
         protected void cvUsername_ServerValidate(object source, ServerValidateEventArgs args)

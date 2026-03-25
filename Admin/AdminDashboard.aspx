@@ -91,10 +91,6 @@
                         <h3 class="stat-label">Students Validation</h3>
                         <asp:Label ID="studentsVal" runat="server" CssClass="stat-value" />
                     </div>
-                    <div class="stat-card">
-                        <h3 class="stat-label">Courses Validation</h3>
-                        <asp:Label ID="coursesVal" runat="server" CssClass="stat-value" />
-                    </div>
                 </div>
 
                 <div class="section section-actions">

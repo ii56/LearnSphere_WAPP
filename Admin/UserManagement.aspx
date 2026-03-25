@@ -74,7 +74,8 @@
                     
                 </div>
                 <div class="section">
-                    <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" Width="100%" AllowPaging="True" PageSize="8" OnRowCommand="GridView1_RowCommand" OnPageIndexChanging="GridView1_PageIndexChanging1" >
+                    <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" Width="100%" AllowPaging="True" PageSize="8" 
+                        OnRowCommand="GridView1_RowCommand" OnPageIndexChanging="GridView1_PageIndexChanging1" >
                         <Columns>
                             <asp:BoundField DataField="userid" HeaderText="User ID" ItemStyle-Width="5%"/>
                             <asp:BoundField DataField="uname" HeaderText="Username" ItemStyle-Width="14%"/>
@@ -88,7 +89,8 @@
                                 <ItemTemplate>
 
                                     <asp:Button ID="btnEdit" runat="server" Text="Edit" CssClass="btn-primary btn-sm" CommandName="EditUser" CommandArgument='<%# Eval("userid") %>' />
-                                    <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-danger btn-sm" CommandName="DeleteUser" CommandArgument='<%# Eval("userid") %>' OnClientClick="return confirm('Delete this user account?');" />
+                                    <asp:Button ID="btnDelete" runat="server" Text="Delete" CssClass="btn-danger btn-sm" CommandName="DeleteUser" CommandArgument='<%# Eval("userid") %>' 
+                                        OnClientClick="return confirm('Delete this user account?');" />
                                     <asp:Button ID="btnVerify" runat="server" Text="Verify" CssClass="btn-secondary btn-sm" 
                                         CommandName="VerifyUser" CommandArgument='<%# Eval("userid") %>' 
                                         Visible='<%# Convert.ToInt32(Eval("HasPending")) == 1 %>' />

@@ -18,7 +18,7 @@ namespace LearnSphere_WAPP.Admin
         {
             if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
             {
-                Response.Redirect("../Login.aspx");
+                Response.Redirect("~/Login.aspx");
             }
 
             if (!IsPostBack)
@@ -76,7 +76,6 @@ namespace LearnSphere_WAPP.Admin
                     query += " AND EXISTS (SELECT 1 FROM VerificationRequest v WHERE v.userid=u.userid AND v.status='Pending')";
                 }
 
-                // 排序
                 switch (Sortby.Text)
                 {
                     case "User ID": query += " ORDER BY u.userid"; break;
@@ -175,7 +174,7 @@ namespace LearnSphere_WAPP.Admin
             LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Session.Abandon();
             Request.Cookies.Clear();
-            Response.Redirect("../Login.aspx");
+            Response.Redirect("~/Login.aspx");
         }
 
         protected void GridView1_PageIndexChanging1(object sender, GridViewPageEventArgs e)
