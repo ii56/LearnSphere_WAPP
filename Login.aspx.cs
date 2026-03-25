@@ -32,7 +32,7 @@ namespace LearnSphere_WAPP
             {
                 con.Open();
 
-                // Fetch hash by username only
+                // Fetch hash by username only — never include password in the SQL WHERE
                 SqlCommand cmd = new SqlCommand(@"
                     SELECT userid, uname, usertype, fname, pwd
                     FROM [User]
@@ -65,8 +65,8 @@ namespace LearnSphere_WAPP
             }
         }
 
-        // Google Sign-In: looks up the username by the Google email address,
-        // pre-fills the username field and shows a note — the user still enters their password
+        // Google Sign-In: looks up the user by email and logs them in directly —
+        // no password needed because Google already verified their identity
         protected void btnGoogleLoginTrigger_Click(object sender, EventArgs e)
         {
             string googleEmail = hfGoogleUsername.Value.Trim();
@@ -79,20 +79,33 @@ namespace LearnSphere_WAPP
 
             using (SqlConnection con = new SqlConnection(connStr))
             {
-                SqlCommand cmd = new SqlCommand(
-                    "SELECT uname FROM [User] WHERE email=@email AND status='Active'", con);
-                cmd.Parameters.AddWithValue("@email", googleEmail);
                 con.Open();
-                object result = cmd.ExecuteScalar();
 
-                if (result != null)
+                SqlCommand cmd = new SqlCommand(@"
+                    SELECT userid, uname, usertype, fname
+                    FROM [User]
+                    WHERE email = @email AND status = 'Active'", con);
+                cmd.Parameters.AddWithValue("@email", googleEmail);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.Read())
                 {
-                    // Pre-fill the username field so the user only needs to enter their password
-                    uname.Text = result.ToString();
-                    pnlGoogleNote.Visible = true;
+                    // Email matched — create the session and redirect just like a normal login
+                    Session["userid"] = reader["userid"];
+                    Session["uname"] = reader["uname"];
+                    Session["usertype"] = reader["usertype"];
+                    Session["fname"] = reader["fname"];
+
+                    string role = reader["usertype"].ToString();
+                    reader.Close();
+
+                    LearnSphere_WAPP.Syslog.action(Convert.ToInt32(Session["userid"]), "Google Login");
+                    RedirectUser(role);
                 }
                 else
                 {
+                    // No account found for this Google email
                     errMsg.Text = "No account found for this Google email. Please register first.";
                 }
             }
@@ -112,10 +125,10 @@ namespace LearnSphere_WAPP
             switch (role)
             {
                 case "SuperAdmin":
-                case "Admin": Response.Redirect("~/Admin/AdminDashboard.aspx"); break;
-                case "Lecturer": Response.Redirect("~/Lecturer/LecturerDashboard.aspx"); break;
-                case "Student": Response.Redirect("~/Student/StudentDashboard.aspx"); break;
-                case "General": Response.Redirect("~/GeneralUser/GeneralDashboard.aspx"); break;
+                case "Admin": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/Admin/AdminDashboard.aspx"); break;
+                case "Lecturer": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/Lecturer/LecturerDashboard.aspx"); break;
+                case "Student": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/Student/StudentDashboard.aspx"); break;
+                case "General": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/GeneralUser/GeneralDashboard.aspx"); break;
                 default: Response.Redirect("Login.aspx"); break;
             }
         }

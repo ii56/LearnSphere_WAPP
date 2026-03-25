@@ -172,7 +172,6 @@
 <!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-    // Replace with your actual Google Client ID from console.cloud.google.com
     var GOOGLE_CLIENT_ID = '387653567048-qdimnvn7bg13ubpsqoh6bofr4da4ahoq.apps.googleusercontent.com';
 
     // Decodes the base64-encoded JWT payload to extract user info without a server round-trip

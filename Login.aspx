@@ -42,12 +42,6 @@
             <img src='<%= ResolveUrl("~/LEARNSPHERE_sign.png") %>' alt="LearnSphere Logo" class="login-logo" />
         </div>
 
-        <asp:Panel ID="pnlGoogleNote" runat="server" Visible="false">
-            <div class="google-note">
-                ✓ Google account matched — enter your password to continue.
-            </div>
-        </asp:Panel>
-
         <asp:ValidationSummary runat="server" CssClass="error-message" DisplayMode="BulletList" />
 
         <div class="form-group">
@@ -87,7 +81,6 @@
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-    // Replace with your actual Google Client ID from console.cloud.google.com
     var GOOGLE_CLIENT_ID = '387653567048-qdimnvn7bg13ubpsqoh6bofr4da4ahoq.apps.googleusercontent.com';
 
     function decodeJwtPayload(token) {
