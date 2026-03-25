@@ -140,7 +140,7 @@ namespace LearnSphere_WAPP.Admin
                                CASE WHEN f.forumid IS NULL THEN 0 ELSE 1 END AS HasForum
                         FROM Course c
                         LEFT JOIN CourseForum f ON c.courseid = f.courseid 
-                        AND c.status = 'Active'";
+                        WHERE c.status = 'Active'";
 
                     var parameters = new List<SqlParameter>();
 
@@ -853,10 +853,31 @@ namespace LearnSphere_WAPP.Admin
         {
             if (profileImage == null || profileImage == DBNull.Value)
                 return ResolveUrl("~/images/default-user.png");
+
             string path = profileImage.ToString().Trim();
-            if (string.IsNullOrEmpty(path)) return ResolveUrl("~/images/default-user.png");
-            if (path.StartsWith("~/") || path.StartsWith("http")) return ResolveUrl(path);
-            return ResolveUrl("~/" + path);
+
+            if (string.IsNullOrEmpty(path))
+                return ResolveUrl("~/images/default-user.png");
+
+            // Reject paths that try to traverse above the root — ResolveUrl throws on these
+            if (path.StartsWith("..") || path.Contains("/../"))
+                return ResolveUrl("~/images/default-user.png");
+
+            try
+            {
+                if (path.StartsWith("~/") || path.StartsWith("http"))
+                    return ResolveUrl(path);
+
+                if (path.StartsWith("/"))
+                    return path;
+
+                return ResolveUrl("~/" + path);
+            }
+            catch
+            {
+                // If ResolveUrl still fails for any reason, fall back safely
+                return ResolveUrl("~/images/default-user.png");
+            }
         }
 
         protected string FormatTags(object tagObj)
