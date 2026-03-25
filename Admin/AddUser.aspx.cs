@@ -66,6 +66,7 @@ namespace LearnSphere_WAPP.Admin
 
                 con.Open();
                 cmd.ExecuteNonQuery();
+                LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Added new " + newusertype + " user");
                 con.Close();
             }
 

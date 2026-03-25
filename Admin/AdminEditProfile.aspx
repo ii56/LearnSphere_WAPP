@@ -46,9 +46,9 @@
 
             <div class="container">
                 <div class="welcome-banner">
-                    <h2 class="welcome-label">Dashboard Overview</h2>
-                    <asp:Label ID="Label1" runat="server" CssClass="welcome-name" />
-                    <h3 class="welcome-sub">Here's an overview of the admin system</h3>
+                    <h2 class="welcome-label">Admin Portal</h2>
+                        <h2 class="welcome-name">Edit Profile</h2>
+                    <h3 class="welcome-sub">You can edit your profile and password here</h3>
                 </div>
 
                 <asp:Panel runat="server" DefaultButton="btnSave">
