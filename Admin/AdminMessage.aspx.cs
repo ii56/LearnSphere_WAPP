@@ -155,8 +155,8 @@ namespace LearnSphere_WAPP.Admin
                     lblProfileRole.Text = Server.HtmlEncode(dr["usertype"].ToString());
                     lblProfileDesc.Text = Server.HtmlEncode(dr["Description"].ToString());
 
-                    int status = dr["status"] != DBNull.Value ? Convert.ToInt32(dr["status"]) : 0;
-                    lblProfileStatus.Text = status == 1 ? "Active" : "Inactive";
+                    string statusVal = dr["status"] != DBNull.Value ? dr["status"].ToString() : "";
+                    lblProfileStatus.Text = statusVal.Equals("Active", StringComparison.OrdinalIgnoreCase) ? "Active" : "Inactive";
 
                     string finalImageUrl = ResolveUrl("~/images/default-user.png");
 
