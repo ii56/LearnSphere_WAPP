@@ -125,8 +125,9 @@ namespace LearnSphere_WAPP.Admin
             con.Open();
             if (newStatus == "Approved")
             {
-                string query2 = @"UPDATE [User] SET usertype = 'Lecturer' WHERE userid = @userid";
+                string query2 = @"UPDATE [User] SET usertype = @usertype WHERE userid = @userid";
                 SqlCommand cmd2 = new SqlCommand(query2, con);
+                cmd2.Parameters.AddWithValue("@usertype", lblRequestedRole.Text.Trim());
                 cmd2.Parameters.AddWithValue("@userid", userId);
                 cmd2.ExecuteNonQuery();
 

@@ -24,6 +24,51 @@ namespace LearnSphere_WAPP
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
+        /// hfGoogleEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfGoogleEmail;
+
+        /// <summary>
+        /// hfGoogleFname control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfGoogleFname;
+
+        /// <summary>
+        /// hfGoogleLname control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfGoogleLname;
+
+        /// <summary>
+        /// hfIsGoogleSignup control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfIsGoogleSignup;
+
+        /// <summary>
+        /// btnGoogleRegisterTrigger control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnGoogleRegisterTrigger;
+
+        /// <summary>
         /// lblStep control.
         /// </summary>
         /// <remarks>
@@ -69,6 +114,15 @@ namespace LearnSphere_WAPP
         protected global::System.Web.UI.WebControls.Button btnNext1;
 
         /// <summary>
+        /// pnlGoogleSignupBtn control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlGoogleSignupBtn;
+
+        /// <summary>
         /// pnlStep2 control.
         /// </summary>
         /// <remarks>
@@ -78,6 +132,33 @@ namespace LearnSphere_WAPP
         protected global::System.Web.UI.WebControls.Panel pnlStep2;
 
         /// <summary>
+        /// pnlEmailReadonly control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlEmailReadonly;
+
+        /// <summary>
+        /// lblGoogleEmailDisplay control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblGoogleEmailDisplay;
+
+        /// <summary>
+        /// pnlEmailEditable control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlEmailEditable;
+
+        /// <summary>
         /// email control.
         /// </summary>
         /// <remarks>
@@ -85,6 +166,15 @@ namespace LearnSphere_WAPP
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox email;
+
+        /// <summary>
+        /// cvEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CustomValidator cvEmail;
 
         /// <summary>
         /// pwd control.
@@ -193,14 +283,5 @@ namespace LearnSphere_WAPP
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label errMsg;
-
-        /// <summary>
-        /// lnkLogin control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.HyperLink lnkLogin;
     }
 }

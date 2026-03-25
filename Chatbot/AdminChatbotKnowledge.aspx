@@ -282,7 +282,6 @@
 
     <!-- NAV -->
     <div class="nav">
-        <a href="AdminDashboard.aspx"><span>📊</span> Dashboard</a>
         <a href="AdminChatbotKnowledge.aspx" class="active"><span>🤖</span> Chatbot</a>
     </div>
 

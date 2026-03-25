@@ -75,7 +75,8 @@
                 </div>
 
                 <div class="section">
-                    <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" Width="100%" AllowPaging="True" PageSize="8" OnRowCommand="GridView1_RowCommand" OnPageIndexChanging="GridView1_PageIndexChanging">
+                    <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" Width="100%" AllowPaging="True" PageSize="8" 
+                        OnRowCommand="GridView1_RowCommand" OnPageIndexChanging="GridView1_PageIndexChanging">
                         <Columns>
                             <asp:BoundField DataField="courseid" HeaderText="Course ID" ItemStyle-Width="4"/>
                             <asp:BoundField DataField="ownerid" HeaderText="Owner ID" ItemStyle-Width="4%"/>
@@ -88,7 +89,8 @@
                                 <ItemTemplate>
 
                                     <asp:Button ID="btnView" runat="server" class="btn-primary" Text="View" CommandName="ViewCourse" CommandArgument='<%# Eval("courseid") %>' />
-                                    <asp:Button ID="btnDelete" runat="server" class="btn-danger" Text="Delete" CommandName="DeleteCourse" CommandArgument='<%# Eval("courseid") %>' OnClientClick="return confirm('Delete this course?');" />
+                                    <asp:Button ID="btnDelete" runat="server" class="btn-danger" Text="Delete" CommandName="DeleteCourse" CommandArgument='<%# Eval("courseid") %>' 
+                                        OnClientClick="return confirm('Delete this course?');" />
 
                                 </ItemTemplate>
                             </asp:TemplateField>
