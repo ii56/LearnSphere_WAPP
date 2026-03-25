@@ -18,7 +18,7 @@ namespace LearnSphere_WAPP.Admin
         {
             if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
             {
-                Response.Redirect("../Login.aspx");
+                Response.Redirect("~/Login.aspx");
             }
             if (!IsPostBack)
             {
@@ -182,7 +182,7 @@ namespace LearnSphere_WAPP.Admin
             LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Session.Abandon();
             Request.Cookies.Clear();
-            Response.Redirect("../Login.aspx");
+            Response.Redirect("~/Login.aspx");
         }
 
         protected void txtSearch_TextChanged(object sender, EventArgs e)

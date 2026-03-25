@@ -21,7 +21,7 @@ namespace LearnSphere_WAPP.Admin
         {
             if (Session["userid"] == null || (Session["usertype"].ToString() != "Admin" && Session["usertype"].ToString() != "SuperAdmin"))
             {
-                Response.Redirect("../Login.aspx");
+                Response.Redirect("~/Login.aspx");
             }
 
             if (!IsPostBack)
@@ -110,7 +110,7 @@ namespace LearnSphere_WAPP.Admin
 
         protected void btnSave_Click1(object sender, EventArgs e)
         {
-            string folderPath = Server.MapPath("../ProfilePic/");
+            string folderPath = Server.MapPath("~/ProfilePic/");
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
@@ -119,7 +119,7 @@ namespace LearnSphere_WAPP.Admin
             string ImgPath = "";
             if (this.fuProfileImage.HasFile)
             {
-                ImgPath = "../ProfilePic/" + this.fuProfileImage.FileName.ToString();
+                ImgPath = "~/ProfilePic/" + this.fuProfileImage.FileName.ToString();
                 fuProfileImage.SaveAs(folderPath + Path.GetFileName(fuProfileImage.FileName));
             }
             else
@@ -154,7 +154,7 @@ namespace LearnSphere_WAPP.Admin
             LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Session.Abandon();
             Request.Cookies.Clear();
-            Response.Write("<script>alert('Password Updated'); window.location='../Login.aspx';</script>");
+            Response.Write("<script>alert('Password Updated'); window.location='~/Login.aspx';</script>");
         }
 
         protected void btnLogout_Click(object sender, EventArgs e)
@@ -162,7 +162,7 @@ namespace LearnSphere_WAPP.Admin
             LearnSphere_WAPP.Syslog.action(int.Parse(Session["userid"].ToString()), "Logout system");
             Session.Abandon();
             Request.Cookies.Clear();
-            Response.Redirect("../Login.aspx");
+            Response.Redirect("~/Login.aspx");
         }
 
         protected void LinkButton1_Click(object sender, EventArgs e)
