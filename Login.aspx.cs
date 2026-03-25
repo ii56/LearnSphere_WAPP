@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 using BCrypt.Net;
 
 namespace LearnSphere_WAPP
 {
     public partial class Login : System.Web.UI.Page
     {
+        string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -25,46 +23,35 @@ namespace LearnSphere_WAPP
             }
         }
 
+        // Standard username + password login
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            if (!Page.IsValid)
-                return;
-
-            string connStr = ConfigurationManager.ConnectionStrings["LearnSphereDB"].ConnectionString;
+            if (!Page.IsValid) return;
 
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
 
-                // Fetch the stored hash by username only (never pass the password to SQL)
-                string query = @"SELECT userid, uname, usertype, pwd
-                                 FROM [User]
-                                 WHERE LOWER(uname) = LOWER(@uname)
-                                 AND status = 'Active'";
-
-                SqlCommand cmd = new SqlCommand(query, con);
+                // Fetch hash by username only
+                SqlCommand cmd = new SqlCommand(@"
+                    SELECT userid, uname, usertype, fname, pwd
+                    FROM [User]
+                    WHERE LOWER(uname) = LOWER(@uname) AND status = 'Active'", con);
                 cmd.Parameters.AddWithValue("@uname", uname.Text.Trim());
 
                 SqlDataReader reader = cmd.ExecuteReader();
-
                 if (reader.Read())
                 {
                     string storedHash = reader["pwd"].ToString();
-                    string enteredPass = pwd.Text.Trim();
+                    bool valid = BCrypt.Net.BCrypt.Verify(pwd.Text.Trim(), storedHash);
 
-                    // VERIFY the entered password against the stored BCrypt hash
-                    bool passwordValid = BCrypt.Net.BCrypt.Verify(enteredPass, storedHash);
-
-                    if (passwordValid)
+                    if (valid)
                     {
-                        Session["userid"] = reader["userid"];
-                        Session["uname"] = reader["uname"];
-                        Session["usertype"] = reader["usertype"];
-
-                        string usertype = reader["usertype"].ToString();
+                        SetSession(reader);
+                        string role = reader["usertype"].ToString();
                         reader.Close();
-
-                        RedirectUser(usertype);
+                        LearnSphere_WAPP.Syslog.action(Convert.ToInt32(Session["userid"]), "Login");
+                        RedirectUser(role);
                     }
                     else
                     {
@@ -78,33 +65,58 @@ namespace LearnSphere_WAPP
             }
         }
 
+        // Google Sign-In: looks up the username by the Google email address,
+        // pre-fills the username field and shows a note — the user still enters their password
+        protected void btnGoogleLoginTrigger_Click(object sender, EventArgs e)
+        {
+            string googleEmail = hfGoogleUsername.Value.Trim();
+
+            if (string.IsNullOrEmpty(googleEmail))
+            {
+                errMsg.Text = "Could not retrieve your Google account details. Please try again.";
+                return;
+            }
+
+            using (SqlConnection con = new SqlConnection(connStr))
+            {
+                SqlCommand cmd = new SqlCommand(
+                    "SELECT uname FROM [User] WHERE email=@email AND status='Active'", con);
+                cmd.Parameters.AddWithValue("@email", googleEmail);
+                con.Open();
+                object result = cmd.ExecuteScalar();
+
+                if (result != null)
+                {
+                    // Pre-fill the username field so the user only needs to enter their password
+                    uname.Text = result.ToString();
+                    pnlGoogleNote.Visible = true;
+                }
+                else
+                {
+                    errMsg.Text = "No account found for this Google email. Please register first.";
+                }
+            }
+        }
+
+        // Stores user info in session after a successful login
+        private void SetSession(SqlDataReader reader)
+        {
+            Session["userid"] = reader["userid"];
+            Session["uname"] = reader["uname"];
+            Session["usertype"] = reader["usertype"];
+            Session["fname"] = reader["fname"];
+        }
+
         private void RedirectUser(string role)
         {
             switch (role)
             {
                 case "SuperAdmin":
-                    Syslog.action(int.Parse(Session["userid"].ToString()), "Login");
-                    Response.Redirect("~/Admin/AdminDashboard.aspx");
-                    break;
-                case "Admin":
-                    Syslog.action(int.Parse(Session["userid"].ToString()), "Login");
-                    Response.Redirect("~/Admin/AdminDashboard.aspx");
-                    break;
-                case "Lecturer":
-                    Syslog.action(int.Parse(Session["userid"].ToString()), "Login");
-                    Response.Redirect("~/Lecturer/LecturerDashboard.aspx");
-                    break;
-                case "Student":
-                    Syslog.action(int.Parse(Session["userid"].ToString()), "Login");
-                    Response.Redirect("~/Student/StudentDashboard.aspx");
-                    break;
-                case "General":
-                    Syslog.action(int.Parse(Session["userid"].ToString()), "Login");
-                    Response.Redirect("~/GeneralUser/GeneralDashboard.aspx");
-                    break;
-                default:
-                    Response.Redirect("Login.aspx");
-                    break;
+                case "Admin": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/Admin/AdminDashboard.aspx"); break;
+                case "Lecturer": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/Lecturer/LecturerDashboard.aspx"); break;
+                case "Student": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/Student/StudentDashboard.aspx"); break;
+                case "General": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/GeneralUser/GeneralDashboard.aspx"); break;
+                default: Response.Redirect("Login.aspx"); break;
             }
         }
     }
