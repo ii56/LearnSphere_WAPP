@@ -187,15 +187,15 @@
                 <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="btn-logout" OnClick="btnLogout_Click" />
             </div>
         </div>
-        <div class="nav">
-            <a href="StudentDashboard.aspx"><span>📊</span> Dashboard</a>
-            <a href="BrowseCourses.aspx"><span>📚</span> Browse Courses</a>
-            <a href="MyCourses.aspx"><span>🎓</span> My Courses</a>
-            <a href="Gamification.aspx"><span>🏆</span> Achievements</a>
-            <a href="Forums.aspx" class="active"><span>💬</span> Forums</a>
-            <a href="Messaging.aspx"><span>✉️</span> Messages</a>
-            <a href="StudentProfile.aspx"><span>👤</span> Profile</a>
-        </div>
+<div class="nav">
+    <a href="StudentDashboard.aspx"><span>📊</span> Dashboard</a>
+    <a href="BrowseCourses.aspx"><span>📚</span> Browse Courses</a>
+    <a href="MyCourses.aspx"><span>🎓</span> My Courses</a>
+    <a href="Gamification.aspx"><span>🏆</span> Achievements</a>
+    <a href="StudentProfile.aspx"><span>👤</span> Profile</a>
+    <a href="Forums.aspx" class="active"><span>💬</span> Forums</a>
+    <a href="Messaging.aspx"><span>✉️</span> Messages</a>
+</div>
         <div class="container">
             <div class="page-header">
                 <div class="page-header-label">Community</div>
