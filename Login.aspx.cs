@@ -112,10 +112,10 @@ namespace LearnSphere_WAPP
             switch (role)
             {
                 case "SuperAdmin":
-                case "Admin": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/Admin/AdminDashboard.aspx"); break;
-                case "Lecturer": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/Lecturer/LecturerDashboard.aspx"); break;
-                case "Student": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/Student/StudentDashboard.aspx"); break;
-                case "General": Syslog.action(int.Parse(Session["userid"].ToString()), "Login"); Response.Redirect("~/GeneralUser/GeneralDashboard.aspx"); break;
+                case "Admin": Response.Redirect("~/Admin/AdminDashboard.aspx"); break;
+                case "Lecturer": Response.Redirect("~/Lecturer/LecturerDashboard.aspx"); break;
+                case "Student": Response.Redirect("~/Student/StudentDashboard.aspx"); break;
+                case "General": Response.Redirect("~/GeneralUser/GeneralDashboard.aspx"); break;
                 default: Response.Redirect("Login.aspx"); break;
             }
         }
