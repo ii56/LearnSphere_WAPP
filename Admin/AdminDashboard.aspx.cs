@@ -33,9 +33,8 @@ namespace LearnSphere_WAPP.Admin
                 lblTotalLecturers.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where usertype = 'Lecturer' and not status = 'Deleted'", con).ExecuteScalar().ToString();
                 lblTotalCourses.Text = new SqlCommand("SELECT COUNT(*) FROM Course", con).ExecuteScalar().ToString();
                 lblTotalForums.Text = new SqlCommand("SELECT COUNT(*) FROM ForumPost", con).ExecuteScalar().ToString();
-                lecturersVal.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where status = 'Pending' and usertype = 'Lecturer'", con).ExecuteScalar().ToString();
-                studentsVal.Text = new SqlCommand("SELECT COUNT(*) FROM [User] where status = 'Pending' and usertype = 'Student'", con).ExecuteScalar().ToString();
-                coursesVal.Text = new SqlCommand("SELECT COUNT(*) FROM course where status = 'Pending'", con).ExecuteScalar().ToString();
+                lecturersVal.Text = new SqlCommand("SELECT COUNT(*) FROM VerificationRequest where status = 'Pending' and requestedrole = 'Lecturer'", con).ExecuteScalar().ToString();
+                studentsVal.Text = new SqlCommand("SELECT COUNT(*) FROM VerificationRequest where status = 'Pending' and requestedrole = 'Student'", con).ExecuteScalar().ToString();
 
                 con.Close();
             }
