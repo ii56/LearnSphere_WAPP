@@ -140,7 +140,7 @@ namespace LearnSphere_WAPP.Admin
                                CASE WHEN f.forumid IS NULL THEN 0 ELSE 1 END AS HasForum
                         FROM Course c
                         LEFT JOIN CourseForum f ON c.courseid = f.courseid 
-                        AND c.status = 'Active'";
+                        WHERE c.status = 'Active'";
 
                     var parameters = new List<SqlParameter>();
 
